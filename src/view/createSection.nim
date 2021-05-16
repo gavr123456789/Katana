@@ -1,8 +1,8 @@
-import gintro/[gtk4, gobject, gio]
+import gintro/[gtk4]
 import std/with
 import createSlot
 
-proc createListBox*(names: seq[string]): Frame =
+proc createSection*(names: seq[string]): Frame =
   let
     frame = newFrame()
     listBox = newListBox()

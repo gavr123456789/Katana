@@ -1,7 +1,6 @@
-import gintro/[gtk4, gobject, gio]
+import gintro/[gtk4]
 import std/with
 import createSection
-
 
 proc activate*(app: gtk4.Application) =
   let
@@ -26,7 +25,7 @@ proc activate*(app: gtk4.Application) =
     marginEnd = 60
     marginTop = 30
     marginBottom = 30
-    append createListBox(@["a", "b", "c", "d"])
+    append createSection(@["a", "b", "c", "d"])
 
   with window:
     title = "Katana"

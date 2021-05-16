@@ -1,4 +1,4 @@
-import gintro/[gtk4, gobject, gio]
+import gintro/[gtk4]
 import std/with
 
 proc createSlot*(text: string): gtk4.Box = 
