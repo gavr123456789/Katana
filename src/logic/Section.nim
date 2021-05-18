@@ -2,8 +2,8 @@ import Slot
 
 type
   Section* = ref object
-    slots: seq[Slot]
-    selected_slot: int # -1 no selected
+    slots*: seq[Slot]
+    selected_slot*: int # -1 no selected
 
 func newSection*(slots: seq[Slot]): Section = 
   result = Section()

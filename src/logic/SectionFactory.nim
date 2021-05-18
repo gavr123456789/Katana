@@ -1,8 +1,9 @@
 import os, sequtils
 import Slot
+import Section
 
 # функция принимает путь и возвращает seq слотов
-proc dir_view*(start_dir_path: string, hidden: bool): seq[Slot] =
+proc dir_view*(start_dir_path: string, hidden: bool): Section =
   debugEcho "start dir = ", start_dir_path
   var files_list: seq[Slot]
   var dirs_list: seq[Slot]
@@ -23,9 +24,10 @@ proc dir_view*(start_dir_path: string, hidden: bool): seq[Slot] =
         of pcFile, pcLinkToFile:
           files_list.add path.splitFile()
   
-  result = dirs_list.concat files_list
+  let allSlots = dirs_list.concat files_list
+  let section = newSection(allSlots)
+  result = section
 
 when isMainModule:
   let sas = dir_view(os.getCurrentDir().parentDir(), true)
   
-  echo sas
