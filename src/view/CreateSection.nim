@@ -11,12 +11,12 @@ var last_activated_row: Image
 proc row_activated_cb(self: ListBox, row: ListBoxRow) =
   
   let icon = row.getChild().Box.getLastChild().Image
-
+  
   icon.setFromIconName(FOLDER_OPEN)
-
+  
   if last_activated_row != nil: 
     last_activated_row.setFromIconName(FOLDER_CLOSED)
-
+  
   last_activated_row = icon
   debugecho "row_activated_cb"
 
