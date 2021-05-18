@@ -1,6 +1,7 @@
 import gintro/[gtk4, gobject]
 import std/with, std/tables
 import CreateSlot
+import ../logic/Slot
 
 const FOLDER_OPEN = "folder-open-symbolic"
 const FOLDER_CLOSED = "gnome-folder-symbolic"
@@ -19,7 +20,7 @@ proc row_activated_cb(self: ListBox, row: ListBoxRow) =
   last_activated_row = icon
   debugecho "row_activated_cb"
 
-proc createSection*(names: seq[string]): Frame =
+proc createSection*(slots: seq[Slot]): Frame =
   let
     frame = newFrame()
     listBox = newListBox()
@@ -33,8 +34,8 @@ proc createSection*(names: seq[string]): Frame =
   
   listBox.connect("row-activated", row_activated_cb)
 
-  for name in names:
-    listBox.append createSlot(name)
+  for slot in slots:
+    listBox.append createSlot(slot.name)
 
   frame.child = listBox
   result = frame

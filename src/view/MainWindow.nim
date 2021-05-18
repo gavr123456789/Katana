@@ -1,18 +1,30 @@
 import gintro/[gtk4, adw]
 import std/with
 import CreateSection
-
+import ../logic/Slot
+import mock
+import ../logic/SectionFactory
+import os
 
 const N_PAGES = 5
 
-proc createPage(num: int): Widget = createSection(@["folder", "folder", "folder", "file"]) 
+type 
+  State = ref object
+    carousel: Carousel
+
+proc createPage(num: int): Widget = createSection(dir_view(os.getHomeDir(), true)) 
+
 
 proc setupCarousel(): Carousel =
-  result = newCarousel()
-  result.interactive = true
-  result.allowMouseDrag = true
+  var carousel = newCarousel()
+  echo carousel != nil
+  carousel.interactive = true
+  carousel.allowMouseDrag = true
   for i in 0 ..< N_PAGES:
-    result.prepend (createPage (i))
+    carousel.prepend (createPage (i))
+  return carousel
+
+var state = State()
 
 proc activate*(app: Application) =
   let
@@ -24,6 +36,7 @@ proc activate*(app: Application) =
     mainBox = newBox(Orientation.vertical, 10)
     carousel = setupCarousel()
     header = adw.newHeaderBar()
+  state.carousel = setupCarousel()
 
   header.showStartTitleButtons = true
   carousel.vexpand = true
@@ -55,4 +68,4 @@ proc activate*(app: Application) =
     defaultSize = (400, 600)
     setChild scrolledWindow
     show
-
+  
