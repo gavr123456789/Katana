@@ -1,8 +1,9 @@
-import gintro/[gtk4, adw]
+import gintro/[gtk4, adw, gobject]
 import SectionManager
 import ../view/SectionView
 import SectionFactory
 import Section
+import ../view/utils
 import std/with, os, tables
 
 type 
@@ -14,7 +15,7 @@ type
 
 var stateMW*: MainWindowState
 
-
+var pageCounter: int = 0
 proc row_activated_cb(self: ListBox, row: ListBoxRow);
 
 proc createPage(path: string): ScrolledWindow = 
@@ -22,8 +23,8 @@ proc createPage(path: string): ScrolledWindow =
 
   let
     scrolledWindow = newScrolledWindow()
-    content = createSection(dir_view(path, true))
-
+    content = createSection(dir_view(path, true, pageCounter))
+  inc(pageCounter)
   with scrolledWindow:
     setChild content
     kineticScrolling = true
@@ -57,6 +58,8 @@ proc row_activated_cb(self: ListBox, row: ListBoxRow) =
   
   if last_activated_row != nil: 
     last_activated_row.setFromIconName(FOLDER_CLOSED)
+  
+  echoIntPtr self.getData("num")
   
   last_activated_row = icon
   

@@ -3,7 +3,7 @@ import std/with, os
 # import SectionView
 # import ../logic/Slot
 # import ../logic/Section
-import ../logic/SectionManager
+# import ../logic/SectionManager
 import ../logic/SectionFactory
 import ../logic/MainWindowState
 
@@ -19,7 +19,7 @@ proc activate*(app: Application) =
     mainBox = newBox(Orientation.vertical, 10)
     header = adw.newHeaderBar()
 
-  let firstSection = dir_view(os.getHomeDir(), SHOT_HIDDEN)
+  let firstSection = dir_view(os.getHomeDir(), SHOT_HIDDEN, 0)
   stateMW = newMainWindowState(firstSection)
 
   header.showStartTitleButtons = true

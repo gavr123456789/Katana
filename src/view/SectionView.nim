@@ -3,17 +3,25 @@ import std/with, std/tables
 import SlotView
 import ../logic/Slot
 import ../logic/Section
-import sugar
 
 
 var callBackFunc*: proc (self: ListBox, row: ListBoxRow)
-# Структура данных в которой есть ссылки на виджеты к номерам какие они по счету
+
+var r: ref int 
+new(r)
+
+r[] = 3344
+# let p = cast[ptr int](r)
+let p = addr r[]
+echo p[]
 
 proc createSection*(section: Section): Frame =
   let
     frame = newFrame()
     listBox = newListBox()
-
+  listBox.setData("num", cast[ptr int](r))
+  let intPtr = listBox.getData("num")
+  echo (cast[ptr int](intPtr))[] 
   with listBox:
     selectionMode = SelectionMode.single
     showSeparators = true

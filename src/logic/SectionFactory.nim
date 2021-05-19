@@ -3,7 +3,7 @@ import Slot
 import Section
 
 # функция принимает путь и возвращает seq слотов
-proc dir_view*(start_dir_path: string, hidden: bool): Section =
+proc dir_view*(start_dir_path: string, hidden: bool, num_in_manager: int): Section =
   debugEcho "start dir = ", start_dir_path
   var files_list: seq[Slot]
   var dirs_list: seq[Slot]
@@ -25,9 +25,9 @@ proc dir_view*(start_dir_path: string, hidden: bool): Section =
           files_list.add path.splitFile()
   
   let allSlots = dirs_list.concat files_list
-  let section = newSection(allSlots)
+  let section = newSection(allSlots, num_in_manager)
   result = section
 
 when isMainModule:
-  let sas = dir_view(os.getCurrentDir().parentDir(), true)
+  let sas = dir_view(os.getCurrentDir().parentDir(), true, 0)
   

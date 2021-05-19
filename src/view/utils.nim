@@ -22,3 +22,6 @@ proc setEndRowParams*(widget: Widget) =
 proc hash*(w: Widget): Hash = 
   result =  cast[Hash](cast[uint](w) shr 3)
   echo result
+
+proc echoIntPtr*(intPtr: pointer) = 
+  echo (cast[ptr int](intPtr))[] 
