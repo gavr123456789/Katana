@@ -17,6 +17,9 @@ func add_slot*(section: Section, slot: Slot) =
 func delete_slot_by_index*(section: Section, n: int) = 
   section.slots.delete n
 
+func get_selected_slot_path*(section: Section): string =
+  return section.slots[section.selected_slot].get_full_path()
+
 # UTILS
 proc pretty_print*(section: Section) =
   debugEcho "section slots count: ", section.slots.len

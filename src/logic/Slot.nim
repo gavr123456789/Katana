@@ -16,9 +16,5 @@ func get_full_path*(slot: Slot): string =
   of JSONFILE: ""
   of JSONNODE: ""
  
-  # slot.dir & slot.name & slot.ext
-
-
 proc pretty_print*(slot: Slot) =
-
   echo "slot type of ", slot.get_type, " with name: ", slot.name

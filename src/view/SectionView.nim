@@ -7,7 +7,7 @@ import sugar
 
 
 var callBackFunc*: proc (self: ListBox, row: ListBoxRow)
-
+# Структура данных в которой есть ссылки на виджеты к номерам какие они по счету
 
 proc createSection*(section: Section): Frame =
   let
