@@ -21,6 +21,8 @@ proc activate*(app: Application) =
 
   let firstSection = dir_view(os.getHomeDir(), SHOT_HIDDEN, 0)
   stateMW = newMainWindowState(firstSection)
+  echo "stateMW are initialized"
+  echo(stateMW == nil)
 
   header.showStartTitleButtons = true
 

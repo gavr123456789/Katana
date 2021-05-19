@@ -10,15 +10,19 @@ var callBackFunc*: proc (self: ListBox, row: ListBoxRow)
 var r: ref int 
 new(r)
 
-r[] = 3344
 # let p = cast[ptr int](r)
-let p = addr r[]
-echo p[]
+# let p = addr r[]
+# echo p[]
 
-proc createSection*(section: Section): Frame =
+proc createSection*(section: Section, num: int): Frame =
   let
     frame = newFrame()
     listBox = newListBox()
+
+  var r: ref int 
+  new(r)
+  r[] = num
+  
   listBox.setData("num", cast[ptr int](r))
   let intPtr = listBox.getData("num")
   echo (cast[ptr int](intPtr))[] 

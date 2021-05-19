@@ -20,10 +20,14 @@ proc row_activated_cb(self: ListBox, row: ListBoxRow);
 
 proc createPage(path: string): ScrolledWindow = 
   SectionView.callBackFunc = row_activated_cb
+  echo "createPage"
+  echo(stateMW == nil)
+
 
   let
     scrolledWindow = newScrolledWindow()
-    content = createSection(dir_view(path, true, pageCounter))
+    content = createSection(dir_view(path, true, pageCounter), pageCounter)
+  
   inc(pageCounter)
   with scrolledWindow:
     setChild content
@@ -33,6 +37,7 @@ proc createPage(path: string): ScrolledWindow =
   return scrolledWindow
 
 proc setupCarousel*(): Carousel =
+  echo "setupCarousel"
   var carousel = newCarousel()
   carousel.interactive = true
   carousel.allowMouseDrag = true
@@ -62,7 +67,7 @@ proc row_activated_cb(self: ListBox, row: ListBoxRow) =
   echoIntPtr self.getData("num")
   
   last_activated_row = icon
-  
+  stateMW.carousel.prepend (createPage(os.getHomeDir()))
   # state.carousel.addNewSection()
   debugEcho "row_activated_cb"
 
@@ -73,7 +78,7 @@ proc newMainWindowState*(firstSection: Section): MainWindowState =
     carousel = setupCarousel()
     sectionManager = newSectionManager(firstSection)
     
-  mainState.carousel = setupCarousel()
-  mainState.sectionManager = newSectionManager(firstSection)
+  # mainState.carousel = setupCarousel()
+  # mainState.sectionManager = newSectionManager(firstSection)
   mainState.carousel.vexpand = true
   result = mainState

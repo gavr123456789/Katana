@@ -25,7 +25,7 @@ proc dir_view*(start_dir_path: string, hidden: bool, num_in_manager: int): Secti
           files_list.add path.splitFile()
   
   let allSlots = dirs_list.concat files_list
-  let section = newSection(allSlots, num_in_manager)
+  let section = newSection(allSlots)
   result = section
 
 when isMainModule:

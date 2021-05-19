@@ -6,11 +6,11 @@ type
     selected_slot*: int # -1 no selected
     num_in_manager*: int
 
-func newSection*(slots: seq[Slot], num_in_manager: int): Section = 
+func newSection*(slots: seq[Slot]): Section = 
   result = Section()
   result.selected_slot = -1
   result.slots = slots
-  result.num_in_manager = num_in_manager
+  # result.num_in_manager = num_in_manager
 
 # SLOT CONTROL
 func add_slot*(section: Section, slot: Slot) = 
@@ -35,7 +35,7 @@ proc construct_test_section*(n: int): Section =
   var slots: seq[Slot]
   slots.add (dir: "home/gavr", name: "folder" & $n, ext: "")
   slots.add (dir: "home/gavr", name: "file", ext: ".json")
-  return newSection(slots, 0)
+  return newSection(slots)
 
 proc print_test() =
   let section = construct_test_section(0)
