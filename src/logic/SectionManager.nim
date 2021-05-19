@@ -8,7 +8,7 @@ type
     current_section: int
     file_content_section: int # с какой секции начинается контент
 
-proc newSectionManager(start_section: Section): SectionManager =
+proc newSectionManager*(start_section: Section): SectionManager =
   result = SectionManager()
   result.current_section = 0
   result.file_content_section = -1
@@ -27,6 +27,7 @@ proc pretty_print*(sectionManager: SectionManager) =
     echo "section №", i
     section.pretty_print()
     
+
 # TESTS
 func construct_test_section_manager(): SectionManager =
   var sas: seq[Section]

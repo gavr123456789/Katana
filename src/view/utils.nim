@@ -1,5 +1,5 @@
 import gintro/[gtk4]
-import std/with
+import std/with, hashes
 
 proc setStartRowParams*(widget: gtk4.Widget) =
   when widget is Label:
@@ -18,3 +18,7 @@ proc setEndRowParams*(widget: Widget) =
     halign = Align.end
     valign = Align.center
     hexpand = true
+  
+proc hash*(w: Widget): Hash = 
+  result =  cast[Hash](cast[uint](w) shr 3)
+  echo result

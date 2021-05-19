@@ -1,12 +1,13 @@
 import gintro/[gtk4, adw]
-import std/with
-import SectionView
+import std/with, os
+# import SectionView
 # import ../logic/Slot
-import ../logic/Section
+# import ../logic/Section
 import ../logic/SectionManager
 import ../logic/SectionFactory
 import ../logic/MainWindowState
 
+const SHOT_HIDDEN = false
 
 proc activate*(app: Application) =
   let
@@ -18,12 +19,11 @@ proc activate*(app: Application) =
     mainBox = newBox(Orientation.vertical, 10)
     header = adw.newHeaderBar()
 
-  stateMW.carousel = setupCarousel()
-  stateMW.carousel2 = setupCarousel()
+  let firstSection = dir_view(os.getHomeDir(), SHOT_HIDDEN)
+  stateMW = newMainWindowState(firstSection)
 
   header.showStartTitleButtons = true
-  stateMW.carousel.vexpand = true
-  stateMW.carousel2.vexpand = true
+
 
   # window
   #   adwBox
@@ -54,7 +54,7 @@ proc activate*(app: Application) =
     marginTop = 30
     marginBottom = 30
     append stateMW.carousel
-    append stateMW.carousel2
+    # append stateMW.carousel2
 
   with window:
     title = "Katana"

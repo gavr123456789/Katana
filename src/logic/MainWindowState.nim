@@ -3,20 +3,21 @@ import SectionManager
 import ../view/SectionView
 import SectionFactory
 import Section
-import std/with, os
+import std/with, os, tables
 
 type 
   MainWindowState* = ref object
     carousel*: Carousel
     sectionManager*: SectionManager
-    carousel2*: Carousel
+    sas: Table[ListBox, int]
+    # carousel2*: Carousel
 
-var stateMW* = MainWindowState()
+var stateMW*: MainWindowState
 
 
 proc row_activated_cb(self: ListBox, row: ListBoxRow);
 
-proc createPage(path: string): Widget = 
+proc createPage(path: string): ScrolledWindow = 
   SectionView.callBackFunc = row_activated_cb
 
   let
@@ -63,5 +64,13 @@ proc row_activated_cb(self: ListBox, row: ListBoxRow) =
   debugEcho "row_activated_cb"
 
 
-func newMainWindowState(): MainWindowState = 
-  result
+proc newMainWindowState*(firstSection: Section): MainWindowState = 
+  let mainState = MainWindowState()
+  with mainState:
+    carousel = setupCarousel()
+    sectionManager = newSectionManager(firstSection)
+    
+  mainState.carousel = setupCarousel()
+  mainState.sectionManager = newSectionManager(firstSection)
+  mainState.carousel.vexpand = true
+  result = mainState
