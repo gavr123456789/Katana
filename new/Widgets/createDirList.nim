@@ -1,0 +1,51 @@
+import gintro/[gtk4, gobject, gio]
+import std/with
+import carouselWidget, row_widget
+
+proc getFileName(info: gio.FileInfo): string =
+  return info.getName()  
+
+proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
+  listitem.setChild(createRowWidget(0, ""))
+  
+  # listitem.setChild(newButton(""))
+  
+proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, path: string) =
+  echo path
+  let 
+    row = listitem.getChild().Row
+    fileInfo = cast[FileInfo](listitem.getItem())
+    # data: CustomData()
+
+  row.btn1.connect("clicked", openFileCb, path & fileInfo.getName())
+  row.btn1.label = fileInfo.getName()
+  row.info = fileInfo
+
+proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
+  echo "unbind"
+
+proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
+  listitem.setChild (nil)
+
+proc createDirList*(dir: string): ListView =
+  let
+    file = gio.newGFileForPath(dir)
+    dl = gtk4.newDirectoryList("standard::name", file)
+    ls = listModel(dl)
+    ns = gtk4.newMultiSelection(ls)
+    factory = gtk4.newSignalListItemFactory()
+    lv = newListView(ns, factory)
+
+  # lv.enableRubberband = true
+  
+  
+  # lv.setCssClasses("rich-list")
+  dl.setMonitored true
+
+  with factory:
+    connect("setup", setup_cb)
+    connect("bind", bind_cb, dl.getFile().getPath())
+    connect("unbind", unbind_cb)
+    connect("teardown", teardown_cb)
+
+  return lv
