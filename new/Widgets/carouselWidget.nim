@@ -1,12 +1,13 @@
 import gintro/[gtk4, gobject, gio, adw]
 import std/with
 
-proc packToBoxRow(widget: Widget): Widget {.inline.} = 
-  let
-    a = newListBoxRow()
-  a.setChild(widget)
-  return a
+var carouselGb*: Carousel
 
+
+type
+  CustomData* = object
+    carousel*: Carousel
+    path*: string
 
 proc createCarousel*(widget: Widget): Carousel =
   result = newCarousel()
@@ -14,3 +15,8 @@ proc createCarousel*(widget: Widget): Carousel =
   result.allowMouseDrag = true
   # for i in 0 ..< N_PAGES:
   result.append (widget)
+
+proc openFileCb*(self: Button, path: string ) =
+  
+  echo path
+  
