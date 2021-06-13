@@ -2,22 +2,25 @@ import gintro/[gtk4, gobject, gio]
 import std/with
 import carouselWidget, row_widget
 
+
+
 proc getFileName(info: gio.FileInfo): string =
   return info.getName()  
 
+### FABRIC
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild(createRowWidget(0, ""))
   
   # listitem.setChild(newButton(""))
   
-proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, path: string) =
-  echo path
+proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathAndNum: PathAndNum) =
+  echo pathAndNum.path
   let 
     row = listitem.getChild().Row
     fileInfo = cast[FileInfo](listitem.getItem())
     # data: CustomData()
 
-  row.btn1.connect("clicked", openFileCb, path & fileInfo.getName())
+  row.btn1.connect("clicked", openFileCb, (pathAndNum.num, pathAndNum.path & fileInfo.getName()))
   row.btn1.label = fileInfo.getName()
   row.info = fileInfo
 
@@ -27,7 +30,7 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild (nil)
 
-proc createDirList*(dir: string): ListView =
+proc createDirList*(dir: string, num: int): ListView =
   let
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("standard::name", file)
@@ -44,7 +47,7 @@ proc createDirList*(dir: string): ListView =
 
   with factory:
     connect("setup", setup_cb)
-    connect("bind", bind_cb, dl.getFile().getPath())
+    connect("bind", bind_cb, ( num: num, path: dl.getFile().getPath()) )
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
 

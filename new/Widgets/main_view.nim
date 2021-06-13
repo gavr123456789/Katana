@@ -17,7 +17,7 @@ proc activate(app: gtk4.Application) =
     header = adw.newHeaderBar()
     adwBox = newBox(Orientation.vertical, 0)
     # frame = newFrame()
-    listView = createDirList("/").inToScroll
+    listView = createDirList("/", 0).inToScroll
     # scr = newScrolledWindow()
 
     mainBox = newBox(Orientation.vertical, 10)
@@ -26,7 +26,6 @@ proc activate(app: gtk4.Application) =
     # viewPort = newViewport()
 
 
-  # carouselGb.append createDirList(".")
   carouselGb.vexpand = true
   # carouselGb.hexpand = true
   # frame.child = listView
