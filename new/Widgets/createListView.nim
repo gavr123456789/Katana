@@ -71,6 +71,6 @@ proc openFileCb(self: Button, pathAndNum: PathAndNum ) =
   scrolledPage.child = page
   # создать карусель с этим
   carouselGb.append(scrolledPage)
-  # удалить все страницы до той с которой нажали
+  # удалить все страницы до той с которой нажали и перейти на новую.
   # carouselGb.removeLastNPages(pathAndNum.num) # TODO вылет
   # carouselGb.

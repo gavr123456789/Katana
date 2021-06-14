@@ -5,9 +5,9 @@ import carouselWidget, row_widget, createListView
 
 proc inToScroll(widget: Widget): ScrolledWindow =
   result = newScrolledWindow()
-  result.minContentHeight = 200
+  result.minContentWidth = 200
   result.vexpand = true
-  result.hexpand = true
+  # result.hexpand = true
   result.child = widget
 
 
@@ -27,13 +27,13 @@ proc activate(app: gtk4.Application) =
     marginEnd = 60
     marginTop = 30
     marginBottom = 30
-    hexpand = true
-    vexpand= true
+    # hexpand = true
+    # vexpand= true
     append carouselGb
 
   with adwBox:
-    hexpand= true
-    vexpand= true
+    # hexpand= true
+    # vexpand= true
     append header 
     append mainBox
 
