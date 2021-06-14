@@ -67,8 +67,10 @@ proc openFileCb(self: Button, pathAndNum: PathAndNum ) =
   echo pathAndNum.path
   # Создать page с сурсом path
   let page = createListView(pathAndNum.path, pathAndNum.num + 1)
+  let scrolledPage = newScrolledWindow()
+  scrolledPage.child = page
   # создать карусель с этим
-  carouselGb.append(page)
+  carouselGb.append(scrolledPage)
   # удалить все страницы до той с которой нажали
   # carouselGb.removeLastNPages(pathAndNum.num) # TODO вылет
   # carouselGb.
