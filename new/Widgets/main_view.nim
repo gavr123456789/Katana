@@ -1,6 +1,6 @@
 import gintro/[adw, gtk4, gobject, gio]
 import std/with
-import carouselWidget, row_widget, createDirList
+import carouselWidget, row_widget, createListView
 
 
 proc inToScroll(widget: Widget): ScrolledWindow =
@@ -16,19 +16,11 @@ proc activate(app: gtk4.Application) =
     window = adw.newApplicationWindow(app)
     header = adw.newHeaderBar()
     adwBox = newBox(Orientation.vertical, 0)
-    # frame = newFrame()
-    listView = createDirList("/", 0).inToScroll
-    # scr = newScrolledWindow()
-
+    listView = createListView("/", 0).inToScroll
     mainBox = newBox(Orientation.vertical, 10)
-    # labelGroup1 = newLabel("Group 1")
+
   carouselGb = createCarousel(listView)
-    # viewPort = newViewport()
-
-
   carouselGb.vexpand = true
-  # carouselGb.hexpand = true
-  # frame.child = listView
     
   with mainBox:
     marginStart = 60
@@ -37,15 +29,7 @@ proc activate(app: gtk4.Application) =
     marginBottom = 30
     hexpand = true
     vexpand= true
-    # append frame
     append carouselGb
-
-  
-  # with scr:
-    # hexpand = true
-    # vexpand = false
-    # minContentHeight = 200
-    # child = mainBox
 
   with adwBox:
     hexpand= true

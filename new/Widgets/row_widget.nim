@@ -1,5 +1,6 @@
 import gintro/[gtk4, gobject, gio]
 import std/with
+import types
 
 type 
   Row* {.requiresInit.} = ref object of Box 
@@ -22,3 +23,4 @@ proc createRowWidget*(pageNum: int, name: string): Row =
     pageNum = pageNum
     # info = info
   result = row
+

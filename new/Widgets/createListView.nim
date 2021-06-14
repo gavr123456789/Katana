@@ -1,11 +1,17 @@
-import gintro/[gtk4, gobject, gio]
+{.experimental: "codeReordering".}
+import gintro/[gtk4, gobject, gio, adw]
 import std/with
-import carouselWidget, row_widget
+import row_widget
+import types
+import carouselWidget
 
 
 
-proc getFileName(info: gio.FileInfo): string =
-  return info.getName()  
+# proc getFileName(info: gio.FileInfo): string =
+#   return info.getName()  
+
+proc openFileCb(self: Button, pathAndNum: PathAndNum );
+  
 
 ### FABRIC
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
@@ -30,7 +36,9 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild (nil)
 
-proc createDirList*(dir: string, num: int): ListView =
+### LOGIC
+
+proc createListView*(dir: string, num: int): ListView =
   let
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("standard::name", file)
@@ -52,3 +60,16 @@ proc createDirList*(dir: string, num: int): ListView =
     connect("teardown", teardown_cb)
 
   return lv
+
+
+
+proc openFileCb(self: Button, pathAndNum: PathAndNum ) =
+
+  echo pathAndNum.path
+  # Создать page с сурсом path
+  let page = createListView(pathAndNum.path, pathAndNum.num + 1)
+  # создать карусель с этим
+  carouselGb.append(page)
+  # удалить все страницы до той с которой нажали
+  carouselGb.removeLastNPages(pathAndNum.num)
+  # carouselGb.

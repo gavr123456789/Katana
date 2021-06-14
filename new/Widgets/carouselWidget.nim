@@ -1,17 +1,10 @@
 import gintro/[gtk4, gobject, gio, adw]
-import std/with
+
 
 var carouselGb*: Carousel
 
 
-type
-  CustomData* = object
-    carousel*: Carousel
-    path*: string
 
-  PathAndNum* = tuple
-    num: int
-    path: string
 
 proc createCarousel*(widget: Widget): Carousel =
   result = newCarousel()
@@ -21,9 +14,14 @@ proc createCarousel*(widget: Widget): Carousel =
   result.append (widget)
   # После этой вызывать move
 
-proc openFileCb*(self: Button, pathAndNum: PathAndNum ) =
-  
-  echo pathAndNum.path
-  # Создать page с сурсом path
-  # создать карусель с этим
+proc removeLastNPages*(self: Carousel, n: int) =
+  assert(n < self.getNPages())
+
+  let howMany = self.getNPages() - n
+  for index in 0..howMany:
+    let last = self.getNPages() - 1
+    let lastWidget = self.getNthPage(last)
+    self.remove(lastWidget)
+    
+    
   
