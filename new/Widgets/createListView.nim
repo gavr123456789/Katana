@@ -1,4 +1,4 @@
-{.experimental: "codeReordering".}
+
 import gintro/[gtk4, gobject, gio, adw]
 import std/with
 import row_widget
@@ -24,9 +24,8 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   let 
     row = listitem.getChild().Row
     fileInfo = cast[FileInfo](listitem.getItem())
-    # data: CustomData()
 
-  row.btn1.connect("clicked", openFileCb, (pathAndNum.num, pathAndNum.path & fileInfo.getName()))
+  row.btn1.connect("clicked", openFileCb, (pathAndNum.num, pathAndNum.path & "/" & fileInfo.getName()))
   row.btn1.label = fileInfo.getName()
   row.info = fileInfo
 
@@ -63,13 +62,13 @@ proc createListView*(dir: string, num: int): ListView =
 
 
 
-proc openFileCb(self: Button, pathAndNum: PathAndNum ) =
 
+proc openFileCb(self: Button, pathAndNum: PathAndNum ) =
   echo pathAndNum.path
   # Создать page с сурсом path
   let page = createListView(pathAndNum.path, pathAndNum.num + 1)
   # создать карусель с этим
   carouselGb.append(page)
   # удалить все страницы до той с которой нажали
-  carouselGb.removeLastNPages(pathAndNum.num)
+  # carouselGb.removeLastNPages(pathAndNum.num) # TODO вылет
   # carouselGb.
