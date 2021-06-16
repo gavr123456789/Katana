@@ -1,14 +1,9 @@
 import gintro/[adw, gtk4, gobject, gio]
 import std/with
-import carouselWidget, row_widget, createListView
+import carouselWidget, createListView
+import gtkHelpers
 
 
-proc inToScroll(widget: Widget): ScrolledWindow =
-  result = newScrolledWindow()
-  result.minContentWidth = 200
-  result.vexpand = true
-  # result.hexpand = true
-  result.child = widget
 
 
 proc activate(app: gtk4.Application) =

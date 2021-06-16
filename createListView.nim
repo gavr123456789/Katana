@@ -4,7 +4,8 @@ import std/with
 import row_widget
 import types
 import carouselWidget
-
+import os
+import gtkHelpers
 
 
 # proc getFileName(info: gio.FileInfo): string =
@@ -23,9 +24,9 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   echo pathAndNum.path
   let 
     row = listitem.getChild().Row
-    fileInfo = cast[FileInfo](listitem.getItem())
+    fileInfo = cast[gio.FileInfo](listitem.getItem())
 
-  row.btn1.connect("clicked", openFileCb, (pathAndNum.num, pathAndNum.path & "/" & fileInfo.getName()))
+  row.btn1.connect("clicked", openFileCb, (pathAndNum.num, pathAndNum.path / fileInfo.getName()))
   row.btn1.label = fileInfo.getName()
   row.info = fileInfo
 
@@ -66,11 +67,11 @@ proc createListView*(dir: string, num: int): ListView =
 proc openFileCb(self: Button, pathAndNum: PathAndNum ) =
   echo pathAndNum.path
   # Создать page с сурсом path
-  let page = createListView(pathAndNum.path, pathAndNum.num + 1)
-  let scrolledPage = newScrolledWindow()
-  scrolledPage.child = page
+  let page = createListView(pathAndNum.path, pathAndNum.num + 1).inToScroll()
+  # let scrolledPage = newScrolledWindow()
+  # scrolledPage.child = page
   # создать карусель с этим
-  carouselGb.append(scrolledPage)
+  carouselGb.append(page)
   # удалить все страницы до той с которой нажали и перейти на новую.
   # carouselGb.removeLastNPages(pathAndNum.num) # TODO вылет
   # carouselGb.
