@@ -40,8 +40,6 @@ proc createListView*(dir: string, num: int): ListView =
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
 
-  # lv.enableRubberband = true
-  
   
   # lv.setCssClasses("rich-list")
   dl.setMonitored true
@@ -55,25 +53,19 @@ proc createListView*(dir: string, num: int): ListView =
   return lv
 
 
-# proc createListBox(dir: string, num: int, model: ListModel): ListBox =
-#   let 
-#     listBox = newListBox()
-
-#   listBox.cssClasses = "rich-list"
-#   listBox.bindModel model, setup_cb
-#   return listBox 
-
-var lastToggledBtn: Option[ToggleButton]
+import tables
+var lastToggledPerPage = newTable[int, ToggleButton]()
 
 proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
 
   debugEcho "current path num:", pathAndNum.num
   if self.active:
-    if lastToggledBtn.isSome and lastToggledBtn.get != self:
-      lastToggledBtn.get().active = false
-      lastToggledBtn = some(self)
-    else: 
-      lastToggledBtn = some(self)
+    if lastToggledPerPage.contains pathAndNum.num:
+      lastToggledPerPage[pathAndNum.num].active = false
+      lastToggledPerPage[pathAndNum.num] = self
+    else:
+      lastToggledPerPage[pathAndNum.num] = self
+
     # Создать page с сурсом path
     carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1).inToScroll()
     carouselGb.scrollToN(pathAndNum.num + 1)
@@ -86,4 +78,3 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
     carouselGb.removeNPagesFrom(pathAndNum.num)
     
       
-
