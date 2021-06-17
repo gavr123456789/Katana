@@ -69,12 +69,21 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
 
   debugEcho "current path num:", pathAndNum.num
   if self.active:
+    if lastToggledBtn.isSome and lastToggledBtn.get != self:
+      lastToggledBtn.get().active = false
+      lastToggledBtn = some(self)
+    else: 
+      lastToggledBtn = some(self)
     # Создать page с сурсом path
     carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1).inToScroll()
+    carouselGb.scrollToN(pathAndNum.num + 1)
+
   else:
     # Закрыть все начиная с текущего номера из path and num и антуглнуть предыдущую туглед
     debugEcho "untoggle"
     debugEcho "carouselGb.nPages: ", carouselGb.nPages
     debugEcho "pathAndNum.num: ", pathAndNum.num
     carouselGb.removeNPagesFrom(pathAndNum.num)
+    
+      
 

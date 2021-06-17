@@ -4,16 +4,18 @@ import strformat
 var carouselGb*: Carousel
 
 
-
-
 proc createCarousel*(widget: Widget): Carousel =
   result = newCarousel()
   result.interactive = true
   result.allowMouseDrag = true
-  # for i in 0 ..< N_PAGES:
   result.append (widget)
-  # После этой вызывать move
 
+
+
+proc scrollToN*(self: Carousel, n: int) = 
+  debugEcho "scrollToN: ", n
+  self.scrollTo self.getNthPage n
+  
 
 proc deleteLastPage(self: Carousel) = 
   let nPages = self.nPages
