@@ -11,7 +11,7 @@ import gtkHelpers
 # proc getFileName(info: gio.FileInfo): string =
 #   return info.getName()  
 
-proc openFileCb(self: Button, pathAndNum: PathAndNum );
+proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
   
 
 ### FABRIC
@@ -26,7 +26,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
     row = listitem.getChild().Row
     fileInfo = cast[gio.FileInfo](listitem.getItem())
 
-  row.btn1.connect("clicked", openFileCb, (pathAndNum.num, pathAndNum.path / fileInfo.getName()))
+  row.btn1.connect("toggled", openFileCb, (pathAndNum.num, pathAndNum.path / fileInfo.getName()))
   row.btn1.label = fileInfo.getName()
   row.info = fileInfo
 
@@ -50,7 +50,7 @@ proc createListView*(dir: string, num: int): ListView =
   # lv.enableRubberband = true
   
   
-  # lv.setCssClasses("rich-list")
+  lv.setCssClasses("rich-list")
   dl.setMonitored true
 
   with factory:
@@ -64,7 +64,7 @@ proc createListView*(dir: string, num: int): ListView =
 
 
 
-proc openFileCb(self: Button, pathAndNum: PathAndNum ) =
+proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
   echo pathAndNum.path
   # Создать page с сурсом path
   let page = createListView(pathAndNum.path, pathAndNum.num + 1).inToScroll()
