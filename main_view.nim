@@ -32,12 +32,13 @@ proc activate(app: gtk4.Application) =
 
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
+  carouselGb.connect("page_changed", setCurrentPage)
     
   with mainBox:
-    marginStart = 60
-    marginEnd = 60
-    marginTop = 30
-    marginBottom = 30
+    # marginStart = 60
+    # marginEnd = 60
+    # marginTop = 30
+    # marginBottom = 30
     append carouselGb
 
   with adwBox:
@@ -46,7 +47,7 @@ proc activate(app: gtk4.Application) =
     append mainBox
 
   with window:
-    defaultSize = (400, 600)
+    defaultSize = (600, 400)
     title = "ListView"
     setChild adwBox
     show
