@@ -14,6 +14,7 @@ proc createRowWidget*(pageNum: int, name: string): Row =
     row = newBox(Row, Orientation.horizontal, 0)
     labelFileName = newLabel(name)
   row.btn1 = newToggleButton()
+  row.btn2 = newToggleButton("↪")
   
   with labelFileName:
     ellipsize = EllipsizeMode.middle
@@ -23,7 +24,6 @@ proc createRowWidget*(pageNum: int, name: string): Row =
     child = labelFileName
     hexpand = true
 
-  row.btn2 = newToggleButton("↪")
 
   with row:
     setCssClasses("linked")
