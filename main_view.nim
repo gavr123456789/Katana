@@ -12,7 +12,23 @@ proc activate(app: gtk4.Application) =
     header = adw.newHeaderBar()
     adwBox = newBox(Orientation.vertical, 0)
     listView = createListView("/", 0).inToScroll
-    mainBox = newBox(Orientation.vertical, 10)
+    mainBox = newBox(Orientation.vertical, 0)
+    reveal = newRevealer()
+    centerBox = newCenterBox()
+    revealBox = newBox(Orientation.vertical, 0)
+    revealBtn1 = newButton("1")
+    revealBtn2 = newButton("2")
+    revealBtn3 = newButton("3")
+
+  with revealBox:
+    orientation = Orientation.horizontal
+    append revealBtn1
+    append revealBtn2
+    append revealBtn3
+  
+  centerBox.endWidget = revealBox
+
+  reveal.child = centerBox
 
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
@@ -22,14 +38,11 @@ proc activate(app: gtk4.Application) =
     marginEnd = 60
     marginTop = 30
     marginBottom = 30
-    # hexpand = true
-    # vexpand= true
     append carouselGb
 
   with adwBox:
-    # hexpand= true
-    # vexpand= true
     append header 
+    append reveal
     append mainBox
 
   with window:
