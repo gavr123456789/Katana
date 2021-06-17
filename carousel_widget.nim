@@ -7,7 +7,8 @@ var carouselGb*: Carousel
 proc createCarousel*(widget: Widget): Carousel =
   result = newCarousel()
   result.interactive = true
-  result.allowMouseDrag = true
+  # result.allowMouseDrag = true
+  result.allowLongSwipes = true
   result.append (widget)
 
 
