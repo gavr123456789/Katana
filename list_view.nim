@@ -3,13 +3,9 @@ import gintro/[gtk4, gobject, gio, adw]
 import std/with, options
 import row_widget
 import types
-import carouselWidget
+import carousel_widget
 import os
-import gtkHelpers
-
-
-# proc getFileName(info: gio.FileInfo): string =
-#   return info.getName()  
+import gtk_helpers
 
 proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
   
@@ -18,10 +14,7 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild(createRowWidget(0, ""))
   
-  # listitem.setChild(newButton(""))
-  
 proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathAndNum: PathAndNum) =
-  # echo pathAndNum.path
   let 
     row = listitem.getChild().Row
     fileInfo = cast[gio.FileInfo](listitem.getItem())

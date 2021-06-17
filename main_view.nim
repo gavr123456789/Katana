@@ -1,7 +1,7 @@
 import gintro/[adw, gtk4, gobject, gio]
 import std/with
-import carouselWidget, createListView
-import gtkHelpers
+import carousel_widget, list_view
+import gtk_helpers
 
 
 
