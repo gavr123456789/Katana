@@ -69,8 +69,6 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
     # Создать page с сурсом path
     carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1).inToScroll()
     # Если текущая страница не равна той странице где кнопка то скролим туда, иначе лагает
-    if pathAndNum.num != gtk_helpers.currentPage:
-      carouselGb.scrollToN(pathAndNum.num )
 
   else:
     # Закрыть все начиная с текущего номера из path and num и антуглнуть предыдущую туглед
@@ -78,5 +76,8 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
     debugEcho "carouselGb.nPages: ", carouselGb.nPages
     debugEcho "pathAndNum.num: ", pathAndNum.num
     carouselGb.removeNPagesFrom(pathAndNum.num)
+    
+  if pathAndNum.num != gtk_helpers.currentPage:
+      carouselGb.scrollToN(pathAndNum.num )
     
       
