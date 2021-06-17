@@ -1,4 +1,4 @@
-import gintro/[gtk4, gobject, gio]
+import gintro/[gtk4, gobject, gio, pango]
 import std/with
 import types
 
@@ -12,7 +12,13 @@ type
 proc createRowWidget*(pageNum: int, name: string): Row = 
   let 
     row = newBox(Row, Orientation.horizontal, 0)
-  row.btn1 = newToggleButton(name)
+    labelFileName = newLabel(name)
+  
+  
+  labelFileName.ellipsize = EllipsizeMode.middle
+  labelFileName.maxWidthChars = 10
+  row.btn1 = newToggleButton()
+  row.btn1.child = labelFileName
   row.btn1.hexpand = true
   row.btn2 = newToggleButton("↪")
 

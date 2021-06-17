@@ -26,8 +26,8 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
     row = listitem.getChild().Row
     fileInfo = cast[gio.FileInfo](listitem.getItem())
 
-  row.btn1.connect("toggled", openFileCb, (pathAndNum.num, pathAndNum.path / fileInfo.getName()))
-  row.btn1.label = fileInfo.getName()
+  row.btn2.connect("toggled", openFileCb, (pathAndNum.num, pathAndNum.path / fileInfo.getName()))
+  row.btn1.child.Label.label = fileInfo.getName()
   row.info = fileInfo
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
@@ -42,15 +42,15 @@ proc createListView*(dir: string, num: int): ListView =
   let
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("standard::name", file)
-    ls = listModel(dl)
-    ns = gtk4.newMultiSelection(ls)
+    lm = listModel(dl)
+    ns = gtk4.newMultiSelection(lm)
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
 
   # lv.enableRubberband = true
   
   
-  lv.setCssClasses("rich-list")
+  # lv.setCssClasses("rich-list")
   dl.setMonitored true
 
   with factory:
@@ -61,6 +61,14 @@ proc createListView*(dir: string, num: int): ListView =
 
   return lv
 
+
+# proc createListBox(dir: string, num: int, model: ListModel): ListBox =
+#   let 
+#     listBox = newListBox()
+
+#   listBox.cssClasses = "rich-list"
+#   listBox.bindModel model, setup_cb
+#   return listBox 
 
 
 
