@@ -15,7 +15,7 @@ proc createCarousel*(widget: Widget): Carousel =
 
 proc scrollToN*(self: Carousel, n: int) = 
   debugEcho "scrollToN: ", n
-  self.scrollTo self.getNthPage n
+  self.scrollToFull self.getNthPage n, 500
   
 
 proc deleteLastPage(self: Carousel) = 

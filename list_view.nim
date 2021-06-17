@@ -1,10 +1,10 @@
 
 import gintro/[gtk4, gobject, gio, adw]
 import std/with, options
+import os
 import row_widget
 import types
 import carousel_widget
-import os
 import gtk_helpers
 
 proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
@@ -68,7 +68,9 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
 
     # Создать page с сурсом path
     carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1).inToScroll()
-    carouselGb.scrollToN(pathAndNum.num + 1)
+    # Если текущая страница не равна той странице где кнопка то скролим туда, иначе лагает
+    if pathAndNum.num != gtk_helpers.currentPage:
+      carouselGb.scrollToN(pathAndNum.num )
 
   else:
     # Закрыть все начиная с текущего номера из path and num и антуглнуть предыдущую туглед
