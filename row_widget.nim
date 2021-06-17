@@ -1,6 +1,6 @@
 import gintro/[gtk4, gobject, gio, pango]
 import std/with
-import types
+
 
 type 
   Row* {.requiresInit.} = ref object of Box 
@@ -13,13 +13,16 @@ proc createRowWidget*(pageNum: int, name: string): Row =
   let 
     row = newBox(Row, Orientation.horizontal, 0)
     labelFileName = newLabel(name)
-  
-  
-  labelFileName.ellipsize = EllipsizeMode.middle
-  labelFileName.maxWidthChars = 10
   row.btn1 = newToggleButton()
-  row.btn1.child = labelFileName
-  row.btn1.hexpand = true
+  
+  with labelFileName:
+    ellipsize = EllipsizeMode.middle
+    maxWidthChars = 10
+
+  with row.btn1:
+    child = labelFileName
+    hexpand = true
+
   row.btn2 = newToggleButton("↪")
 
   with row:
@@ -27,6 +30,5 @@ proc createRowWidget*(pageNum: int, name: string): Row =
     append row.btn1
     append row.btn2
     pageNum = pageNum
-    # info = info
   result = row
 

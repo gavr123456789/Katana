@@ -1,5 +1,5 @@
 import gintro/[gtk4, gobject, gio, adw]
-
+import strformat
 
 var carouselGb*: Carousel
 
@@ -14,14 +14,24 @@ proc createCarousel*(widget: Widget): Carousel =
   result.append (widget)
   # После этой вызывать move
 
-proc removeLastNPages*(self: Carousel, n: int) =
-  assert(n < self.getNPages())
 
-  let howMany = self.getNPages() - n
-  for index in 0..howMany:
-    let last = self.getNPages() - 1
-    let lastWidget = self.getNthPage(last)
-    self.remove(lastWidget)
-    
-    
+proc deleteLastPage(self: Carousel) = 
+  let nPages = self.nPages
+  let last = nPages - 1
+  debugEcho fmt"deleteLastPage: npages = {npages}"
+
+  assert(last < nPages, fmt"last: {last} !< {nPages}")
+  assert(last >= 0, fmt"last: {last} !>= 0")
+
+  let lastWidget = self.getNthPage(last)
+  assert lastWidget != nil
+
+  self.remove(lastWidget)
+
+# Принимает номер страницы после который нужно удалить все
+proc removeNPagesFrom*(self: Carousel, n: int) =
+  assert(n < self.nPages)
+
+  for index in n..<self.nPages - 1:
+    deleteLastPage(self)
   
