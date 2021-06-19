@@ -1,23 +1,33 @@
 import gintro/[gtk4, gobject, gio, adw]
 import std/with
+import stores/selected_store
+import sets
 type 
   RevealerWithCounter* = ref object of gtk4.Revealer
     counter: Natural
+
+proc deleteFiles(self: Button) = 
+  # Удалить все из 
+  for x in selectedStoreGb.items:
+    debugEcho x
+  discard
 
 proc createRevealerWithCounter*(): RevealerWithCounter =
   result = newRevealer(RevealerWithCounter)
   let
     centerBox = newCenterBox()
     revealBox = newBox(Orientation.vertical, 0)
-    revealBtn1 = newButton("1")
-    revealBtn2 = newButton("2")
-    revealBtn3 = newButton("3")
+    revealBtn1 = newButton("move")
+    revealBtn2 = newButton("copy")
+    revealBtnDel = newButton("delete")
   
   with revealBox:
     orientation = Orientation.horizontal
     append revealBtn1
     append revealBtn2
-    append revealBtn3
+    append revealBtnDel
+  
+  revealBtnDel.connect("clicked", deleteFiles)
     
   centerBox.endWidget = revealBox
   result.child = centerBox
