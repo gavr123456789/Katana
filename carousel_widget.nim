@@ -4,6 +4,7 @@ import strformat
 
 type 
   CarouselWithPaths* = ref object of Carousel
+    directoriLists*: seq[DirectoryList]
 
 var carouselGb*: CarouselWithPaths
 
@@ -17,12 +18,13 @@ proc createCarousel*(widget: Widget): CarouselWithPaths =
 
 
 
-proc scrollToN*(self: Carousel, n: int) = 
+proc scrollToN*(self: CarouselWithPaths, n: int) = 
   debugEcho "scrollToN: ", n
   self.scrollToFull self.getNthPage n, 500
   
-
-proc deleteLastPage(self: Carousel) = 
+import stores/directory_lists_store
+import tables
+proc deleteLastPage(self: CarouselWithPaths) = 
   let nPages = self.nPages
   let last = nPages - 1
   debugEcho fmt"deleteLastPage: npages = {npages}"
@@ -34,9 +36,11 @@ proc deleteLastPage(self: Carousel) =
   assert lastWidget != nil
 
   self.remove(lastWidget)
+  directoryListsStoreGb.del last
+
 
 # Принимает номер страницы после который нужно удалить все
-proc removeNPagesFrom*(self: Carousel, n: int) =
+proc removeNPagesFrom*(self: CarouselWithPaths, n: int) =
   assert(n < self.nPages)
 
   for index in n..<self.nPages - 1:

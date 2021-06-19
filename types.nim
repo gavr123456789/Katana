@@ -1,9 +1,9 @@
 import gintro/[gtk4, gobject, gio, adw]
-
+import carousel_widget
 
 type
   CustomData* = object
-    carousel*: Carousel
+    carousel*: CarouselWithPaths
     path*: string
 
   PathAndNum* = tuple
