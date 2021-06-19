@@ -8,6 +8,7 @@ type
     btn1*: ToggleButton
     btn2*: ToggleButton
     pageNum*: int
+    btn2SignalId*: uint64 # if signal disconnect problems, change to culong
 
 proc createRowWidget*(pageNum: int, name: string): Row = 
   let 
