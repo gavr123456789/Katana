@@ -9,8 +9,11 @@ type
 proc deleteFiles(self: Button) = 
   # Удалить все из 
   for x in selectedStoreGb.items:
+    let xfile = gio.newGFileForPath(x)
+    xfile.deleteAsync(10, nil, nil, nil)
     debugEcho x
-  discard
+  debugEcho "-----sssasss-----"
+
 
 proc createRevealerWithCounter*(): RevealerWithCounter =
   result = newRevealer(RevealerWithCounter)
