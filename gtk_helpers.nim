@@ -9,6 +9,6 @@ proc inToScroll*(widget: Widget): ScrolledWindow =
   # result.hexpand = true
   result.child = widget
 
-var currentPage*: int = 0
+var currentPageGb*: int = 0
 proc setCurrentPage*(self: Carousel, index: int) = 
-  currentPage = index
+  currentPageGb = index

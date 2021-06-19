@@ -2,8 +2,8 @@ import gintro/[adw, gtk4, gobject, gio]
 import std/with
 import carousel_widget, list_view
 import gtk_helpers
-
-
+import stores/gtk_widgets_store
+import reveal_widget
 
 
 proc activate(app: gtk4.Application) =
@@ -11,34 +11,22 @@ proc activate(app: gtk4.Application) =
     window = adw.newApplicationWindow(app)
     header = adw.newHeaderBar()
     adwBox = newBox(Orientation.vertical, 0)
-    listView = createListView("/", 0).inToScroll
+    listView = createListView(".", 0).inToScroll
     mainBox = newBox(Orientation.vertical, 0)
-    reveal = newRevealer()
-    centerBox = newCenterBox()
-    revealBox = newBox(Orientation.vertical, 0)
-    revealBtn1 = newButton("1")
-    revealBtn2 = newButton("2")
-    revealBtn3 = newButton("3")
+    reveal = createRevealerWithCounter()
 
-  with revealBox:
-    orientation = Orientation.horizontal
-    append revealBtn1
-    append revealBtn2
-    append revealBtn3
-  
-  centerBox.endWidget = revealBox
-
-  reveal.child = centerBox
 
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
   carouselGb.connect("page_changed", setCurrentPage)
-    
+
+  revealGb = reveal  
+  
   with mainBox:
     # marginStart = 60
     # marginEnd = 60
-    # marginTop = 30
-    # marginBottom = 30
+    marginTop = 30
+    marginBottom = 30
     append carouselGb
 
   with adwBox:

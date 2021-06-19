@@ -8,6 +8,7 @@ import carousel_widget
 import gtk_helpers
 
 proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
+proc selectFileCb(self: ToggleButton, pathAndNum: PathAndNum );
   
 
 ### FABRIC
@@ -18,28 +19,26 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   let 
     row = listitem.getChild().Row
     fileInfo = cast[gio.FileInfo](listitem.getItem())
+    path = pathAndNum.path / fileInfo.getName()
 
-  row.btn2SignalId = row.btn2.connect("toggled", openFileCb, (pathAndNum.num, pathAndNum.path / fileInfo.getName()))
+  row.btn2SignalId = row.btn2.connect("toggled", openFileCb, (pathAndNum.num, path))
+  row.btn1SignalId = row.btn1.connect("toggled", selectFileCb, (pathAndNum.num, path))
   row.btn1.child.Label.label = fileInfo.getName()
   row.info = fileInfo
-  debugEcho "connect: ", row.btn2SignalId
- 
+  # debugEcho "connect: ", row.btn2SignalId
+  
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   let 
     row = listitem.getChild().Row
-    # fileInfo = cast[gio.FileInfo](listitem.getItem())
-  debugEcho "disconnect: ", row.btn2SignalId
+  # debugEcho "vivadisconnect: ", row.btn2SignalId
   row.btn2.signalHandlerDisconnect(row.btn2SignalId)
-  # echo "unbind"
+  row.btn1.signalHandlerDisconnect(row.btn1SignalId)
 
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
-  # listitem.setChild (nil)
   listitem.GC_unref
-  discard
 
 ### LOGIC
-
 proc createListView*(dir: string, num: int): ListView =
   let
     file = gio.newGFileForPath(dir)
@@ -70,7 +69,7 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
   if self.active:
     # Если на этой странице уже есть активированная кнопка
      
-    if lastToggledPerPage.contains pathAndNum.num :
+    if lastToggledPerPage.contains pathAndNum.num:
       lastToggledPerPage[pathAndNum.num].active = false
       lastToggledPerPage[pathAndNum.num] = self
     else:
@@ -88,8 +87,31 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
     carouselGb.removeNPagesFrom(pathAndNum.num)
     lastToggledPerPage.del pathAndNum.num
     
-  if pathAndNum.num != gtk_helpers.currentPage:
+  if pathAndNum.num != gtk_helpers.currentPageGb:
     debugEcho "try scroll to ", pathAndNum.num
     carouselGb.scrollToN(pathAndNum.num )
+
+
+
+import stores/selected_store
+import sets
+import stores/gtk_widgets_store
+
+proc selectFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
+  # debugEcho pathAndNum.path
+  if self.active:
+    selectedStoreGb.incl pathAndNum.path
+  else:
+    selectedStoreGb.excl pathAndNum.path
+
+  if selectedStoreGb.len != 0:
+    discard
     
-      
+    # Показываем бар выбора действий
+    revealGb.revealChild = true
+  else: 
+    # Показываем бар выбора действий
+    discard
+    revealGb.revealChild = false
+
+
