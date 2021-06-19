@@ -1,11 +1,15 @@
 import gintro/[gtk4, gobject, gio, adw]
 import strformat
 
-var carouselGb*: Carousel
+
+type 
+  CarouselWithPaths* = ref object of Carousel
+
+var carouselGb*: CarouselWithPaths
 
 
-proc createCarousel*(widget: Widget): Carousel =
-  result = newCarousel()
+proc createCarousel*(widget: Widget): CarouselWithPaths =
+  result = newCarousel(CarouselWithPaths)
   result.interactive = true
   # result.allowMouseDrag = true
   result.allowLongSwipes = true

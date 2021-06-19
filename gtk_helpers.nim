@@ -1,5 +1,5 @@
 import gintro/[adw, gtk4, gobject, gio]
-
+import carousel_widget
 
 proc inToScroll*(widget: Widget): ScrolledWindow =
   result = newScrolledWindow()
@@ -10,5 +10,5 @@ proc inToScroll*(widget: Widget): ScrolledWindow =
   result.child = widget
 
 var currentPageGb*: int = 0
-proc setCurrentPage*(self: Carousel, index: int) = 
+proc setCurrentPage*(self: CarouselWithPaths, index: int) = 
   currentPageGb = index
