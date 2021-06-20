@@ -31,11 +31,14 @@ proc copyFiles(self: Button) =
   debugEcho "-----sssasss-----"
 
 proc moveFiles(self: Button) = 
-  # Удалить все из 
+  let q = directoryListsStoreGb[currentPageGb].file.path
   for x in selectedStoreGb.items:
     let xfile = gio.newGFileForPath(x)
-    xfile.deleteAsync(10, nil, nil, nil)
-    debugEcho "deleted: ", x
+    let copyPath = gio.newGFileForPath(q / xfile.basename)
+
+    echo xfile.move(copyPath, {gio.FileCopyFlag.backup}, nil, nil, nil)
+    debugEcho "moved from: ", x, " to: ", q / xfile.basename
+
   debugEcho "-----sssasss-----"
 
 proc createFolder(self: Button, nameEntry: gtk4.Entry) =
@@ -63,7 +66,7 @@ proc createRevealerWithCounter*(): RevealerWithCounter =
   let
     centerBox = newCenterBox()
     revealBox = newBox(Orientation.vertical, 0)
-    revealBtn1 = newButton("move")
+    revealBtnMove = newButton("move")
     revealBtnCopy = newButton("copy")
     revealBtnDel = newButton("delete")
     revealBtnCreateFolder = newButton("Create Folder")
@@ -74,7 +77,7 @@ proc createRevealerWithCounter*(): RevealerWithCounter =
   with revealBox:
     orientation = Orientation.horizontal
     # append fileNameEntry
-    append revealBtn1
+    append revealBtnMove
     append revealBtnCopy
     append revealBtnDel
     append revealBtnCreateFolder
@@ -84,6 +87,7 @@ proc createRevealerWithCounter*(): RevealerWithCounter =
 
   revealBtnDel.connect("clicked", deleteFiles)
   revealBtnCopy.connect("clicked", copyFiles)
+  revealBtnMove.connect("clicked", moveFiles)
   revealBtnCreateFolder.connect("clicked", createFolder, fileNameEntry)
   revealBtnCreateFile.connect("clicked", createFile, fileNameEntry)
     
