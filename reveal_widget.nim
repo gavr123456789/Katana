@@ -43,10 +43,20 @@ proc createFolder(self: Button, nameEntry: gtk4.Entry) =
   if nameEntry.text.len == 0:
     return
 
-  let currentPath = directoryListsStoreGb[currentPageGb].file.path
-  if not dirExists(currentPath / nameEntry.text):
-    createDir(currentPath / nameEntry.text)
+  let currentPath = directoryListsStoreGb[currentPageGb].file.path / nameEntry.text
+  if not dirExists(currentPath):
+    createDir(currentPath)
 
+proc createFile(self: Button, nameEntry: gtk4.Entry) =
+  echo nameEntry.text.len
+  if nameEntry.text.len == 0:
+    return
+
+  let currentPath = directoryListsStoreGb[currentPageGb].file.path / nameEntry.text
+  echo currentPath
+  if not dirExists(currentPath):
+    writeFile(currentPath, "")
+    echo "sas"
 
 proc createRevealerWithCounter*(): RevealerWithCounter =
   result = newRevealer(RevealerWithCounter)
@@ -75,6 +85,7 @@ proc createRevealerWithCounter*(): RevealerWithCounter =
   revealBtnDel.connect("clicked", deleteFiles)
   revealBtnCopy.connect("clicked", copyFiles)
   revealBtnCreateFolder.connect("clicked", createFolder, fileNameEntry)
+  revealBtnCreateFile.connect("clicked", createFile, fileNameEntry)
     
   centerBox.endWidget = revealBox
   centerBox.centerWidget = fileNameEntry
