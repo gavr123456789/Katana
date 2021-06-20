@@ -37,6 +37,7 @@ proc deleteLastPage(self: CarouselWithPaths) =
 
   self.remove(lastWidget)
   directoryListsStoreGb.del last
+  directoryListsStoreGb.printDirectoryListsStore()
 
 
 # Принимает номер страницы после который нужно удалить все

@@ -52,6 +52,7 @@ proc createListView*(dir: string, num: int): ListView =
     lv = newListView(ns, factory)
 
   directoryListsStoreGb[num] = dl
+  directoryListsStoreGb.printDirectoryListsStore()
   
   # lv.setCssClasses("rich-list")
   dl.setMonitored true

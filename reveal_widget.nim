@@ -14,11 +14,17 @@ proc deleteFiles(self: Button) =
     debugEcho "deleted: ", x
   debugEcho "-----sssasss-----"
 
+import stores/directory_lists_store
+import gtk_helpers
+import tables
+import os
+
 proc copyFiles(self: Button) = 
-  echo "current path: "
+  let q = directoryListsStoreGb[currentPageGb].file.path
+  let copyPath = gio.newGFileForPath(q)
   for x in selectedStoreGb.items:
-    let xfile = gio.newGFileForPath(x)
-    # xfile.copyAsync(10, nil, nil, nil)
+    let xfile = gio.newGFileForPath(q / x)
+    xfile.copyAsync(copyPath, {gio.FileCopyFlag.backup}, 0, nil, nil, nil, nil, nil)
   debugEcho "-----sssasss-----"
 
 proc moveFiles(self: Button) = 
