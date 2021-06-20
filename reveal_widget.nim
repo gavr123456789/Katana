@@ -21,11 +21,12 @@ import os
 
 proc copyFiles(self: Button) = 
   let q = directoryListsStoreGb[currentPageGb].file.path
-  let copyPath = gio.newGFileForPath(q)
   for x in selectedStoreGb.items:
     let xfile = gio.newGFileForPath(x)
+    let copyPath = gio.newGFileForPath(q / xfile.basename)
+
     xfile.copyAsync(copyPath, {gio.FileCopyFlag.backup}, 10, nil, nil, nil, nil, nil)
-    debugEcho "copyed from: ", x, " to: ", q
+    debugEcho "copyed from: ", x, " to: ", q / xfile.basename
 
   debugEcho "-----sssasss-----"
 
