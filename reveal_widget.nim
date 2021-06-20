@@ -23,8 +23,10 @@ proc copyFiles(self: Button) =
   let q = directoryListsStoreGb[currentPageGb].file.path
   let copyPath = gio.newGFileForPath(q)
   for x in selectedStoreGb.items:
-    let xfile = gio.newGFileForPath(q / x)
-    xfile.copyAsync(copyPath, {gio.FileCopyFlag.backup}, 0, nil, nil, nil, nil, nil)
+    let xfile = gio.newGFileForPath(x)
+    xfile.copyAsync(copyPath, {gio.FileCopyFlag.backup}, 10, nil, nil, nil, nil, nil)
+    debugEcho "copyed from: ", x, " to: ", q
+
   debugEcho "-----sssasss-----"
 
 proc moveFiles(self: Button) = 
@@ -35,24 +37,47 @@ proc moveFiles(self: Button) =
     debugEcho "deleted: ", x
   debugEcho "-----sssasss-----"
 
+proc createFolder(self: Button, nameEntry: gtk4.Entry) =
+  echo nameEntry.text.len
+  if nameEntry.text.len == 0:
+    return
+
+  let currentPath = directoryListsStoreGb[currentPageGb].file.path
+  if not dirExists(currentPath / nameEntry.text):
+    createDir(currentPath / nameEntry.text)
+
+
 proc createRevealerWithCounter*(): RevealerWithCounter =
   result = newRevealer(RevealerWithCounter)
   let
     centerBox = newCenterBox()
     revealBox = newBox(Orientation.vertical, 0)
     revealBtn1 = newButton("move")
-    revealBtn2 = newButton("copy")
+    revealBtnCopy = newButton("copy")
     revealBtnDel = newButton("delete")
+    revealBtnCreateFolder = newButton("Create Folder")
+    revealBtnCreateFile = newButton("Create File")
+    fileNameEntry = newEntry()
+  
   
   with revealBox:
     orientation = Orientation.horizontal
+    # append fileNameEntry
     append revealBtn1
-    append revealBtn2
+    append revealBtnCopy
     append revealBtnDel
+    append revealBtnCreateFolder
+    append revealBtnCreateFile
   
+  fileNameEntry.hexpand = true
+
   revealBtnDel.connect("clicked", deleteFiles)
+  revealBtnCopy.connect("clicked", copyFiles)
+  revealBtnCreateFolder.connect("clicked", createFolder, fileNameEntry)
     
   centerBox.endWidget = revealBox
+  centerBox.centerWidget = fileNameEntry
+
   result.child = centerBox
 
 func inc*(self: RevealerWithCounter) = self.counter.inc()
