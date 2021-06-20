@@ -6,6 +6,7 @@ import row_widget
 import types
 import carousel_widget
 import gtk_helpers
+import stores/directory_lists_store
 
 proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
 proc selectFileCb(self: ToggleButton, pathAndNum: PathAndNum );
@@ -39,6 +40,8 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.GC_unref
 
 ### LOGIC
+import tables
+
 proc createListView*(dir: string, num: int): ListView =
   let
     file = gio.newGFileForPath(dir)
@@ -48,6 +51,7 @@ proc createListView*(dir: string, num: int): ListView =
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
 
+  directoryListsStoreGb[num] = dl
   
   # lv.setCssClasses("rich-list")
   dl.setMonitored true

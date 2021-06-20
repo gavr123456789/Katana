@@ -11,9 +11,23 @@ proc deleteFiles(self: Button) =
   for x in selectedStoreGb.items:
     let xfile = gio.newGFileForPath(x)
     xfile.deleteAsync(10, nil, nil, nil)
-    debugEcho x
+    debugEcho "deleted: ", x
   debugEcho "-----sssasss-----"
 
+proc copyFiles(self: Button) = 
+  echo "current path: "
+  for x in selectedStoreGb.items:
+    let xfile = gio.newGFileForPath(x)
+    # xfile.copyAsync(10, nil, nil, nil)
+  debugEcho "-----sssasss-----"
+
+proc moveFiles(self: Button) = 
+  # Удалить все из 
+  for x in selectedStoreGb.items:
+    let xfile = gio.newGFileForPath(x)
+    xfile.deleteAsync(10, nil, nil, nil)
+    debugEcho "deleted: ", x
+  debugEcho "-----sssasss-----"
 
 proc createRevealerWithCounter*(): RevealerWithCounter =
   result = newRevealer(RevealerWithCounter)
