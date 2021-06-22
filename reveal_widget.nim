@@ -61,7 +61,7 @@ proc createFile(self: Button, nameEntry: gtk4.Entry) =
     writeFile(currentPath, "")
     echo "sas"
 
-proc createRevealerWithCounter*(): RevealerWithCounter =
+proc createRevealerWithCounter*(header: adw.HeaderBar): RevealerWithCounter =
   result = newRevealer(RevealerWithCounter)
   let
     centerBox = newCenterBox()
@@ -73,6 +73,10 @@ proc createRevealerWithCounter*(): RevealerWithCounter =
     revealBtnCreateFile = newButton("Create File")
     fileNameEntry = newEntry()
   
+  # TODO при нажатии должна выезжать штука с полем ввода
+  with header: 
+    packStart revealBtnCreateFolder
+    packStart revealBtnCreateFile
   
   with revealBox:
     orientation = Orientation.horizontal
@@ -80,8 +84,6 @@ proc createRevealerWithCounter*(): RevealerWithCounter =
     append revealBtnMove
     append revealBtnCopy
     append revealBtnDel
-    append revealBtnCreateFolder
-    append revealBtnCreateFile
   
   fileNameEntry.hexpand = true
 

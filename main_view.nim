@@ -13,7 +13,7 @@ proc activate(app: gtk4.Application) =
     adwBox = newBox(Orientation.vertical, 0)
     listView = createListView(".", 0).inToScroll
     mainBox = newBox(Orientation.vertical, 0)
-    reveal = createRevealerWithCounter()
+    reveal = createRevealerWithCounter(header)
 
 
   carouselGb = createCarousel(listView)
