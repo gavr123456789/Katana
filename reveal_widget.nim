@@ -1,10 +1,15 @@
 import gintro/[gtk4, gobject, gio, adw]
 import std/with
-import stores/selected_store
 import sets
+import stores/selected_store
+import stores/gtk_widgets_store
+
 type 
   RevealerWithCounter* = ref object of gtk4.Revealer
     counter: Natural
+  RevealerAndEntry = tuple
+    entry: Entry
+    revealer: Revealer
 
 proc deleteFiles(self: Button) = 
   # Удалить все из 
@@ -13,6 +18,9 @@ proc deleteFiles(self: Button) =
     xfile.deleteAsync(10, nil, nil, nil)
     debugEcho "deleted: ", x
   debugEcho "-----sssasss-----"
+  
+  revealGb.revealChild = false
+  selectedStoreGb.clear()
 
 import stores/directory_lists_store
 import gtk_helpers
@@ -28,6 +36,8 @@ proc copyFiles(self: Button) =
     xfile.copyAsync(copyPath, {gio.FileCopyFlag.backup}, 10, nil, nil, nil, nil, nil)
     debugEcho "copyed from: ", x, " to: ", q / xfile.basename
 
+  revealGb.revealChild = false
+  selectedStoreGb.clear()
   debugEcho "-----sssasss-----"
 
 proc moveFiles(self: Button) = 
@@ -38,17 +48,20 @@ proc moveFiles(self: Button) =
 
     echo xfile.move(copyPath, {gio.FileCopyFlag.backup}, nil, nil, nil)
     debugEcho "moved from: ", x, " to: ", q / xfile.basename
-
+  revealGb.revealChild = false
+  selectedStoreGb.clear()
+  
   debugEcho "-----sssasss-----"
 
-proc createFolder(self: Button, nameEntry: gtk4.Entry) =
-  echo nameEntry.text.len
-  if nameEntry.text.len == 0:
-    return
+proc createFolder(self: Button, revealerAndEntry: RevealerAndEntry) =
+  revealerAndEntry.revealer.revealChild = not revealerAndEntry.revealer.revealChild
+  # echo revealerAndEntry.entry.text.len
+  # if revealerAndEntry.entry.text.len == 0:
+  #   return
 
-  let currentPath = directoryListsStoreGb[currentPageGb].file.path / nameEntry.text
-  if not dirExists(currentPath):
-    createDir(currentPath)
+  # let currentPath = directoryListsStoreGb[currentPageGb].file.path / revealerAndEntry.entry.text
+  # if not dirExists(currentPath):
+  #   createDir(currentPath)
 
 proc createFile(self: Button, nameEntry: gtk4.Entry) =
   echo nameEntry.text.len
@@ -71,11 +84,17 @@ proc createRevealerWithCounter*(header: adw.HeaderBar): RevealerWithCounter =
     revealBtnDel = newButton("delete")
     revealBtnCreateFolder = newButton("Create Folder")
     revealBtnCreateFile = newButton("Create File")
+    nameReveal = newRevealer()
     fileNameEntry = newEntry()
+    entryAndReveal: RevealerAndEntry = (fileNameEntry, nameReveal)
   
+  nameReveal.child = fileNameEntry
+  nameReveal.hexpand = true
+  nameReveal.transitionType = RevealerTransitionType.slideLeft
   # TODO при нажатии должна выезжать штука с полем ввода
   with header: 
     packStart revealBtnCreateFolder
+    packStart nameReveal
     packStart revealBtnCreateFile
   
   with revealBox:
@@ -90,11 +109,11 @@ proc createRevealerWithCounter*(header: adw.HeaderBar): RevealerWithCounter =
   revealBtnDel.connect("clicked", deleteFiles)
   revealBtnCopy.connect("clicked", copyFiles)
   revealBtnMove.connect("clicked", moveFiles)
-  revealBtnCreateFolder.connect("clicked", createFolder, fileNameEntry)
+  revealBtnCreateFolder.connect("clicked", createFolder, entryAndReveal)
   revealBtnCreateFile.connect("clicked", createFile, fileNameEntry)
     
   centerBox.endWidget = revealBox
-  centerBox.centerWidget = fileNameEntry
+  # centerBox.centerWidget = fileNameEntry
 
   result.child = centerBox
 

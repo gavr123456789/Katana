@@ -42,6 +42,11 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 ### LOGIC
 import tables
 
+proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pathAndNum: PathAndNum) =
+  echo "hello gestures ", nPress, " ", x, " ", y
+  echo "num: ", pathAndNum.num, " path: ", pathAndNum.path
+  
+
 proc createListView*(dir: string, num: int): ListView =
   let
     file = gio.newGFileForPath(dir)
@@ -50,6 +55,13 @@ proc createListView*(dir: string, num: int): ListView =
     ns = gtk4.newMultiSelection(lm)
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
+
+    gestureClick = newGestureClick()
+
+  gestureClick.setButton(3) # rigth click
+  gestureClick.connect("pressed", gestureRigthClickCb, ( num: num, path: dl.getFile().getPath()) )
+
+  lv.addController(gestureClick)
 
   directoryListsStoreGb[num] = dl
   directoryListsStoreGb.printDirectoryListsStore()
