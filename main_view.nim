@@ -11,7 +11,7 @@ proc activate(app: gtk4.Application) =
     window = adw.newApplicationWindow(app)
     header = adw.newHeaderBar()
     adwBox = newBox(Orientation.vertical, 0)
-    listView = createListView(".", 0).inToScroll
+    listView = createListView(".", 0).inToScroll.inToBox true
     mainBox = newBox(Orientation.vertical, 0)
     reveal = createRevealerWithCounter(header)
 

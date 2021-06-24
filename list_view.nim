@@ -45,6 +45,9 @@ import tables
 proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pathAndNum: PathAndNum) =
   echo "hello gestures ", nPress, " ", x, " ", y
   echo "num: ", pathAndNum.num, " path: ", pathAndNum.path
+  if pathAndNum.num != gtk_helpers.currentPageGb:
+    debugEcho "try scroll to ", pathAndNum.num
+    carouselGb.scrollToN(pathAndNum.num )
   
 
 proc createListView*(dir: string, num: int): ListView =
@@ -52,7 +55,7 @@ proc createListView*(dir: string, num: int): ListView =
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("standard::name", file)
     lm = listModel(dl)
-    ns = gtk4.newMultiSelection(lm)
+    ns = gtk4.newNoSelection(lm)
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
 
@@ -93,7 +96,7 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
       lastToggledPerPage[pathAndNum.num] = self
 
     # Создать page с сурсом path
-    carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1).inToScroll()
+    carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1).inToScroll.inToBox(false)
     # Если текущая страница не равна той странице где кнопка то скролим туда, иначе лагает
 
   else:
@@ -104,9 +107,9 @@ proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
     carouselGb.removeNPagesFrom(pathAndNum.num)
     lastToggledPerPage.del pathAndNum.num
     
-  if pathAndNum.num != gtk_helpers.currentPageGb:
-    debugEcho "try scroll to ", pathAndNum.num
-    carouselGb.scrollToN(pathAndNum.num )
+  # if pathAndNum.num != gtk_helpers.currentPageGb:
+  #   debugEcho "try scroll to ", pathAndNum.num
+  #   carouselGb.scrollToN(pathAndNum.num )
 
 
 
