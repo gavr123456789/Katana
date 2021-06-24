@@ -15,8 +15,6 @@ proc activate(app: gtk4.Application) =
     mainBox = newBox(Orientation.vertical, 0)
     reveal = createRevealerWithCounter(header)
 
-
-
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
   carouselGb.connect("page_changed", setCurrentPage)
@@ -24,7 +22,6 @@ proc activate(app: gtk4.Application) =
   revealGb = reveal  
 
 
-  
   with mainBox:
     # marginStart = 60
     # marginEnd = 60
@@ -39,7 +36,7 @@ proc activate(app: gtk4.Application) =
 
   with window:
     defaultSize = (600, 400)
-    title = "ListView"
+    title = "Katana"
     setChild adwBox
     show
 
