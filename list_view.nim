@@ -1,52 +1,26 @@
 
 import gintro/[gtk4, gobject, gio, adw]
-import std/with, options
+import std/with
 import os
 import row_widget
 import types
 import carousel_widget
 import gtk_helpers
 import stores/directory_lists_store
+import utils
 
 proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
 proc selectFileCb(self: ToggleButton, pathAndNum: PathAndNum );
   
 
-func getFileIconFromExt(ext: string): string = 
-  result = case ext:
-      of ".vala": "valacompiler-symbolic"
-      of ".java": "applications-java-symbolic"
-      of ".py": "applications-python-symbolic"
-      of ".nim", ".nimble": "nvim-symbolic"
-      of ".gitignore", ".git": "folder-github-symbolic"
-      of ".exe": "wine-winecfg-symbolic"
-      of ".kt": "folder-kotlin-symbolic"
-      of ".js": "folder-js-symbolic"
-      of ".node": "folder-nodejs-symbolic"
-      
-      else: "folder-documents-symbolic"
-
-
-func getFolderIconFromName(folderName: string): string = 
-  result = case folderName:
-      of "Games": "gamepad-symbolic"
-      of "Apps": "applications-java-symbolic"
-      of "Projects": "applications-python-symbolic"
-      of "Programs": "nvim-symbolic"
-      of "Plugins": "puzzle-piece-symbolic"
-      of ".git": "git-cola-symbolic"
-      of "Telegram": "mail-send-symbolic"
-      of "node_modules": "folder-nodejs-symbolic"
-
-      
-      
-      else: "sidebar-places-symbolic" # sidebar-places-symbolic folder-documents-symbolic
-
 ### FABRIC
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
+  echo "setup_cb"
   listitem.setChild(createRowWidget(0, ""))
   
 proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathAndNum: PathAndNum) =
+  echo "bind_cb"
+
   let 
     row = listitem.getChild().Row
     fileInfo = cast[gio.FileInfo](listitem.getItem())
@@ -56,9 +30,11 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   case fileType:
   of gio.FileType.unknown:
     echo path, " is ", gio.FileType.unknown
+    row.iconName = getFolderIconFromName(fileInfo.getName()) 
+
   of regular:
     echo path, " is ", gio.FileType.regular
-    var q: ref bool
+    # var q: ref bool
     # let mime = gio.contentTypeGuess(fileInfo.getName(), "", q)
     echo "file attributes is ", fileInfo.listAttributes
     let (_, _, ext) = fileInfo.getName().splitFile()
@@ -67,8 +43,8 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
 
   of directory:
     echo path, " is ", gio.FileType.directory
-
-    row.iconName = "inode-directory-symbolic"
+    
+    row.iconName = getFolderIconFromName(fileInfo.getName()) 
 
   of symbolicLink:
     echo path, " is ", gio.FileType.symbolicLink
