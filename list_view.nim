@@ -30,7 +30,12 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   case fileType:
   of gio.FileType.unknown:
     echo path, " is ", gio.FileType.unknown
-    row.iconName = getFolderIconFromName(fileInfo.getName()) 
+    let (_, name, ext) = fileInfo.getName().splitFile()
+    if ext == "":
+      row.iconName = getFolderIconFromName(name) 
+    else:
+      row.iconName = getFileIconFromExt(ext) 
+
 
   of regular:
     echo path, " is ", gio.FileType.regular
