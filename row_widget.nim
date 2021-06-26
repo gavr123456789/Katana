@@ -3,7 +3,7 @@ import std/with
 
 
 type 
-  Row* {.requiresInit.} = ref object of Box 
+  FileRow* {.requiresInit.} = ref object of Box 
     info*: gio.FileInfo
     fullPath*: string
     btn1*: ToggleButton
@@ -14,12 +14,12 @@ type
     btn2SignalId*: uint64 # if signal disconnect problems, change to culong
     btn1SignalId*: uint64 # if signal disconnect problems, change to culong
 
-proc `iconName=`*(self: Row, iconName: string) =
+proc `iconName=`*(self: FileRow, iconName: string) =
   self.image.setFromIconName(iconName)
 
-proc createRowWidget*(pageNum: int, name: string): Row = 
+proc createFileRow*(pageNum: int, name: string): FileRow = 
   let 
-    row = newBox(Row, Orientation.horizontal, 0)
+    row = newBox(FileRow, Orientation.horizontal, 0)
     # labelFileName = newLabel(name)
     box = newBox(Orientation.horizontal, 5)
 
@@ -40,9 +40,6 @@ proc createRowWidget*(pageNum: int, name: string): Row =
 
   row.btn1.child = box
   row.btn1.hexpand = true
-  # with row.btn1:
-  #   child = row.image
-  #   hexpand = true
 
 
   with row:

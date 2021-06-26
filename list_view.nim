@@ -10,19 +10,19 @@ import stores/directory_lists_store
 import utils
 
 proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
-proc selectFileCb(self: ToggleButton, row: Row );
+proc selectFileCb(self: ToggleButton, row: FileRow );
   
 
 ### FABRIC
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   echo "setup_cb"
-  listitem.setChild(createRowWidget(0, ""))
+  listitem.setChild(createFileRow(0, ""))
   
 proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathAndNum: PathAndNum) =
   echo "bind_cb"
 
   let 
-    row = listitem.getChild().Row
+    row = listitem.getChild().FileRow
     fileInfo = cast[gio.FileInfo](listitem.getItem())
     path = pathAndNum.path / fileInfo.getName()
     fileType = fileInfo.getFileType
@@ -71,7 +71,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   let 
-    row = listitem.getChild().Row
+    row = listitem.getChild().FileRow
   # debugEcho "vivadisconnect: ", row.btn2SignalId
   row.btn2.signalHandlerDisconnect(row.btn2SignalId)
   row.btn1.signalHandlerDisconnect(row.btn1SignalId)
@@ -157,7 +157,7 @@ import stores/selected_store
 import sets
 import stores/gtk_widgets_store
 
-proc selectFileCb(self: ToggleButton, row: Row ) =
+proc selectFileCb(self: ToggleButton, row: FileRow ) =
   # debugEcho pathAndNum.path
   if self.active:
     selectedStoreGb.incl row
