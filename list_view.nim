@@ -28,13 +28,14 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
     fileType = fileInfo.getFileType
 
   case fileType:
+
   of gio.FileType.unknown:
     echo path, " is ", gio.FileType.unknown
     let (_, name, ext) = fileInfo.getName().splitFile()
-    if ext == "":
-      row.iconName = getFolderIconFromName(name) 
+    row.iconName = if ext == "":
+      getFolderIconFromName(name) 
     else:
-      row.iconName = getFileIconFromExt(ext) 
+      getFileIconFromExt(ext) 
 
 
   of regular:
@@ -48,7 +49,6 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
 
   of directory:
     echo path, " is ", gio.FileType.directory
-    
     row.iconName = getFolderIconFromName(fileInfo.getName()) 
 
   of symbolicLink:
