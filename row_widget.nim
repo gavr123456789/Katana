@@ -3,7 +3,7 @@ import std/with
 
 
 type 
-  Row* {.requiresInit.} = ref object of Box 
+  FileRow* {.requiresInit.} = ref object of Box 
     info*: gio.FileInfo
     fullPath*: string
     btn1*: ToggleButton
@@ -11,17 +11,20 @@ type
     image*: Image
     labelFileName*: Label
     pageNum*: int
-    btn2SignalId*: uint64 # if signal disconnect problems, change to culong
     btn1SignalId*: uint64 # if signal disconnect problems, change to culong
+    btn2SignalId*: uint64 # if signal disconnect problems, change to culong
+    # btnReveal3SignalId*: uint64 # if signal disconnect problems, change to culong
 
-proc `iconName=`*(self: Row, iconName: string) =
+proc `iconName=`*(self: FileRow, iconName: string) =
   self.image.setFromIconName(iconName)
 
-proc createRowWidget*(pageNum: int, name: string): Row = 
+
+
+proc createFileRowWidget*(pageNum: int, name: string, reveal: Revealer = nil): FileRow = 
   let 
-    row = newBox(Row, Orientation.horizontal, 0)
+    row = newBox(FileRow, Orientation.horizontal, 0)
     # labelFileName = newLabel(name)
-    box = newBox(Orientation.horizontal, 5)
+    buttonBox = newBox(Orientation.horizontal, 5)
 
   row.labelFileName = newLabel(name)
   row.image = newImage()
@@ -29,20 +32,22 @@ proc createRowWidget*(pageNum: int, name: string): Row =
   row.btn2 = newToggleButton("↪")
   
   
-  with box:
+  with buttonBox:
     # setCssClasses("linked")
     append row.image
     append row.labelFileName
+
+  
 
   with row.labelFileName:
     ellipsize = EllipsizeMode.middle
     maxWidthChars = 13
 
-  row.btn1.child = box
-  row.btn1.hexpand = true
-  # with row.btn1:
-  #   child = row.image
-  #   hexpand = true
+  # row.btn1.child = buttonBox
+  # row.btn1.hexpand = true
+  with row.btn1:
+    child = row.image
+    hexpand = true
 
 
   with row:
@@ -50,5 +55,6 @@ proc createRowWidget*(pageNum: int, name: string): Row =
     append row.btn1
     append row.btn2
     pageNum = pageNum
+
   result = row
 

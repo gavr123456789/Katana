@@ -1,7 +1,7 @@
 
 import gintro/[gtk4, gobject, gio, adw]
 import std/with
-import os
+import os, strutils
 import row_widget
 import types
 import carousel_widget
@@ -10,23 +10,25 @@ import stores/directory_lists_store
 import utils
 
 proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
-proc selectFileCb(self: ToggleButton, row: Row );
+proc selectFileCb(self: ToggleButton, row: FileRow );
   
 
 ### FABRIC
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   echo "setup_cb"
-  listitem.setChild(createRowWidget(0, ""))
+  listitem.setChild(createFileRowWidget(0, ""))
   
 proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathAndNum: PathAndNum) =
   echo "bind_cb"
 
   let 
-    row = listitem.getChild().Row
+    row = listitem.getChild().FileRow
     fileInfo = cast[gio.FileInfo](listitem.getItem())
-    path = pathAndNum.path / fileInfo.getName()
     fileType = fileInfo.getFileType
+    path = pathAndNum.path / fileInfo.getName()
+    
 
+  # Set icon from type
   case fileType:
 
   of gio.FileType.unknown:
@@ -36,7 +38,6 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
       getFolderIconFromName(name) 
     else:
       getFileIconFromExt(ext) 
-
 
   of regular:
     echo path, " is ", gio.FileType.regular
@@ -71,7 +72,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   let 
-    row = listitem.getChild().Row
+    row = listitem.getChild().FileRow
   # debugEcho "vivadisconnect: ", row.btn2SignalId
   row.btn2.signalHandlerDisconnect(row.btn2SignalId)
   row.btn1.signalHandlerDisconnect(row.btn1SignalId)
@@ -157,7 +158,7 @@ import stores/selected_store
 import sets
 import stores/gtk_widgets_store
 
-proc selectFileCb(self: ToggleButton, row: Row ) =
+proc selectFileCb(self: ToggleButton, row: FileRow ) =
   # debugEcho pathAndNum.path
   if self.active:
     selectedStoreGb.incl row
