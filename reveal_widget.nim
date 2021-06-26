@@ -32,7 +32,7 @@ proc copyFiles(self: Button) =
   for x in selectedStoreGb.items:
     let xfile = gio.newGFileForPath(x.fullPath)
     let copyPath = gio.newGFileForPath(q / xfile.basename)
-
+    x.btn1.active = false
     xfile.copyAsync(copyPath, {gio.FileCopyFlag.backup}, 10, nil, nil, nil, nil, nil)
     debugEcho "copyed from: ", x.fullPath, " to: ", q / xfile.basename
 
@@ -47,7 +47,10 @@ proc moveFiles(self: Button) =
     let copyPath = gio.newGFileForPath(q / xfile.basename)
     if x.fullPath != q / xfile.basename:
       echo xfile.move(copyPath, {gio.FileCopyFlag.backup}, nil, nil, nil)
-    debugEcho "moved from: ", x.fullPath, " to: ", q / xfile.basename
+      debugEcho "moved from: ", x.fullPath, " to: ", q / xfile.basename
+    else: 
+      x.btn1.active = false
+
   revealGb.revealChild = false
   selectedStoreGb.clear()
   
