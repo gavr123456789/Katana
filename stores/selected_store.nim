@@ -1,3 +1,3 @@
 import sets
 import ../row_widget
-var selectedStoreGb*: HashSet[FileRow]
+var selectedStoreGb*: HashSet[Row]
