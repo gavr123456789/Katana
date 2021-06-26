@@ -5,6 +5,7 @@ import std/with
 type 
   Row* {.requiresInit.} = ref object of Box 
     info*: gio.FileInfo
+    fullPath*: string
     btn1*: ToggleButton
     btn2*: ToggleButton
     image*: Image
@@ -30,8 +31,6 @@ proc createRowWidget*(pageNum: int, name: string): Row =
   
   with box:
     # setCssClasses("linked")
-    # append newLabel("sas")
-    # append newLabel("sus")
     append row.image
     append row.labelFileName
 

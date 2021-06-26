@@ -14,9 +14,9 @@ type
 proc deleteFiles(self: Button) = 
   # Удалить все из 
   for x in selectedStoreGb.items:
-    let xfile = gio.newGFileForPath(x)
+    let xfile = gio.newGFileForPath(x.fullPath)
     xfile.deleteAsync(10, nil, nil, nil)
-    debugEcho "deleted: ", x
+    debugEcho "deleted: ", x.fullPath
   debugEcho "-----sssasss-----"
   
   revealGb.revealChild = false
@@ -30,11 +30,11 @@ import os
 proc copyFiles(self: Button) = 
   let q = directoryListsStoreGb[currentPageGb].file.path
   for x in selectedStoreGb.items:
-    let xfile = gio.newGFileForPath(x)
+    let xfile = gio.newGFileForPath(x.fullPath)
     let copyPath = gio.newGFileForPath(q / xfile.basename)
 
     xfile.copyAsync(copyPath, {gio.FileCopyFlag.backup}, 10, nil, nil, nil, nil, nil)
-    debugEcho "copyed from: ", x, " to: ", q / xfile.basename
+    debugEcho "copyed from: ", x.fullPath, " to: ", q / xfile.basename
 
   revealGb.revealChild = false
   selectedStoreGb.clear()
@@ -43,11 +43,11 @@ proc copyFiles(self: Button) =
 proc moveFiles(self: Button) = 
   let q = directoryListsStoreGb[currentPageGb].file.path
   for x in selectedStoreGb.items:
-    let xfile = gio.newGFileForPath(x)
+    let xfile = gio.newGFileForPath(x.fullPath)
     let copyPath = gio.newGFileForPath(q / xfile.basename)
-    if x != q / xfile.basename:
+    if x.fullPath != q / xfile.basename:
       echo xfile.move(copyPath, {gio.FileCopyFlag.backup}, nil, nil, nil)
-    debugEcho "moved from: ", x, " to: ", q / xfile.basename
+    debugEcho "moved from: ", x.fullPath, " to: ", q / xfile.basename
   revealGb.revealChild = false
   selectedStoreGb.clear()
   

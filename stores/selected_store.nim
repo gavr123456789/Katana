@@ -1,2 +1,3 @@
 import sets
-var selectedStoreGb*: HashSet[string]
+import ../row_widget
+var selectedStoreGb*: HashSet[Row]

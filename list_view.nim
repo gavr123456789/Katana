@@ -10,7 +10,7 @@ import stores/directory_lists_store
 import utils
 
 proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
-proc selectFileCb(self: ToggleButton, pathAndNum: PathAndNum );
+proc selectFileCb(self: ToggleButton, row: Row );
   
 
 ### FABRIC
@@ -61,9 +61,10 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
     echo path, " is ", gio.FileType.mountable
 
   row.btn2SignalId = row.btn2.connect("toggled", openFileCb, (pathAndNum.num, path))
-  row.btn1SignalId = row.btn1.connect("toggled", selectFileCb, (pathAndNum.num, path))
+  row.btn1SignalId = row.btn1.connect("toggled", selectFileCb, row)
   row.labelFileName.label = fileInfo.getName()
   row.info = fileInfo
+  row.fullPath = path
   
   # debugEcho "connect: ", row.btn2SignalId
   
@@ -156,12 +157,12 @@ import stores/selected_store
 import sets
 import stores/gtk_widgets_store
 
-proc selectFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
+proc selectFileCb(self: ToggleButton, row: Row ) =
   # debugEcho pathAndNum.path
   if self.active:
-    selectedStoreGb.incl pathAndNum.path
+    selectedStoreGb.incl row
   else:
-    selectedStoreGb.excl pathAndNum.path
+    selectedStoreGb.excl row
 
   if selectedStoreGb.len != 0:
     discard
