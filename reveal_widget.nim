@@ -45,8 +45,8 @@ proc moveFiles(self: Button) =
   for x in selectedStoreGb.items:
     let xfile = gio.newGFileForPath(x)
     let copyPath = gio.newGFileForPath(q / xfile.basename)
-
-    echo xfile.move(copyPath, {gio.FileCopyFlag.backup}, nil, nil, nil)
+    if x != q / xfile.basename:
+      echo xfile.move(copyPath, {gio.FileCopyFlag.backup}, nil, nil, nil)
     debugEcho "moved from: ", x, " to: ", q / xfile.basename
   revealGb.revealChild = false
   selectedStoreGb.clear()
