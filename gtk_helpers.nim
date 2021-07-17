@@ -1,4 +1,4 @@
-import gintro/[adw, gtk4, gobject, gio]
+import gintro/[adw, gtk4, gdk4, gobject, gio]
 import carousel_widget
 import hashes
 proc inToScroll*(widget: Widget): ScrolledWindow =
@@ -38,6 +38,9 @@ proc inToBox*(widget: Widget, revealOpened: bool): BoxWithProgressBarReveal =
   result.prepend widget
   
   
+proc openFileInApp(fileUri: string, window: gtk4.Window ) =
+  let file = gio.newGFileForPath(fileUri)
+  gtk4.showUri(window, file.uri, gdk4.CURRENT_TIME)
 
 
 proc hash*(b: gobject.Object): Hash = 
