@@ -7,3 +7,9 @@ proc printDirectoryListsStore*(self: TableRef[int, gtk4.DirectoryList]) =
   for x, y in self.pairs:
     echo $x, ": ", y.file.path / y.file.basename
   echo "\n"
+
+proc deleteN*(self: TableRef[int, gtk4.DirectoryList], n: int) = 
+  let x = self[n]
+  
+  discard
+  

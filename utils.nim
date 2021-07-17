@@ -9,7 +9,7 @@ func getFileIconFromExt*(ext: string): string =
       of ".kt": "folder-kotlin-symbolic"
       of ".js": "folder-js-symbolic"
       of ".node": "folder-nodejs-symbolic"
-      of ".png": "folder-picture-symbolic"
+      of ".png", ".jpg": "folder-picture-symbolic"
       of ".mp3", ".wav": "deepin-music-player-symbolic"
       of ".mp4": "camera-symbolic"
       of ".gif": "avidemux_icon-symbolic"
@@ -19,13 +19,14 @@ func getFileIconFromExt*(ext: string): string =
 
 func getFolderIconFromName*(folderName: string): string = 
   result = case folderName:
-      of "Games": "gamepad-symbolic"
+      of "Games": "games-app-symbolic"
       of "Apps": "applications-java-symbolic"
-      of "Projects": "applications-python-symbolic"
+      of "Projects": "document-open-symbolic"
       of "Programs": "nvim-symbolic"
       of "Plugins": "puzzle-piece-symbolic"
       of ".git": "git-cola-symbolic"
       of "Telegram": "mail-send-symbolic"
       of "node_modules": "folder-nodejs-symbolic"
+      of "Books": "folder-library-symbolic" # file-catalog-symbolic
       
       else: "sidebar-places-symbolic" # sidebar-places-symbolic "inode-directory-symbolic"

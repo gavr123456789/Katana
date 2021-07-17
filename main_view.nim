@@ -15,6 +15,8 @@ proc activate(app: gtk4.Application) =
     mainBox = newBox(Orientation.vertical, 0)
     reveal = createRevealerWithCounter(header)
 
+  mainApplicationWindowGb = window
+
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
   carouselGb.connect("page_changed", setCurrentPage)

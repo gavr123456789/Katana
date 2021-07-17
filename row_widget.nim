@@ -1,9 +1,8 @@
 import gintro/[gtk4, gobject, gio, pango]
 import std/with
 
-
 type 
-  FileRow* {.requiresInit.} = ref object of Box 
+  FileRow* = ref object of Stack 
     info*: gio.FileInfo
     fullPath*: string
     btn1*: ToggleButton
@@ -11,26 +10,34 @@ type
     image*: Image
     labelFileName*: Label
     pageNum*: int
-    btn2SignalId*: uint64 # if signal disconnect problems, change to culong
-    btn1SignalId*: uint64 # if signal disconnect problems, change to culong
+    # signals
+    arrowBtnSignalid*: uint64
+    fileBtnSignalid*: uint64 
+    switchStackBtnSignalid*: uint64 
 
 proc `iconName=`*(self: FileRow, iconName: string) =
   self.image.setFromIconName(iconName)
 
-proc createFileRow*(pageNum: int, name: string): FileRow = 
+# proc createTestRow*(name: string): Button =
+#   var x: seq[string]
+#   result = newButton(name)
+
+proc createFileRow*(pageNum: int, name: string, stackBox: Box = nil): FileRow = 
   let 
-    row = newBox(FileRow, Orientation.horizontal, 0)
+    row = newStack(FileRow)
+    mainBox = newBox(Orientation.horizontal, 0)
     # labelFileName = newLabel(name)
     box = newBox(Orientation.horizontal, 5)
+
+
 
   row.labelFileName = newLabel(name)
   row.image = newImage()
   row.btn1 = newToggleButton()
   row.btn2 = newToggleButton("↪")
   
-  
+# box with file picture and label  
   with box:
-    # setCssClasses("linked")
     append row.image
     append row.labelFileName
 
@@ -42,10 +49,14 @@ proc createFileRow*(pageNum: int, name: string): FileRow =
   row.btn1.hexpand = true
 
 
-  with row:
+  with mainBox:
     setCssClasses("linked")
     append row.btn1
     append row.btn2
-    pageNum = pageNum
+
+  row.pageNum = pageNum
+
+  discard row.addNamed(mainBox, "mainBox")
+
   result = row
 

@@ -4,8 +4,8 @@ import strformat
 
 type 
   CarouselWithPaths* = ref object of Carousel
-    directoriLists*: seq[DirectoryList]
-
+    directoryLists*: seq[DirectoryList] 
+ 
 var carouselGb*: CarouselWithPaths
 
 
@@ -35,7 +35,9 @@ proc deleteLastPage(self: CarouselWithPaths) =
   let lastWidget = self.getNthPage(last)
   assert lastWidget != nil
 
+  #TODO delete last listModel first
   self.remove(lastWidget)
+  directoryListsStoreGb[last] = nil
   directoryListsStoreGb.del last
   directoryListsStoreGb.printDirectoryListsStore()
 
@@ -43,7 +45,6 @@ proc deleteLastPage(self: CarouselWithPaths) =
 # Принимает номер страницы после который нужно удалить все
 proc removeNPagesFrom*(self: CarouselWithPaths, n: int) =
   assert(n < self.nPages)
-
   for index in n..<self.nPages - 1:
     deleteLastPage(self)
   

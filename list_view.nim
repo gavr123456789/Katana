@@ -9,18 +9,26 @@ import gtk_helpers
 import stores/directory_lists_store
 import utils
 
-proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum );
+proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum );
+proc openFileCb(self: ToggleButton, path: string );
+proc openMusicCb(self: ToggleButton, pathAndNum: PathAndNum );
 proc selectFileCb(self: ToggleButton, row: FileRow );
   
+# TODO
+proc openMusicCb(self: ToggleButton, pathAndNum: PathAndNum ) = 
+  discard
+
+proc openFileCb(self: ToggleButton, path: string ) = 
+  if self.active == true:
+    debugEcho "opeingn file ", path
+    self.active = false
+    gtk_helpers.openFileInApp(path)
 
 ### FABRIC
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
-  echo "setup_cb"
   listitem.setChild(createFileRow(0, ""))
   
 proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathAndNum: PathAndNum) =
-  echo "bind_cb"
-
   let 
     row = listitem.getChild().FileRow
     fileInfo = cast[gio.FileInfo](listitem.getItem())
@@ -40,16 +48,20 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
 
   of regular:
     echo path, " is ", gio.FileType.regular
-    # var q: ref bool
-    # let mime = gio.contentTypeGuess(fileInfo.getName(), "", q)
-    echo "file attributes is ", fileInfo.listAttributes
     let (_, _, ext) = fileInfo.getName().splitFile()
-    echo "file type is ", ext
     row.iconName = getFileIconFromExt ext
+    if ext == ".mp3":
+      row.arrowBtnSignalid = row.btn2.connect("toggled", openFolderCb, (pathAndNum.num, path)) # TODO функция перемещающая стак на плеер
+    else:
+      row.arrowBtnSignalid = row.btn2.connect("toggled", openFileCb, path) # TODO функция открывающая  файл
 
+
+      
   of directory:
-    echo path, " is ", gio.FileType.directory
+    # echo path, " is ", gio.FileType.directory
     row.iconName = getFolderIconFromName(fileInfo.getName()) 
+    row.arrowBtnSignalid = row.btn2.connect("toggled", openFolderCb, (pathAndNum.num, path))
+
 
   of symbolicLink:
     echo path, " is ", gio.FileType.symbolicLink
@@ -60,31 +72,34 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   of mountable:
     echo path, " is ", gio.FileType.mountable
 
-  row.btn2SignalId = row.btn2.connect("toggled", openFileCb, (pathAndNum.num, path))
-  row.btn1SignalId = row.btn1.connect("toggled", selectFileCb, row)
+  row.fileBtnSignalid = row.btn1.connect("toggled", selectFileCb, row)
   row.labelFileName.label = fileInfo.getName()
   row.info = fileInfo
   row.fullPath = path
-  
-  # debugEcho "connect: ", row.btn2SignalId
-  
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
-  let 
-    row = listitem.getChild().FileRow
-  # debugEcho "vivadisconnect: ", row.btn2SignalId
-  row.btn2.signalHandlerDisconnect(row.btn2SignalId)
-  row.btn1.signalHandlerDisconnect(row.btn1SignalId)
+  let row = listitem.getChild().FileRow
+  row.btn2.signalHandlerDisconnect(row.arrowBtnSignalid)
+  row.btn1.signalHandlerDisconnect(row.fileBtnSignalid)
 
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
-  listitem.GC_unref
+  debugEcho "teardown_cb"
+  
+  if listitem.getChild != nil:
+    debugEcho "refCount: ", listitem.getChild.refCount
+    listitem.setChild nil
+
+  else:
+    debugEcho "listitem.getChild == nil"
+
+  discard
 
 ### LOGIC
 import tables
 
 proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pathAndNum: PathAndNum) =
   echo "hello gestures ", nPress, " ", x, " ", y
-  echo "num: ", pathAndNum.num, " path: ", pathAndNum.path
+  # echo "num: ", pathAndNum.num, " path: ", pathAndNum.path
   if pathAndNum.num != gtk_helpers.currentPageGb:
     debugEcho "try scroll to ", pathAndNum.num
     carouselGb.scrollToN(pathAndNum.num )
@@ -124,7 +139,7 @@ proc createListView*(dir: string, num: int): ListView =
 import tables
 var lastToggledPerPage = newTable[int, ToggleButton]()
 
-proc openFileCb(self: ToggleButton, pathAndNum: PathAndNum ) =
+proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
 
   if self.active:
     # Если на этой странице уже есть активированная кнопка
