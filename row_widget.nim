@@ -18,10 +18,6 @@ type
 proc `iconName=`*(self: FileRow, iconName: string) =
   self.image.setFromIconName(iconName)
 
-# proc createTestRow*(name: string): Button =
-#   var x: seq[string]
-#   result = newButton(name)
-
 proc createFileRow*(pageNum: int, name: string, stackBox: Box = nil): FileRow = 
   let 
     row = newStack(FileRow)
@@ -34,6 +30,7 @@ proc createFileRow*(pageNum: int, name: string, stackBox: Box = nil): FileRow =
   row.labelFileName = newLabel(name)
   row.image = newImage()
   row.btn1 = newToggleButton()
+
   row.btn2 = newToggleButton("↪")
   
 # box with file picture and label  
@@ -57,6 +54,9 @@ proc createFileRow*(pageNum: int, name: string, stackBox: Box = nil): FileRow =
   row.pageNum = pageNum
 
   discard row.addNamed(mainBox, "mainBox")
+  if stackBox != nil:
+    discard row.addNamed(stackBox, "stackBox")
+
 
   result = row
 

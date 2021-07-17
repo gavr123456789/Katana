@@ -49,6 +49,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   of regular:
     echo path, " is ", gio.FileType.regular
     let (_, _, ext) = fileInfo.getName().splitFile()
+    row.btn2.label = "→"
     row.iconName = getFileIconFromExt ext
     if ext == ".mp3":
       row.arrowBtnSignalid = row.btn2.connect("toggled", openFolderCb, (pathAndNum.num, path)) # TODO функция перемещающая стак на плеер
