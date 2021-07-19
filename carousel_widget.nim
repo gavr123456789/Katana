@@ -1,11 +1,10 @@
 import gintro/[gtk4, gobject, gio, adw]
 import strformat
 
-
 type 
   CarouselWithPaths* = ref object of Carousel
     directoryLists*: seq[DirectoryList] 
- 
+
 var carouselGb*: CarouselWithPaths
 
 
@@ -41,9 +40,10 @@ proc deleteLastPage(self: CarouselWithPaths) =
   directoryListsStoreGb.del last
   directoryListsStoreGb.printDirectoryListsStore()
 
-
+import gtk_helpers
 # Принимает номер страницы после который нужно удалить все
 proc removeNPagesFrom*(self: CarouselWithPaths, n: int) =
+  gtk_helpers.currentPageGb -= n
   assert(n < self.nPages)
   for index in n..<self.nPages - 1:
     deleteLastPage(self)
