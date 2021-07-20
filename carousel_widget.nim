@@ -10,6 +10,7 @@ type
 var carouselGb*: CarouselWithPaths
 
 proc getCurrentPageWidget*(self: CarouselWithPaths): Widget = 
+  assert self.nPages >= 0
   result = self.getNthPage(self.currentPage)
 
 proc getCurrentPageNumber*(self: CarouselWithPaths): int = 
@@ -23,8 +24,9 @@ proc createCarousel*(widget: Widget): CarouselWithPaths =
   result.append (widget)
 
 proc gotoPage*(self: CarouselWithPaths, index: int) = 
-  echo index
-  
+  echo "carusel N pages: ", self.nPages 
+
+  assert self.getCurrentPageWidget() != nil
   assert self.getCurrentPageWidget().BoxWithProgressBarReveal != nil
   assert self.getNthPage(index).BoxWithProgressBarReveal != nil
 
@@ -33,36 +35,52 @@ proc gotoPage*(self: CarouselWithPaths, index: int) =
 
   self.currentPage = index
 
+  debugEcho "scrollToN: ", index
+  self.scrollToFull self.getNthPage index, 500
 
 
-proc scrollToN*(self: CarouselWithPaths, n: int) = 
-  debugEcho "scrollToN: ", n
-  self.scrollToFull self.getNthPage n, 500
+
+# proc scrollToN*(self: CarouselWithPaths, n: int) = 
+#   debugEcho "scrollToN: ", n
+#   self.scrollToFull self.getNthPage n, 500
   
 import stores/directory_lists_store
 import tables
+
 proc deleteLastPage(self: CarouselWithPaths) = 
+  assert(self.nPages >= 0)
   let nPages = self.nPages
-  let last = nPages - 1
+  let lastPageIndex = nPages - 1
   debugEcho fmt"deleteLastPage: npages = {npages}"
 
-  assert(last < nPages, fmt"last: {last} !< {nPages}")
-  assert(last >= 0, fmt"last: {last} !>= 0")
+  assert(lastPageIndex < nPages, fmt"last: {lastPageIndex} !< {nPages}")
+  assert(lastPageIndex >= 0, fmt"last: {lastPageIndex} !>= 0")
 
-  let lastWidget = self.getNthPage(last)
+  let lastWidget = self.getNthPage(lastPageIndex)
   assert lastWidget != nil
 
-  #TODO delete last listModel first
+  #TODO delete lastPage listModel first
   self.remove(lastWidget)
-  directoryListsStoreGb[last] = nil
-  directoryListsStoreGb.del last
+  
+  # directoryListsStoreGb[lastPageIndex] = nil
+  directoryListsStoreGb.del lastPageIndex
   directoryListsStoreGb.printDirectoryListsStore()
 
+
+
 # Принимает номер страницы после который нужно удалить все
-proc removeNPagesFrom*(self: CarouselWithPaths, n: int) =
-  self.currentPage -= n
-  setCurrentPage
+# n - page index, after what all need to be deleted
+proc removeNPagesAfter*(self: CarouselWithPaths, n: int) =
+  # если мы и удаляем все после текущей страницы, то делать на нее готу не надо
+  if self.currentPage != n:
+    self.gotoPage(self.currentPage)
+    self.currentPage = n
   assert(n < self.nPages)
+  assert(self.currentPage >= 0)
+  debugEcho "Deleting pages from ", n,  " to ",  self.nPages - 1
+ 
+
   for index in n..<self.nPages - 1:
+    debugEcho "now trying to delete page #", index
     deleteLastPage(self)
   

@@ -103,7 +103,7 @@ proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble
   # echo "num: ", pathAndNum.num, " path: ", pathAndNum.path
   # if pathAndNum.num != gtk_helpers.currentPageGb:
   debugEcho "try scroll to ", pathAndNum.num
-  carouselGb.scrollToN(pathAndNum.num )
+  carouselGb.gotoPage(pathAndNum.num)
   
 
 proc createListView*(dir: string, num: int): ListView =
@@ -158,14 +158,13 @@ proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
   else:
     # Закрыть все начиная с текущего номера из path and num и антуглнуть предыдущую туглед
     debugEcho "untoggle"
-    # debugEcho "carouselGb.nPages: ", carouselGb.nPages
-    # debugEcho "pathAndNum.num: ", pathAndNum.num
-    carouselGb.removeNPagesFrom(pathAndNum.num)
+    debugEcho "carouselGb.nPages: ", carouselGb.nPages
+    debugEcho "pathAndNum.num: ", pathAndNum.num
+    carouselGb.removeNPagesAfter(pathAndNum.num)
+    # remove last toggled
     lastToggledPerPage.del pathAndNum.num
     
-  # if pathAndNum.num != gtk_helpers.currentPageGb:
-  #   debugEcho "try scroll to ", pathAndNum.num
-  #   carouselGb.scrollToN(pathAndNum.num )
+
 
 
 
