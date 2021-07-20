@@ -101,9 +101,9 @@ import tables
 proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pathAndNum: PathAndNum) =
   echo "hello gestures ", nPress, " ", x, " ", y
   # echo "num: ", pathAndNum.num, " path: ", pathAndNum.path
-  if pathAndNum.num != gtk_helpers.currentPageGb:
-    debugEcho "try scroll to ", pathAndNum.num
-    carouselGb.scrollToN(pathAndNum.num )
+  # if pathAndNum.num != gtk_helpers.currentPageGb:
+  debugEcho "try scroll to ", pathAndNum.num
+  carouselGb.scrollToN(pathAndNum.num )
   
 
 proc createListView*(dir: string, num: int): ListView =
@@ -118,7 +118,7 @@ proc createListView*(dir: string, num: int): ListView =
     gestureClick = newGestureClick()
 
   gestureClick.setButton(3) # rigth click
-  gestureClick.connect("pressed", gestureRigthClickCb, ( num: num, path: dl.getFile().getPath()) )
+  gestureClick.connect("pressed", gestureRigthClickCb, ( num: num, path: dl.getFile().getPath()) ) # todo carousel
 
   lv.addController(gestureClick)
 

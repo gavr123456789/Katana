@@ -3,6 +3,7 @@ import std/with
 import sets
 import stores/selected_store
 import stores/gtk_widgets_store
+import carousel_widget
 
 type 
   RevealerWithCounter* = ref object of gtk4.Revealer
@@ -28,7 +29,7 @@ import tables
 import os
 
 proc copyFiles(self: Button) = 
-  let q = directoryListsStoreGb[currentPageGb].file.path
+  let q = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path
   for x in selectedStoreGb.items:
     let xfile = gio.newGFileForPath(x.fullPath)
     let copyPath = gio.newGFileForPath(q / xfile.basename)
@@ -41,7 +42,7 @@ proc copyFiles(self: Button) =
   debugEcho "-----sssasss-----"
 
 proc moveFiles(self: Button) = 
-  let q = directoryListsStoreGb[currentPageGb].file.path
+  let q = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path
   for x in selectedStoreGb.items:
     let xfile = gio.newGFileForPath(x.fullPath)
     let copyPath = gio.newGFileForPath(q / xfile.basename)
@@ -62,7 +63,7 @@ proc createFile(entry: Entry, reveal: Revealer) =
     reveal.revealChild = false
     return
 
-  let currentPath = directoryListsStoreGb[currentPageGb].file.path / entry.text
+  let currentPath = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path / entry.text
   echo currentPath
   if not dirExists(currentPath):
     writeFile(currentPath, "")
@@ -79,7 +80,7 @@ proc createFolder(entry: Entry, reveal: Revealer) =
     reveal.revealChild = false
     return
 
-  let currentPath = directoryListsStoreGb[currentPageGb].file.path / entry.text
+  let currentPath = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path / entry.text
   if not dirExists(currentPath):
     createDir(currentPath)
   

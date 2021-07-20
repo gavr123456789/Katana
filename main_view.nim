@@ -19,7 +19,7 @@ proc activate(app: gtk4.Application) =
 
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
-  carouselGb.connect("page_changed", setCurrentPage)
+  carouselGb.connect("page_changed", gotoPage)
 
   revealGb = reveal  
 
