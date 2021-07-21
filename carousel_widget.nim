@@ -23,7 +23,7 @@ proc createCarousel*(widget: Widget): CarouselWithPaths =
   result.allowLongSwipes = true
   result.append (widget)
 
-proc gotoPage*(self: CarouselWithPaths, index: int) = 
+proc setCurrentPage2*(self: CarouselWithPaths, index: int) = 
   echo "carusel N pages: ", self.nPages 
 
   assert self.getCurrentPageWidget() != nil
@@ -34,6 +34,9 @@ proc gotoPage*(self: CarouselWithPaths, index: int) =
   self.getNthPage(index).BoxWithProgressBarReveal.showProgressBar = true
 
   self.currentPage = index
+
+proc gotoPage*(self: CarouselWithPaths, index: int) = 
+  setCurrentPage2(self, index)
 
   debugEcho "scrollToN: ", index
   self.scrollToFull self.getNthPage index, 500
