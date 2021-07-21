@@ -28,6 +28,23 @@ proc openFileCb(self: ToggleButton, path: string ) =
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild(createFileRow(0, ""))
   
+
+proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, num: int) =
+  echo path, " is ", gio.FileType.regular
+  let (_, _, ext) = fileInfo.getName().splitFile()
+  row.btn2.label = "→"
+  row.iconName = getFileIconFromExt ext
+  if ext == ".mp3":
+    row.arrowBtnSignalid = row.btn2.connect("toggled", openFolderCb, (num, path)) # TODO функция перемещающая стак на плеер
+  else:
+    row.arrowBtnSignalid = row.btn2.connect("toggled", openFileCb, path) # TODO функция открывающая  файл
+
+proc parseDir(row: FileRow, path: string, fileInfo: gio.FileInfo, num: int) = 
+      # echo path, " is ", gio.FileType.directory
+    row.iconName = getFolderIconFromName(fileInfo.getName()) 
+    row.arrowBtnSignalid = row.btn2.connect("toggled", openFolderCb, (num, path))
+
+
 proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathAndNum: PathAndNum) =
   let 
     row = listitem.getChild().FileRow
@@ -40,28 +57,25 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   of gio.FileType.unknown:
     echo path, " is ", gio.FileType.unknown
     let (_, name, ext) = fileInfo.getName().splitFile()
-    row.iconName = if ext == "":
-      getFolderIconFromName(name) 
+    let isDir = ext == ""
+
+    
+    if isDir:
+      row.iconName = getFolderIconFromName(name) 
+      parseDir(row, path, fileInfo, pathAndNum.num)
     else:
-      getFileIconFromExt(ext) 
+      row.iconName = getFileIconFromExt(ext) 
+      parseRegular(row, path, fileInfo, pathAndNum.num)
+
 
 
   of regular:
-    echo path, " is ", gio.FileType.regular
-    let (_, _, ext) = fileInfo.getName().splitFile()
-    row.btn2.label = "→"
-    row.iconName = getFileIconFromExt ext
-    if ext == ".mp3":
-      row.arrowBtnSignalid = row.btn2.connect("toggled", openFolderCb, (pathAndNum.num, path)) # TODO функция перемещающая стак на плеер
-    else:
-      row.arrowBtnSignalid = row.btn2.connect("toggled", openFileCb, path) # TODO функция открывающая  файл
-
+    parseRegular(row, path, fileInfo, pathAndNum.num)
 
       
   of directory:
-    # echo path, " is ", gio.FileType.directory
-    row.iconName = getFolderIconFromName(fileInfo.getName()) 
-    row.arrowBtnSignalid = row.btn2.connect("toggled", openFolderCb, (pathAndNum.num, path))
+    parseDir(row, path, fileInfo, pathAndNum.num)
+
 
 
   of symbolicLink:
