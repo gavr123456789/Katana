@@ -8,9 +8,10 @@ import carousel_widget
 type 
   RevealerWithCounter* = ref object of gtk4.Revealer
     counter: Natural
-  # RevealerAndEntry = tuple
-  #   entry: Entry
-  #   revealer: Revealer
+  
+  RevealerAndEntry = tuple
+    revealer: Revealer
+    entry: Entry
 
 proc deleteFiles(self: Button) = 
   # Удалить все из 
@@ -24,7 +25,6 @@ proc deleteFiles(self: Button) =
   selectedStoreGb.clear()
 
 import stores/directory_lists_store
-import gtk_helpers
 import tables
 import os
 
@@ -89,12 +89,16 @@ proc createFolder(entry: Entry, reveal: Revealer) =
   
 
 
-proc openFolderEntry(self: Button, revealer: Revealer) =
-  revealer.revealChild = not revealer.revealChild
+proc openFolderEntry(self: Button, revealerAndEntry: RevealerAndEntry) =
+  revealerAndEntry.revealer.revealChild = not revealerAndEntry.revealer.revealChild
+  if revealerAndEntry.revealer.revealChild:
+    discard revealerAndEntry.entry.grabFocus()
 
-proc openFileEntry(self: Button, revealer: Revealer) =
-  revealer.revealChild = not revealer.revealChild
 
+proc openFileEntry(self: Button, revealerAndEntry: RevealerAndEntry) =
+  revealerAndEntry.revealer.revealChild = not revealerAndEntry.revealer.revealChild
+  if revealerAndEntry.revealer.revealChild:
+    discard revealerAndEntry.entry.grabFocus()
 
 # proc createFile(self: Button, folderNameEntry: gtk4.Entry) =
 
@@ -150,8 +154,8 @@ proc createRevealerWithCounter*(header: adw.HeaderBar): RevealerWithCounter =
   revealBtnCopy.connect("clicked", copyFiles)
   revealBtnMove.connect("clicked", moveFiles)
 
-  revealBtnCreateFolder.connect("clicked", openFolderEntry, folderNameReveal)
-  revealBtnCreateFile.connect("clicked", openFileEntry, fileNameReveal) # fileNameEntry
+  revealBtnCreateFolder.connect("clicked", openFolderEntry, (folderNameReveal, folderNameEntry))
+  revealBtnCreateFile.connect("clicked", openFileEntry, (fileNameReveal, fileNameEntry)) # fileNameEntry
 
   fileNameEntry.hexpand = true
   fileNameEntry.connect("activate", createFile, fileNameReveal)
