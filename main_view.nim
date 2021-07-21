@@ -27,7 +27,7 @@ proc activate(app: gtk4.Application) =
   with mainBox:
     # marginStart = 60
     # marginEnd = 60
-    marginTop = 30
+    # marginTop = 30
     marginBottom = 30
     append carouselGb
 

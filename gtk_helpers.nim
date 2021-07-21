@@ -19,7 +19,7 @@ proc inToScroll*(widget: Widget): ScrolledWindow =
 
 proc inToBox*(widget: Widget, revealOpened: bool): BoxWithProgressBarReveal =
   result = createBoxWithProgressBarReveal(revealOpened)
-  
+  result.marginTop = 30
   result.prepend widget
   
   
