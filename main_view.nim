@@ -14,12 +14,15 @@ proc activate(app: gtk4.Application) =
     listView = createListView(".", 0).inToScroll.inToBox true
     mainBox = newBox(Orientation.vertical, 0)
     reveal = createRevealerWithCounter(header)
+    carouselIndicatorLines = newCarouselIndicatorLines()
 
   mainApplicationWindowGb = window
 
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
   carouselGb.connect("page_changed", setCurrentPage2)
+
+  carouselIndicatorLines.carousel = carouselGb
 
   revealGb = reveal  
 
@@ -35,6 +38,8 @@ proc activate(app: gtk4.Application) =
     append header 
     append reveal
     append mainBox
+    append carouselIndicatorLines
+
 
   with window:
     defaultSize = (600, 400)
