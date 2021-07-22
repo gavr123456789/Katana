@@ -52,6 +52,14 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
     path = pathAndNum.path / fileInfo.getName()
     fileType = fileInfo.getFileType
 
+  debugEcho "ATTRIBUTES"
+  debugEcho fileInfo.listAttributes
+  debugEcho "size: ", fileInfo.getSize
+  debugEcho "allocated-size: ", fileInfo.getAttributeUInt64("standard::allocated-size")
+  # debugEcho "standard::type: ", fileInfo.getAttributeString("standard::type")
+  debugEcho "standard::content-type: ", fileInfo.getAttributeString("standard::content-type")
+
+  # debugEcho "standard::file is ", fileInfo.getAttributeString("standard::file::standart_size")
   case fileType:
 
   of gio.FileType.unknown:
@@ -123,7 +131,7 @@ proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble
 proc createListView*(dir: string, num: int): ListView =
   let
     file = gio.newGFileForPath(dir)
-    dl = gtk4.newDirectoryList("standard::name", file)
+    dl = gtk4.newDirectoryList("standard::*", file)
     lm = listModel(dl)
     ns = gtk4.newNoSelection(lm)
     factory = gtk4.newSignalListItemFactory()
