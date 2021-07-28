@@ -9,9 +9,9 @@ func getFileIconFromExt*(ext: string): string =
       of ".kt": "folder-kotlin-symbolic"
       of ".js": "folder-js-symbolic"
       of ".node": "folder-nodejs-symbolic"
-      of ".png", ".jpg": "folder-picture-symbolic"
+      of ".png", ".jpg", ".jpeg": "folder-picture-symbolic"
       of ".mp3", ".wav": "deepin-music-player-symbolic"
-      of ".mp4": "camera-symbolic"
+      of ".mp4", "mkv": "camera-symbolic"
       of ".gif": "avidemux_icon-symbolic"
       
       else: "folder-documents-symbolic"
