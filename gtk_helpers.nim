@@ -27,7 +27,3 @@ proc hash*(b: gobject.Object): Hash =
   # create hash from widget pointer
   result =  cast[Hash](cast[uint](b) shr 3)
   echo result
-
-# var currentPageGb*: int = 0
-
-
