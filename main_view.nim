@@ -16,7 +16,7 @@ proc activate(app: gtk4.Application) =
     reveal = createRevealerWithCounter(header)
     carouselIndicatorLines = newCarouselIndicatorLines()
 
-  mainApplicationWindowGb = window
+  # mainApplicationWindowGb = window
 
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
