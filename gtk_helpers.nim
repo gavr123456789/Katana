@@ -27,3 +27,15 @@ proc hash*(b: gobject.Object): Hash =
   # create hash from widget pointer
   result =  cast[Hash](cast[uint](b) shr 3)
   echo result
+
+
+
+
+proc createBoxWithPlayer*(path: string): Box =
+  result = newBox(Orientation.horizontal, 0)
+  # result.homogeneous = true
+  let
+    mediaFile = newMediaFileForFilename(path)
+    mediaControls = newMediaControls(mediaFile)
+  result.append mediaControls
+  mediaControls.hexpand = true

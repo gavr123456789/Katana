@@ -21,7 +21,7 @@ proc deleteFiles(self: Button) =
     debugEcho "deleted: ", x.fullPath
   debugEcho "-----sssasss-----"
   
-  revealGb.revealChild = false
+  revealFileCRUDGb.revealChild = false
   selectedStoreGb.clear()
 
 import stores/directory_lists_store
@@ -37,7 +37,7 @@ proc copyFiles(self: Button) =
     xfile.copyAsync(copyPath, {gio.FileCopyFlag.backup}, 10, nil, nil, nil, nil, nil)
     debugEcho "copyed from: ", x.fullPath, " to: ", q / xfile.basename
 
-  revealGb.revealChild = false
+  revealFileCRUDGb.revealChild = false
   selectedStoreGb.clear()
   debugEcho "-----sssasss-----"
 
@@ -52,7 +52,7 @@ proc moveFiles(self: Button) =
     else: 
       x.btn1.active = false
 
-  revealGb.revealChild = false
+  revealFileCRUDGb.revealChild = false
   selectedStoreGb.clear()
   
   debugEcho "-----sssasss-----"
@@ -101,6 +101,7 @@ proc openFileEntry(self: Button, revealerAndEntry: RevealerAndEntry) =
     discard revealerAndEntry.entry.grabFocus()
 
 # proc createFile(self: Button, folderNameEntry: gtk4.Entry) =
+
 
 
 proc createRevealerWithCounter*(header: adw.HeaderBar): RevealerWithCounter =
@@ -165,6 +166,7 @@ proc createRevealerWithCounter*(header: adw.HeaderBar): RevealerWithCounter =
   # centerBox.centerWidget = renameEntry
 
   result.child = centerBox
+
 
 # func inc*(self: RevealerWithCounter) = self.counter.inc()
 # func reset*(self: RevealerWithCounter) = self.counter = 0

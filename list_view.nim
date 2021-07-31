@@ -11,12 +11,9 @@ import utils
 
 proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum );
 proc openFileCb(self: ToggleButton, path: string );
-proc openMusicCb(self: ToggleButton, pathAndNum: PathAndNum );
+# proc openMusicCb(self: ToggleButton, pathAndNum: PathAndNum );
 proc selectFileCb(self: ToggleButton, row: FileRow );
-  
-# TODO
-proc openMusicCb(self: ToggleButton, pathAndNum: PathAndNum ) = 
-  discard
+
 
 proc openFileCb(self: ToggleButton, path: string ) = 
   if self.active == true:
@@ -25,8 +22,16 @@ proc openFileCb(self: ToggleButton, path: string ) =
     gtk_helpers.openFileInApp(path)
 
 ### FABRIC
-proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
+proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, fullPath: string) =
+  
+  # let
+  #   fileInfo = cast[gio.FileInfo](listitem.getItem())
+  #   # row = listitem.getChild().FileRow
+  #   path = fullPath / fileInfo.getName()
+  # let (_, _, ext) = path.splitFile()
+  # debugEcho "setup_cb, ", ext, " path: ", path
   listitem.setChild(createFileRow(0, ""))
+
   
 
 proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, num: int) =
@@ -34,8 +39,18 @@ proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, num: int) 
   let (_, _, ext) = fileInfo.getName().splitFile()
   row.btn2.label = "→"
   row.iconName = getFileIconFromExt ext
+  echo ext
   if ext == ".mp3":
-    row.arrowBtnSignalid = row.btn2.connect("toggled", openFolderCb, (num, path)) # TODO функция перемещающая стак на плеер
+    ###
+    debugEcho "setup_cb, найден MP3"
+    let playerBox = createBoxWithPlayer(path)
+    let backBtn = newButton("←")
+    playerBox.append backBtn
+    backBtn.connect("clicked", backToMainStackCb, row)
+
+    row.addSecondStack playerBox
+    ###
+    row.arrowBtnSignalid = row.btn2.connect("toggled", openSecondStackCb, row) # TODO функция перемещающая стак на плеер
   else:
     row.arrowBtnSignalid = row.btn2.connect("toggled", openFileCb, path) # TODO функция открывающая  файл
 
@@ -52,14 +67,13 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
     path = pathAndNum.path / fileInfo.getName()
     fileType = fileInfo.getFileType
 
-  debugEcho "ATTRIBUTES"
-  debugEcho fileInfo.listAttributes
-  debugEcho "size: ", fileInfo.getSize
-  debugEcho "allocated-size: ", fileInfo.getAttributeUInt64("standard::allocated-size")
-  # debugEcho "standard::type: ", fileInfo.getAttributeString("standard::type")
-  debugEcho "standard::content-type: ", fileInfo.getAttributeString("standard::content-type")
+  # debugEcho "ATTRIBUTES"
+  # debugEcho fileInfo.listAttributes
+  # debugEcho "size: ", fileInfo.getSize
+  # debugEcho "allocated-size: ", fileInfo.getAttributeUInt64("standard::allocated-size")
+  # debugEcho "standard::content-type: ", fileInfo.getAttributeString("standard::content-type")
+  # debugEcho "\n\n"
 
-  # debugEcho "standard::file is ", fileInfo.getAttributeString("standard::file::standart_size")
   case fileType:
 
   of gio.FileType.unknown:
@@ -140,7 +154,7 @@ proc createListView*(dir: string, num: int): ListView =
     gestureClick = newGestureClick()
 
   gestureClick.setButton(3) # rigth click
-  gestureClick.connect("pressed", gestureRigthClickCb, ( num: num, path: dl.getFile().getPath()) ) # todo carousel
+  gestureClick.connect("pressed", gestureRigthClickCb, ( num: num, path: dl.getFile().getPath()) ) 
 
   lv.addController(gestureClick)
 
@@ -151,7 +165,7 @@ proc createListView*(dir: string, num: int): ListView =
   dl.setMonitored true
 
   with factory:
-    connect("setup", setup_cb)
+    connect("setup", setup_cb, dl.getFile().getPath())
     connect("bind", bind_cb, ( num: num, path: dl.getFile().getPath()) )
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
@@ -205,10 +219,10 @@ proc selectFileCb(self: ToggleButton, row: FileRow ) =
     discard
     
     # Показываем бар выбора действий
-    revealGb.revealChild = true
+    revealFileCRUDGb.revealChild = true
   else: 
     # Показываем бар выбора действий
     discard
-    revealGb.revealChild = false
+    revealFileCRUDGb.revealChild = false
 
 

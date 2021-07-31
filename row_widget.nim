@@ -1,6 +1,9 @@
 import gintro/[gtk4, gobject, gio, pango]
 import std/with
 
+const MAIN_STACK_NAME = "mainBox"
+const SECOND_STACK_NAME = "secondBox"
+
 type 
   FileRow* = ref object of Stack 
     info*: gio.FileInfo
@@ -16,6 +19,21 @@ type
     switchStackBtnSignalid*: uint64 
 
 
+proc addSecondStack*(row: FileRow, stackBox: Box) = 
+  discard row.addNamed(stackBox, SECOND_STACK_NAME)
+
+proc backToMainStackCb*(btn: Button, row: FileRow) =
+  row.setVisibleChildName(MAIN_STACK_NAME)
+
+
+# import title_with_player
+proc openSecondStackCb*(toggleBtn: ToggleButton, row: FileRow) =
+
+  if toggleBtn.active == true:
+    toggleBtn.active = false
+    row.setVisibleChildName(SECOND_STACK_NAME)
+    # activatePlayerPage()
+
 proc createButtonWithLabelAndImage(toggleButton: ToggleButton, image: Image, labelFileName: Label) =
   let 
     buttonChildBox = newBox(Orientation.horizontal, 5)
@@ -26,7 +44,7 @@ proc createButtonWithLabelAndImage(toggleButton: ToggleButton, image: Image, lab
 
   with labelFileName:
     ellipsize = EllipsizeMode.middle
-    maxWidthChars = 13
+    maxWidthChars = 15
   
   toggleButton.child = buttonChildBox
   toggleButton.hexpand = true
@@ -35,14 +53,15 @@ proc createButtonWithLabelAndImage(toggleButton: ToggleButton, image: Image, lab
 proc `iconName=`*(self: FileRow, iconName: string) =
   self.image.setFromIconName(iconName)
 
-proc createFileRow*(pageNum: int, name: string, stackBox: Box = nil): FileRow = 
+
+proc createFileRow*(pageNum: int, name: string): FileRow = 
   let 
     row = newStack(FileRow)
     mainBox = newBox(Orientation.horizontal, 0)
-    
     # mediaFile = newMediaFile()
     # mediaControls = newMediaControls(mediaFile)
     
+  row.transitionType = slideLeftRight
 
   row.labelFileName = newLabel(name)
   row.image = newImage()
@@ -51,20 +70,19 @@ proc createFileRow*(pageNum: int, name: string, stackBox: Box = nil): FileRow =
   
   row.btn1.createButtonWithLabelAndImage(row.image, row.labelFileName)
 
-
   with mainBox:
     setCssClasses("linked")
     append row.btn1
-    # append mediaControls
     append row.btn2
 
   row.pageNum = pageNum
 
-  # row.append row.btn2
-
-  discard row.addNamed(mainBox, "mainBox")
-  if stackBox != nil:
-    discard row.addNamed(stackBox, "stackBox")
+  discard row.addNamed(mainBox, MAIN_STACK_NAME)
+  # if stackBox != nil:
+  #   debugEcho "создан виджет со стеком "
+  #   let backToMainBoxBtn = newButton("←")
+  #   backToMainBoxBtn.connect("clicked", backToMainStackCb, row)
+  #   discard row.addNamed(stackBox, SECOND_STACK_NAME)
 
 
   result = row

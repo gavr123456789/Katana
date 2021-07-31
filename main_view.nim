@@ -4,7 +4,7 @@ import carousel_widget, list_view
 import gtk_helpers
 import stores/gtk_widgets_store
 import reveal_widget
-
+import title_with_player
 
 proc activate(app: gtk4.Application) =
   let
@@ -13,10 +13,12 @@ proc activate(app: gtk4.Application) =
     adwBox = newBox(Orientation.vertical, 0)
     listView = createListView(".", 0).inToScroll.inToBox true
     mainBox = newBox(Orientation.vertical, 0)
-    reveal = createRevealerWithCounter(header)
+    revealFileCRUD = createRevealerWithCounter(header)
     carouselIndicatorLines = newCarouselIndicatorLines()
+    titleWithPlayer = createTitleStackWithPlayer()
 
   # mainApplicationWindowGb = window
+  header.titleWidget = titleWithPlayer
 
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
@@ -24,8 +26,8 @@ proc activate(app: gtk4.Application) =
 
   carouselIndicatorLines.carousel = carouselGb
 
-  revealGb = reveal  
-
+  revealFileCRUDGb = revealFileCRUD  
+  titleWithPlayerGb = titleWithPlayer
 
   with mainBox:
     # marginStart = 60
@@ -36,7 +38,7 @@ proc activate(app: gtk4.Application) =
 
   with adwBox:
     append header 
-    append reveal
+    append revealFileCRUD
     append mainBox
     append carouselIndicatorLines
 
