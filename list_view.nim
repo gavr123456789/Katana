@@ -147,17 +147,17 @@ proc sortAlphabet(fileInfo: ptr FileInfo00): cstring {.cdecl.} =
   debugEcho fileInfo != nil
   var f = newFileInfo()
   f.impl = fileInfo
-  # f.ignoreFinalizer = true # fast hack, we would use a {.global.} var in the macro. Or maybe do in a other way?
+  f.ignoreFinalizer = true # fast hack, we would use a {.global.} var in the macro. Or maybe do in a other way?
   result = g_strdup(f.getName() )
 
 proc sortFolderFirst(fileInfo: ptr FileInfo00): cint {.cdecl.} = 
   debugEcho fileInfo != nil
   var f = newFileInfo()
   f.impl = fileInfo
-  # f.ignoreFinalizer = true # fast hack, we would use a {.global.} var in the macro. Or maybe do in a other way?
+  f.ignoreFinalizer = true # fast hack, we would use a {.global.} var in the macro. Or maybe do in a other way?
   debugEcho "!!!", cast[cint] (f.getFileType())
   result = cast[cint] (f.getFileType())
-  # result = 5
+
 
 proc createListView*(dir: string, num: int): ListView =
   let
@@ -166,7 +166,7 @@ proc createListView*(dir: string, num: int): ListView =
     lm = listModel(dl)
     ms = newMultiSorter()
     stringSorter = newStringSorter()
-    numericSorter = newNumericSorter()
+    folderFirstSorter = newNumericSorter()
     fm = newSortListModel(lm, ms)
     ns = gtk4.newNoSelection(fm.listModel)
     factory = gtk4.newSignalListItemFactory()
@@ -174,12 +174,12 @@ proc createListView*(dir: string, num: int): ListView =
 
     gestureClick = newGestureClick()
 
-  ms.append(numericSorter)
+  ms.append(folderFirstSorter)
   ms.append(stringSorter)
   
   stringSorter.expression = newCClosureExpression(g_string_get_type(), nil, 0, nil, cast[Callback](sortAlphabet), nil, nil)
-  numericSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortFolderFirst), nil, nil)
-  numericSorter.sortOrder = SortType.descending
+  folderFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortFolderFirst), nil, nil)
+  folderFirstSorter.sortOrder = SortType.descending
 
   gestureClick.setButton(3) # rigth click
   gestureClick.connect("pressed", gestureRigthClickCb, ( num: num, path: dl.getFile().getPath()) ) 
