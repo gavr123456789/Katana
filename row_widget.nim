@@ -54,7 +54,7 @@ proc `iconName=`*(self: FileRow, iconName: string) =
   self.image.setFromIconName(iconName)
 
 
-proc createFileRow*(pageNum: int, name: string): FileRow = 
+proc createFileRow*(): FileRow = 
   let 
     row = newStack(FileRow)
     mainBox = newBox(Orientation.horizontal, 0)
@@ -63,7 +63,7 @@ proc createFileRow*(pageNum: int, name: string): FileRow =
     
   row.transitionType = slideLeftRight
 
-  row.labelFileName = newLabel(name)
+  row.labelFileName = newLabel()
   row.image = newImage()
   row.btn1 = newToggleButton()
   row.btn2 = newToggleButton("↪")
@@ -75,15 +75,9 @@ proc createFileRow*(pageNum: int, name: string): FileRow =
     append row.btn1
     append row.btn2
 
-  row.pageNum = pageNum
+  row.pageNum = 0
 
   discard row.addNamed(mainBox, MAIN_STACK_NAME)
-  # if stackBox != nil:
-  #   debugEcho "создан виджет со стеком "
-  #   let backToMainBoxBtn = newButton("←")
-  #   backToMainBoxBtn.connect("clicked", backToMainStackCb, row)
-  #   discard row.addNamed(stackBox, SECOND_STACK_NAME)
-
 
   result = row
 

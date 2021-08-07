@@ -17,20 +17,12 @@ proc selectFileCb(self: ToggleButton, row: FileRow );
 
 proc openFileCb(self: ToggleButton, path: string ) = 
   if self.active == true:
-    debugEcho "opeingn file ", path
     self.active = false
     gtk_helpers.openFileInApp(path)
 
 ### FABRIC
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, fullPath: string) =
-  
-  # let
-  #   fileInfo = cast[gio.FileInfo](listitem.getItem())
-  #   # row = listitem.getChild().FileRow
-  #   path = fullPath / fileInfo.getName()
-  # let (_, _, ext) = path.splitFile()
-  # debugEcho "setup_cb, ", ext, " path: ", path
-  listitem.setChild(createFileRow(0, ""))
+  listitem.setChild(createFileRow())
 
   
 
@@ -64,8 +56,12 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   let 
     row = listitem.getChild().FileRow
     fileInfo = cast[gio.FileInfo](listitem.getItem())
-    path = pathAndNum.path / fileInfo.getName()
+    fileName = fileInfo.getName()
+    path = pathAndNum.path / fileName
     fileType = fileInfo.getFileType
+
+  if fileInfo.isHidden:
+    row.opacity = 0.5
 
   # debugEcho "ATTRIBUTES"
   # debugEcho fileInfo.listAttributes
@@ -125,9 +121,27 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   if listitem.getChild != nil:
     debugEcho "refCount: ", listitem.getChild.refCount
     listitem.setChild nil
-
   else:
     debugEcho "listitem.getChild == nil"
+
+  if listitem.getItem() != nil:
+    debugEcho "refCount: ", listitem.getItem().refCount
+    GC_unref listitem
+  else:
+    debugEcho "listitem.getItem == nil"
+  
+  if listitem != nil:
+    debugEcho "refCount: ", listitem.refCount
+
+    # listitem.getChild.unref
+    # listitem.getItem.unref
+    listitem.child.unref
+    # debugEcho "refCount: ", listitem.refCount
+    GC_fullCollect()
+  else:
+    debugEcho "listitem == nil"
+
+
 
   discard
 
@@ -136,27 +150,35 @@ import tables
 
 proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pathAndNum: PathAndNum) =
   echo "hello gestures ", nPress, " ", x, " ", y
-  # echo "num: ", pathAndNum.num, " path: ", pathAndNum.path
-  # if pathAndNum.num != gtk_helpers.currentPageGb:
-  debugEcho "try scroll to ", pathAndNum.num
+  # debugEcho "try scroll to ", pathAndNum.num
   carouselGb.gotoPage(pathAndNum.num)
   
 
 
 proc sortAlphabet(fileInfo: ptr FileInfo00): cstring {.cdecl.} = 
-  debugEcho fileInfo != nil
   var f = newFileInfo()
   f.impl = fileInfo
   f.ignoreFinalizer = true # fast hack, we would use a {.global.} var in the macro. Or maybe do in a other way?
   result = g_strdup(f.getName() )
 
-proc sortFolderFirst(fileInfo: ptr FileInfo00): cint {.cdecl.} = 
-  debugEcho fileInfo != nil
+import strutils
+proc sortDotFilesFirst(fileInfo: ptr FileInfo00): cint {.cdecl.} = 
   var f = newFileInfo()
   f.impl = fileInfo
-  f.ignoreFinalizer = true # fast hack, we would use a {.global.} var in the macro. Or maybe do in a other way?
-  debugEcho "!!!", cast[cint] (f.getFileType())
+  f.ignoreFinalizer = true # Todo
+
+  if f.getName().startsWith("."):
+    0
+  else: 
+    1
+
+
+proc sortFolderFirst(fileInfo: ptr FileInfo00): cint {.cdecl.} = 
+  var f = newFileInfo()
+  f.impl = fileInfo
+  f.ignoreFinalizer = true # Todo
   result = cast[cint] (f.getFileType())
+
 
 
 proc createListView*(dir: string, num: int): ListView =
@@ -167,6 +189,7 @@ proc createListView*(dir: string, num: int): ListView =
     ms = newMultiSorter()
     stringSorter = newStringSorter()
     folderFirstSorter = newNumericSorter()
+    dotFilesFirstSorter = newNumericSorter()
     fm = newSortListModel(lm, ms)
     ns = gtk4.newNoSelection(fm.listModel)
     factory = gtk4.newSignalListItemFactory()
@@ -174,10 +197,13 @@ proc createListView*(dir: string, num: int): ListView =
 
     gestureClick = newGestureClick()
 
+
   ms.append(folderFirstSorter)
+  ms.append(dotFilesFirstSorter)
   ms.append(stringSorter)
   
   stringSorter.expression = newCClosureExpression(g_string_get_type(), nil, 0, nil, cast[Callback](sortAlphabet), nil, nil)
+  dotFilesFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortDotFilesFirst), nil, nil)
   folderFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortFolderFirst), nil, nil)
   folderFirstSorter.sortOrder = SortType.descending
 
@@ -221,10 +247,14 @@ proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
 
   else:
     # Закрыть все начиная с текущего номера из path and num и антуглнуть предыдущую туглед
-    debugEcho "untoggle"
-    debugEcho "carouselGb.nPages: ", carouselGb.nPages
-    debugEcho "pathAndNum.num: ", pathAndNum.num
+    # debugEcho "untoggle"
+    # debugEcho "carouselGb.nPages: ", carouselGb.nPages
+    # debugEcho "pathAndNum.num: ", pathAndNum.num
     carouselGb.removeNPagesAfter(pathAndNum.num)
+    echo "\n\n"
+    echo getFreeMem()
+    echo GC_getStatistics()
+    echo "\n\n"
     # remove last toggled
     lastToggledPerPage.del pathAndNum.num
     
