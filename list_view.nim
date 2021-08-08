@@ -86,15 +86,11 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
       parseRegular(row, path, fileInfo, pathAndNum.num)
 
 
-
   of regular:
     parseRegular(row, path, fileInfo, pathAndNum.num)
-
       
   of directory:
     parseDir(row, path, fileInfo, pathAndNum.num)
-
-
 
   of symbolicLink:
     echo path, " is ", gio.FileType.symbolicLink
@@ -154,31 +150,32 @@ proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble
   carouselGb.gotoPage(pathAndNum.num)
   
 
-
+# sords
 proc sortAlphabet(fileInfo: ptr FileInfo00): cstring {.cdecl.} = 
   var f = newFileInfo()
-  f.impl = fileInfo
-  f.ignoreFinalizer = true # fast hack, we would use a {.global.} var in the macro. Or maybe do in a other way?
+  gintro_hack(f, fileInfo)
   result = g_strdup(f.getName() )
 
 import strutils
 proc sortDotFilesFirst(fileInfo: ptr FileInfo00): cint {.cdecl.} = 
   var f = newFileInfo()
-  f.impl = fileInfo
-  f.ignoreFinalizer = true # Todo
+  gintro_hack(f, fileInfo)
 
   if f.getName().startsWith("."):
     0
   else: 
     1
 
-
 proc sortFolderFirst(fileInfo: ptr FileInfo00): cint {.cdecl.} = 
   var f = newFileInfo()
-  f.impl = fileInfo
-  f.ignoreFinalizer = true # Todo
+  gintro_hack(f, fileInfo)
   result = cast[cint] (f.getFileType())
 
+# filters
+proc filterHidden(fileInfo: ptr FileInfo00): bool {.cdecl.} = 
+  var f = newFileInfo()
+  gintro_hack(f, fileInfo)
+  result = not f.isHidden
 
 
 proc createListView*(dir: string, num: int): ListView =
@@ -186,26 +183,40 @@ proc createListView*(dir: string, num: int): ListView =
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("standard::*", file)
     lm = listModel(dl)
+    # sorts
     ms = newMultiSorter()
     stringSorter = newStringSorter()
     folderFirstSorter = newNumericSorter()
     dotFilesFirstSorter = newNumericSorter()
     fm = newSortListModel(lm, ms)
-    ns = gtk4.newNoSelection(fm.listModel)
+    # filters
+
+    multiFilter = newEveryFilter()
+    filterListModel = newFilterListModel(listModel(fm), multiFilter)
+    boolFilter = newBoolFilter()
+
+    ns = gtk4.newNoSelection(filterListModel.listModel)
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
 
     gestureClick = newGestureClick()
 
-
+  # sort
   ms.append(folderFirstSorter)
   ms.append(dotFilesFirstSorter)
   ms.append(stringSorter)
-  
+
+  # sort expressions
   stringSorter.expression = newCClosureExpression(g_string_get_type(), nil, 0, nil, cast[Callback](sortAlphabet), nil, nil)
   dotFilesFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortDotFilesFirst), nil, nil)
   folderFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortFolderFirst), nil, nil)
   folderFirstSorter.sortOrder = SortType.descending
+  # filter
+  multiFilter.append(boolFilter)
+
+  # filter expressions
+  boolFilter.expression = newCClosureExpression(g_boolean_get_type(), nil, 0, nil, cast[Callback](filterHidden), nil, nil)
+
 
   gestureClick.setButton(3) # rigth click
   gestureClick.connect("pressed", gestureRigthClickCb, ( num: num, path: dl.getFile().getPath()) ) 

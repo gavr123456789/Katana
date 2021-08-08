@@ -28,6 +28,9 @@ proc hash*(b: gobject.Object): Hash =
   result =  cast[Hash](cast[uint](b) shr 3)
   echo result
 
+proc gintro_hack*(f: auto, p: auto) =
+  f.impl = p
+  f.ignoreFinalizer = true # fast hack, we would use a {.global.} var in the macro. Or maybe do in a other way?
 
 
 
