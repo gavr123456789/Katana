@@ -1,6 +1,6 @@
 import gintro/[gtk4, gobject, gio, adw]
 import strformat
-import widgets/box_with_progress_bar_reveal
+import ../widgets/box_with_progress_bar_reveal
 
 type 
   CarouselWithPaths* = ref object of Carousel
@@ -47,7 +47,8 @@ proc gotoPage*(self: CarouselWithPaths, index: int) =
 #   debugEcho "scrollToN: ", n
 #   self.scrollToFull self.getNthPage n, 500
   
-import stores/directory_lists_store
+import ../stores/directory_lists_store
+import ../stores/open_files_store
 import tables
 
 proc deleteLastPage(self: CarouselWithPaths) = 
@@ -68,6 +69,11 @@ proc deleteLastPage(self: CarouselWithPaths) =
   # directoryListsStoreGb[lastPageIndex] = nil
   directoryListsStoreGb.del lastPageIndex
   directoryListsStoreGb.printDirectoryListsStore()
+
+  # closeFilesOnPage(lastPageIndex)
+
+
+  
 
 
 

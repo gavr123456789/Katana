@@ -1,17 +1,20 @@
 import gintro/[adw, gtk4, gobject, gio, gdk4, glib]
 import std/with
-import carousel_widget, main_widgets/list_view
+import main_widgets/carousel_widget, main_widgets/list_view
 import gtk_helpers
 import stores/gtk_widgets_store
 import widgets/reveal_widget
 import widgets/title_with_player
 
+const H_KEY = 43
 
 proc carouselKeyPressedCb(self: EventControllerKey, keyval: int, keycode: int, state: gdk4.ModifierType, carousel: CarouselWithPaths): bool =
   echo keycode
   echo keyval
   echo state
-  return SOURCE_CONTINUE
+  if (state.contains ModifierFlag.control) and (keycode == H_KEY):
+    echo "ctrl h pressed"
+  return true
   
 
 proc activate(app: gtk4.Application) =
@@ -21,6 +24,8 @@ proc activate(app: gtk4.Application) =
     adwBox = newBox(Orientation.vertical, 0)
     listView = createListView("/home/gavr", 0).inToScroll.inToBox true
     mainBox = newBox(Orientation.vertical, 0)
+    whiteBackBox = newBox(Orientation.vertical, 0)
+
     revealFileCRUD = createRevealerWithCounter(header)
     carouselIndicatorLines = newCarouselIndicatorLines()
     titleWithPlayer = createTitleStackWithPlayer()
@@ -52,11 +57,17 @@ proc activate(app: gtk4.Application) =
     marginBottom = 30
     append carouselGb
 
-  with adwBox:
-    append header 
+  # TODO background color primary
+  with whiteBackBox:
+    vexpand = true
+    hexpand = true
     append revealFileCRUD
     append mainBox
     append carouselIndicatorLines
+
+  with adwBox:
+    append header 
+    append whiteBackBox
 
 
   with window:

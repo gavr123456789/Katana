@@ -1,7 +1,6 @@
-
 import gintro/[gtk4, gobject, gio, adw]
 import std/with, os
-import ../types, ../utils, ../gtk_helpers, ../carousel_widget, row_widget
+import ../types, ../utils, ../gtk_helpers, carousel_widget, row_widget
 import ../stores/directory_lists_store
 
 proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum );
@@ -20,7 +19,7 @@ proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, full
 
   
 import ../widgets/boxWithPlayer
-proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, num: int) =
+proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, pageNum: int) =
   echo path, " is ", gio.FileType.regular
   let (_, _, ext) = fileInfo.getName().splitFile()
   row.btn2.label = "→"
@@ -29,7 +28,7 @@ proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, num: int) 
   if ext == ".mp3":
     ###
     debugEcho "setup_cb, найден MP3"
-    let playerBox = createBoxWithPlayer(path)
+    let playerBox = createBoxWithPlayer(path, pageNum)
     let backBtn = newButton("←")
     playerBox.append backBtn
     row.switchStackBtnSignalid = backBtn.connect("clicked", backToMainStackCb, row)
@@ -107,6 +106,8 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 
   if row.switchStackBtnSignalid != 0:
     row.btn1.signalHandlerDisconnect(row.switchStackBtnSignalid)
+  else:
+    echo "не был забинжен"
     
 
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =

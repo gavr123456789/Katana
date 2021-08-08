@@ -3,7 +3,7 @@ import std/with
 import sets
 import ../stores/selected_store
 import ../stores/gtk_widgets_store
-import ../carousel_widget
+import ../main_widgets/carousel_widget
 
 type 
   RevealerWithCounter* = ref object of gtk4.Revealer

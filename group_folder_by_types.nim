@@ -1,13 +1,6 @@
 import tables, os
 
-type AnyTable = Table[string, seq[string]] or TableRef[string, seq[string]]
 
-### PACK
-
-
-func add(table: var AnyTable, key: string, value: string) =
-  if table.hasKeyOrPut(key, @[value]):
-    table[key].add value
 
 
 proc moveFiles(files: seq[string], dest: string) =
