@@ -135,7 +135,7 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 
     # listitem.getChild.unref
     # listitem.getItem.unref
-    listitem.child.unref
+    # listitem.child.unref
     # debugEcho "refCount: ", listitem.refCount
     GC_fullCollect()
   else:
@@ -212,6 +212,7 @@ proc createListView*(dir: string, num: int): ListView =
 
   lv.addController(gestureClick)
 
+  # TODO directoryListsStoreGb part of ListView
   directoryListsStoreGb[num] = dl
   directoryListsStoreGb.printDirectoryListsStore()
   

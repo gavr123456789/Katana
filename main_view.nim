@@ -1,10 +1,18 @@
-import gintro/[adw, gtk4, gobject, gio]
+import gintro/[adw, gtk4, gobject, gio, gdk4, glib]
 import std/with
 import carousel_widget, list_view
 import gtk_helpers
 import stores/gtk_widgets_store
 import reveal_widget
 import title_with_player
+
+
+proc carouselKeyPressedCb(self: EventControllerKey, keyval: int, keycode: int, state: gdk4.ModifierType, carousel: CarouselWithPaths): bool =
+  echo keycode
+  echo keyval
+  echo state
+  return SOURCE_CONTINUE
+  
 
 proc activate(app: gtk4.Application) =
   let
@@ -17,12 +25,20 @@ proc activate(app: gtk4.Application) =
     carouselIndicatorLines = newCarouselIndicatorLines()
     titleWithPlayer = createTitleStackWithPlayer()
 
+    keyPressController = newEventControllerKey()
+
+
+  window.iconName = "camera-flash" # TODO
+
   # mainApplicationWindowGb = window
   header.titleWidget = titleWithPlayer
 
   carouselGb = createCarousel(listView)
   carouselGb.vexpand = true
   carouselGb.connect("page_changed", setCurrentPage2)
+
+  keyPressController.connect("key-pressed", carouselKeyPressedCb, carouselGb)
+  window.addController(keyPressController)
 
   carouselIndicatorLines.carousel = carouselGb
 
