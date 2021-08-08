@@ -10,6 +10,7 @@ type
     fullPath*: string
     btn1*: ToggleButton
     btn2*: ToggleButton
+    backBtn*: Button
     image*: Image
     labelFileName*: Label
     pageNum*: int
@@ -58,8 +59,9 @@ proc createFileRow*(): FileRow =
   let 
     row = newStack(FileRow)
     mainBox = newBox(Orientation.horizontal, 0)
-    # mediaFile = newMediaFile()
-    # mediaControls = newMediaControls(mediaFile)
+
+
+  row.switchStackBtnSignalid = 0
     
   row.transitionType = slideLeftRight
 

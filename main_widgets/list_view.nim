@@ -29,9 +29,9 @@ proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, pageNum: i
     ###
     debugEcho "setup_cb, найден MP3"
     let playerBox = createBoxWithPlayer(path, pageNum)
-    let backBtn = newButton("←")
-    playerBox.append backBtn
-    row.switchStackBtnSignalid = backBtn.connect("clicked", backToMainStackCb, row)
+    row.backBtn = newButton("←")
+    playerBox.append row.backBtn
+    row.switchStackBtnSignalid = row.backBtn.connect("clicked", backToMainStackCb, row)
 
     row.addSecondStack playerBox
     ###
@@ -103,9 +103,9 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   let row = listitem.getChild().FileRow
   row.btn2.signalHandlerDisconnect(row.arrowBtnSignalid)
   row.btn1.signalHandlerDisconnect(row.fileBtnSignalid)
-
+  # looks like it all already disconnected
   if row.switchStackBtnSignalid != 0:
-    row.btn1.signalHandlerDisconnect(row.switchStackBtnSignalid)
+    row.backBtn.signalHandlerDisconnect(row.switchStackBtnSignalid)
   else:
     echo "не был забинжен"
     

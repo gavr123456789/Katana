@@ -9,9 +9,9 @@ import widgets/title_with_player
 const H_KEY = 43
 
 proc carouselKeyPressedCb(self: EventControllerKey, keyval: int, keycode: int, state: gdk4.ModifierType, carousel: CarouselWithPaths): bool =
-  echo keycode
-  echo keyval
-  echo state
+  # echo "keycode = ", keycode
+  # echo "keyval = ", keyval
+  # echo "gdk4.KEY_h = ", gdk4.KEY_h
   if (state.contains ModifierFlag.control) and (keycode == H_KEY):
     echo "ctrl h pressed"
   return true

@@ -1,5 +1,5 @@
 import gintro/[adw, gtk4, gobject, gio, gdk4, glib]
-import std/with, tables
+import tables
 
 var openedFilesStoreGb* = newTable[int, seq[MediaFile]]()
 
