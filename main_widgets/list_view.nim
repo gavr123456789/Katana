@@ -1,20 +1,14 @@
 
 import gintro/[gtk4, gobject, gio, adw]
-import std/with
-import os
-import row_widget
-import types
-import carousel_widget
-import gtk_helpers
-import stores/directory_lists_store
-import utils
+import std/with, os
+import ../types, ../utils, ../gtk_helpers, ../carousel_widget, ../row_widget
+import ../stores/directory_lists_store
 
 proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum );
 proc openFileCb(self: ToggleButton, path: string );
-# proc openMusicCb(self: ToggleButton, pathAndNum: PathAndNum );
 proc selectFileCb(self: ToggleButton, row: FileRow );
 
-
+# press arrow btn
 proc openFileCb(self: ToggleButton, path: string ) = 
   if self.active == true:
     self.active = false
@@ -25,7 +19,7 @@ proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, full
   listitem.setChild(createFileRow())
 
   
-
+import ../widgets/boxWithPlayer
 proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, num: int) =
   echo path, " is ", gio.FileType.regular
   let (_, _, ext) = fileInfo.getName().splitFile()
@@ -38,7 +32,7 @@ proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, num: int) 
     let playerBox = createBoxWithPlayer(path)
     let backBtn = newButton("←")
     playerBox.append backBtn
-    backBtn.connect("clicked", backToMainStackCb, row)
+    row.switchStackBtnSignalid = backBtn.connect("clicked", backToMainStackCb, row)
 
     row.addSecondStack playerBox
     ###
@@ -110,21 +104,25 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   let row = listitem.getChild().FileRow
   row.btn2.signalHandlerDisconnect(row.arrowBtnSignalid)
   row.btn1.signalHandlerDisconnect(row.fileBtnSignalid)
+  
+  if row.switchStackBtnSignalid != 0:
+    row.btn1.signalHandlerDisconnect(row.switchStackBtnSignalid)
+    
 
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   debugEcho "teardown_cb"
   
-  if listitem.getChild != nil:
-    debugEcho "refCount: ", listitem.getChild.refCount
-    listitem.setChild nil
-  else:
-    debugEcho "listitem.getChild == nil"
+  # if listitem.getChild != nil:
+  #   debugEcho "refCount: ", listitem.getChild.refCount
+  #   listitem.setChild nil
+  # else:
+  #   debugEcho "listitem.getChild == nil"
 
-  if listitem.getItem() != nil:
-    debugEcho "refCount: ", listitem.getItem().refCount
-    GC_unref listitem
-  else:
-    debugEcho "listitem.getItem == nil"
+  # if listitem.getItem() != nil:
+  #   debugEcho "refCount: ", listitem.getItem().refCount
+  #   GC_unref listitem
+  # else:
+  #   debugEcho "listitem.getItem == nil"
   
   if listitem != nil:
     debugEcho "refCount: ", listitem.refCount
@@ -133,7 +131,7 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
     # listitem.getItem.unref
     # listitem.child.unref
     # debugEcho "refCount: ", listitem.refCount
-    GC_fullCollect()
+    # GC_fullCollect()
   else:
     debugEcho "listitem == nil"
 
@@ -274,9 +272,9 @@ proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
 
 
 
-import stores/selected_store
+import ../stores/selected_store
 import sets
-import stores/gtk_widgets_store
+import ../stores/gtk_widgets_store
 
 proc selectFileCb(self: ToggleButton, row: FileRow ) =
   # debugEcho pathAndNum.path

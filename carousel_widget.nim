@@ -1,6 +1,6 @@
 import gintro/[gtk4, gobject, gio, adw]
 import strformat
-import box_with_progress_bar_reveal
+import widgets/box_with_progress_bar_reveal
 
 type 
   CarouselWithPaths* = ref object of Carousel

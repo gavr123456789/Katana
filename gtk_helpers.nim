@@ -1,6 +1,6 @@
 import gintro/[gtk4, gdk4, gobject, gio]
 import hashes
-import box_with_progress_bar_reveal
+import widgets/box_with_progress_bar_reveal
 
 proc inToScroll*(widget: Widget): ScrolledWindow =
   result = newScrolledWindow()
@@ -31,14 +31,3 @@ proc hash*(b: gobject.Object): Hash =
 proc gintro_hack*(f: auto, p: auto) =
   f.impl = p
   f.ignoreFinalizer = true # fast hack, we would use a {.global.} var in the macro. Or maybe do in a other way?
-
-
-
-proc createBoxWithPlayer*(path: string): Box =
-  result = newBox(Orientation.horizontal, 0)
-  # result.homogeneous = true
-  let
-    mediaFile = newMediaFileForFilename(path)
-    mediaControls = newMediaControls(mediaFile)
-  result.append mediaControls
-  mediaControls.hexpand = true

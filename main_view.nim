@@ -1,10 +1,10 @@
 import gintro/[adw, gtk4, gobject, gio, gdk4, glib]
 import std/with
-import carousel_widget, list_view
+import carousel_widget, main_widgets/list_view
 import gtk_helpers
 import stores/gtk_widgets_store
 import reveal_widget
-import title_with_player
+import widgets/title_with_player
 
 
 proc carouselKeyPressedCb(self: EventControllerKey, keyval: int, keycode: int, state: gdk4.ModifierType, carousel: CarouselWithPaths): bool =
@@ -19,7 +19,7 @@ proc activate(app: gtk4.Application) =
     window = adw.newApplicationWindow(app)
     header = adw.newHeaderBar()
     adwBox = newBox(Orientation.vertical, 0)
-    listView = createListView(".", 0).inToScroll.inToBox true
+    listView = createListView("/home/gavr", 0).inToScroll.inToBox true
     mainBox = newBox(Orientation.vertical, 0)
     revealFileCRUD = createRevealerWithCounter(header)
     carouselIndicatorLines = newCarouselIndicatorLines()
