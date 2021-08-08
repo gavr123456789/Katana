@@ -3,7 +3,7 @@ import std/with
 import carousel_widget, main_widgets/list_view
 import gtk_helpers
 import stores/gtk_widgets_store
-import reveal_widget
+import widgets/reveal_widget
 import widgets/title_with_player
 
 

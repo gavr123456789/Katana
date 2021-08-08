@@ -1,9 +1,9 @@
 import gintro/[gtk4, gobject, gio, adw]
 import std/with
 import sets
-import stores/selected_store
-import stores/gtk_widgets_store
-import carousel_widget
+import ../stores/selected_store
+import ../stores/gtk_widgets_store
+import ../carousel_widget
 
 type 
   RevealerWithCounter* = ref object of gtk4.Revealer
@@ -24,7 +24,7 @@ proc deleteFiles(self: Button) =
   revealFileCRUDGb.revealChild = false
   selectedStoreGb.clear()
 
-import stores/directory_lists_store
+import ../stores/directory_lists_store
 import tables
 import os
 

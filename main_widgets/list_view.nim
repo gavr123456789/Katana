@@ -1,7 +1,7 @@
 
 import gintro/[gtk4, gobject, gio, adw]
 import std/with, os
-import ../types, ../utils, ../gtk_helpers, ../carousel_widget, ../row_widget
+import ../types, ../utils, ../gtk_helpers, ../carousel_widget, row_widget
 import ../stores/directory_lists_store
 
 proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum );
@@ -104,7 +104,7 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   let row = listitem.getChild().FileRow
   row.btn2.signalHandlerDisconnect(row.arrowBtnSignalid)
   row.btn1.signalHandlerDisconnect(row.fileBtnSignalid)
-  
+
   if row.switchStackBtnSignalid != 0:
     row.btn1.signalHandlerDisconnect(row.switchStackBtnSignalid)
     
