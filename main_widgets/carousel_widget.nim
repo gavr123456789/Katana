@@ -4,7 +4,7 @@ import ../widgets/box_with_progress_bar_reveal
 
 type 
   CarouselWithPaths* = ref object of Carousel
-    directoryLists*: seq[DirectoryList] 
+    # directoryLists*: seq[DirectoryList] 
     currentPage: int
 
 var carouselGb*: CarouselWithPaths
@@ -48,7 +48,7 @@ proc gotoPage*(self: CarouselWithPaths, index: int) =
 #   self.scrollToFull self.getNthPage n, 500
   
 import ../stores/directory_lists_store
-import ../stores/open_files_store
+# import ../stores/open_files_store
 import tables
 
 proc deleteLastPage(self: CarouselWithPaths) = 

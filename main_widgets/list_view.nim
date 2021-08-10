@@ -64,7 +64,6 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   # debugEcho "\n\n"
 
   case fileType:
-
   of gio.FileType.unknown:
     echo path, " is ", gio.FileType.unknown
     let (_, name, ext) = fileInfo.getName().splitFile()
@@ -106,8 +105,7 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   # looks like it all already disconnected
   if row.switchStackBtnSignalid != 0:
     row.backBtn.signalHandlerDisconnect(row.switchStackBtnSignalid)
-  else:
-    echo "не был забинжен"
+
     
 
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
@@ -127,6 +125,19 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   
   if listitem != nil:
     debugEcho "refCount: ", listitem.refCount
+    # listitem.child.unref
+    # listitem.child.GC_unref
+    listitem.child = nil
+
+    # var item = listitem.getItem()
+    # let row = listitem.getChild().FileRow
+
+    # row.unref
+    # item.unref
+    # item.GC_unref
+
+    # listitem.unref
+    # listitem.GC_unref
 
     # listitem.getChild.unref
     # listitem.getItem.unref
@@ -135,10 +146,6 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
     # GC_fullCollect()
   else:
     debugEcho "listitem == nil"
-
-
-
-  discard
 
 ### LOGIC
 import tables
@@ -149,35 +156,10 @@ proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble
   carouselGb.gotoPage(pathAndNum.num)
   
 
-# sords
-proc sortAlphabet(fileInfo: ptr FileInfo00): cstring {.cdecl.} = 
-  var f = newFileInfo()
-  gintro_hack(f, fileInfo)
-  result = g_strdup(f.getName() )
 
-import strutils
-proc sortDotFilesFirst(fileInfo: ptr FileInfo00): cint {.cdecl.} = 
-  var f = newFileInfo()
-  gintro_hack(f, fileInfo)
-
-  if f.getName().startsWith("."):
-    0
-  else: 
-    1
-
-proc sortFolderFirst(fileInfo: ptr FileInfo00): cint {.cdecl.} = 
-  var f = newFileInfo()
-  gintro_hack(f, fileInfo)
-  result = cast[cint] (f.getFileType())
-
-# filters
-proc filterHidden(fileInfo: ptr FileInfo00): bool {.cdecl.} = 
-  var f = newFileInfo()
-  gintro_hack(f, fileInfo)
-  result = not f.isHidden
-
-
-proc createListView*(dir: string, num: int): ListView =
+import ../utils/sorts_and_filters
+# Возвращать 2 значения, сам лист вью, и searchBar который потом добавлять в inToBox
+proc createListView*(dir: string, num: int): Box =
   let
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("standard::*", file)
@@ -187,18 +169,36 @@ proc createListView*(dir: string, num: int): ListView =
     stringSorter = newStringSorter()
     folderFirstSorter = newNumericSorter()
     dotFilesFirstSorter = newNumericSorter()
-    fm = newSortListModel(lm, ms)
+    sortListModel = newSortListModel(lm, ms)
     # filters
-
-    multiFilter = newEveryFilter()
-    filterListModel = newFilterListModel(listModel(fm), multiFilter)
+    multiFilter = newAnyFilter()
+    filterListModel = newFilterListModel(listModel(sortListModel), multiFilter)
     boolFilter = newBoolFilter()
-
+    # list
     ns = gtk4.newNoSelection(filterListModel.listModel)
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
 
     gestureClick = newGestureClick()
+    # search filter
+    # searchButton = newToggleButton()
+    # searchBar = newSearchBar()
+    # entry = newSearchEntry()
+
+  # search
+  # search button
+  # searchButton.setIconName("system-search-symbolic")
+  # discard searchButton.bindProperty("active", searchBar, "search-mode-enabled", {bidirectional})
+  # header.packEnd searchButton
+
+  # with searchBar:
+  #   connectEntry entry
+  #   showCloseButton = false
+  #   child = entry
+  #   keyCaptureWidget = lv
+
+  
+  # entry.halign = Align.center
 
   # sort
   ms.append(folderFirstSorter)
@@ -210,6 +210,7 @@ proc createListView*(dir: string, num: int): ListView =
   dotFilesFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortDotFilesFirst), nil, nil)
   folderFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortFolderFirst), nil, nil)
   folderFirstSorter.sortOrder = SortType.descending
+  
   # filter
   multiFilter.append(boolFilter)
 
@@ -235,7 +236,8 @@ proc createListView*(dir: string, num: int): ListView =
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
 
-  return lv
+  lv.inToKeyboardController()
+  return lv.inToSearch(multiFilter)
 
 
 import tables
