@@ -171,7 +171,7 @@ proc createListView*(dir: string, num: int): Box =
     dotFilesFirstSorter = newNumericSorter()
     sortListModel = newSortListModel(lm, ms)
     # filters
-    multiFilter = newAnyFilter()
+    multiFilter = newEveryFilter()
     filterListModel = newFilterListModel(listModel(sortListModel), multiFilter)
     boolFilter = newBoolFilter()
     # list
@@ -180,25 +180,6 @@ proc createListView*(dir: string, num: int): Box =
     lv = newListView(ns, factory)
 
     gestureClick = newGestureClick()
-    # search filter
-    # searchButton = newToggleButton()
-    # searchBar = newSearchBar()
-    # entry = newSearchEntry()
-
-  # search
-  # search button
-  # searchButton.setIconName("system-search-symbolic")
-  # discard searchButton.bindProperty("active", searchBar, "search-mode-enabled", {bidirectional})
-  # header.packEnd searchButton
-
-  # with searchBar:
-  #   connectEntry entry
-  #   showCloseButton = false
-  #   child = entry
-  #   keyCaptureWidget = lv
-
-  
-  # entry.halign = Align.center
 
   # sort
   ms.append(folderFirstSorter)
@@ -210,7 +191,7 @@ proc createListView*(dir: string, num: int): Box =
   dotFilesFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortDotFilesFirst), nil, nil)
   folderFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortFolderFirst), nil, nil)
   folderFirstSorter.sortOrder = SortType.descending
-  
+
   # filter
   multiFilter.append(boolFilter)
 
