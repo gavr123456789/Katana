@@ -14,7 +14,7 @@ proc activate(app: gtk4.Application) =
     adwBox = newBox(Orientation.vertical, 0)
     listView = createListView(".", 0).inToScroll.inToBox true
     mainBox = newBox(Orientation.vertical, 0)
-    whiteBackBox = newBox(Orientation.vertical, 0)
+    # whiteBackBox = newBox(Orientation.vertical, 0)
 
     revealFileCRUD = createRevealerWithCounter(header)
     carouselIndicatorLines = newCarouselIndicatorLines()
@@ -56,7 +56,7 @@ proc activate(app: gtk4.Application) =
 
   with adwBox:
     append header 
-    append whiteBackBox
+    # append whiteBackBox
     append revealFileCRUD
     append mainBox
     append carouselIndicatorLines

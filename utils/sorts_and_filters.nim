@@ -27,26 +27,13 @@ proc sortFolderFirst*(fileInfo: ptr FileInfo00): cint {.cdecl.} =
   result = cast[cint] (f.getFileType())
 
 # filters
-proc filterHidden*(fileInfo: ptr FileInfo00): bool {.cdecl.} = 
-  # var f = newFileInfo()
-  # gintro_hack(f, fileInfo)
-  # echo "filterHidden", not f.isHidden, "name: ", f.getName
-  result = true
-
-  # result = not f.isHidden
-
-proc filterHidden2*(fileInfo: ptr FileInfo00): bool = 
+proc filterHidden22*(fileInfo: ptr FileInfo00): bool {.cdecl.} = 
   var f = newFileInfo()
   gintro_hack(f, fileInfo)
-
+  # return f.isHidden()
   if f.isHidden():
-    echo " name: ", f.getName, " true" 
-    return true
-  else: 
-    echo " name: ", f.getName, " false" 
+    echo f.getName, "         false" 
     return false
-  # var sass = f.isHidden()
-  # echo "filterHidden2 ", not f.isHidden, " name: ", f.getName
-
-  # return not sass# not f.getName.startsWith "."
-  # result = not f.isHidden
+  else: 
+    echo f.getName, " true" 
+    return true

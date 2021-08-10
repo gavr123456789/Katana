@@ -51,22 +51,19 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
     path = pathAndNum.path / fileName
     fileType = fileInfo.getFileType
 
-  if fileInfo.isHidden:
+  if fileInfo.isHidden == true:
     row.opacity = 0.5
 
-  # debugEcho "ATTRIBUTES"
   # debugEcho fileInfo.listAttributes
   # debugEcho "size: ", fileInfo.getSize
   # debugEcho "allocated-size: ", fileInfo.getAttributeUInt64("standard::allocated-size")
   # debugEcho "standard::content-type: ", fileInfo.getAttributeString("standard::content-type")
-  # debugEcho "\n\n"
 
   case fileType:
   of gio.FileType.unknown:
     # echo path, " is ", gio.FileType.unknown
     let (_, name, ext) = fileInfo.getName().splitFile()
     let isDir = ext == ""
-
     
     if isDir:
       row.iconName = getFolderIconFromName(name) 
@@ -82,18 +79,12 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   of directory:
     parseDir(row, path, fileInfo, pathAndNum.num)
 
-  of symbolicLink:
-    echo path, " is ", gio.FileType.symbolicLink
-  of special:
-    echo path, " is ", gio.FileType.special
-  of shortcut:
-    echo path, " is ", gio.FileType.shortcut
-  of mountable:
-    echo path, " is ", gio.FileType.mountable
+  of symbolicLink, special, shortcut, mountable:
+    echo path, " is something else"
 
   row.fileBtnSignalid = row.btn1.connect("toggled", selectFileCb, row)
   row.labelFileName.label = fileInfo.getName()
-  row.info = fileInfo
+  # row.info = fileInfo
   row.fullPath = path
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
@@ -172,7 +163,6 @@ proc createListView*(dir: string, num: int): Box =
     multiFilter = newEveryFilter()
     filterListModel = newFilterListModel(listModel(sortListModel), multiFilter)
     boolFilter = newBoolFilter()
-    boolFilter2 = newBoolFilter()
     # list
     ns = gtk4.newNoSelection(filterListModel.listModel)
     factory = gtk4.newSignalListItemFactory()
@@ -193,11 +183,9 @@ proc createListView*(dir: string, num: int): Box =
 
   # filter
   multiFilter.append(boolFilter)
-  multiFilter.append(boolFilter2)
 
   # filter expressions
-  boolFilter.expression = newCClosureExpression(g_boolean_get_type(), nil, 0, nil, cast[Callback](filterHidden), nil, nil)
-  boolFilter2.expression = newCClosureExpression(g_boolean_get_type(), nil, 0, nil, cast[Callback](filterHidden2), nil, nil)
+  boolFilter.expression = newCClosureExpression(g_boolean_get_type(), nil, 0, nil, cast[Callback](filterHidden22), nil, nil)
 
 
   gestureClick.setButton(3) # rigth click
