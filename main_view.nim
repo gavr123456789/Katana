@@ -6,23 +6,13 @@ import stores/gtk_widgets_store
 import widgets/reveal_widget
 import widgets/title_with_player
 
-# const H_KEY = 43
-
-# proc carouselKeyPressedCb(self: EventControllerKey, keyval: int, keycode: int, state: gdk4.ModifierType, carousel: CarouselWithPaths): bool =
-#   # echo "keycode = ", keycode
-#   # echo "keyval = ", keyval
-#   # echo "gdk4.KEY_h = ", gdk4.KEY_h
-#   if (state.contains ModifierFlag.control) and (keycode == H_KEY):
-#     echo "ctrl h pressed"
-#   return true
-  
 
 proc activate(app: gtk4.Application) =
   let
     window = adw.newApplicationWindow(app)
     header = adw.newHeaderBar()
     adwBox = newBox(Orientation.vertical, 0)
-    listView = createListView("/home/gavr", 0).inToScroll.inToBox true
+    listView = createListView(".", 0).inToScroll.inToBox true
     mainBox = newBox(Orientation.vertical, 0)
     whiteBackBox = newBox(Orientation.vertical, 0)
 
@@ -30,27 +20,8 @@ proc activate(app: gtk4.Application) =
     carouselIndicatorLines = newCarouselIndicatorLines()
     titleWithPlayer = createTitleStackWithPlayer()
 
-    keyPressController = newEventControllerKey()
-    # search
-    searchButton = newToggleButton()
-    searchBar = newSearchBar()
-    entry = newSearchEntry()
+    # keyPressController = newEventControllerKey()
 
-
-
-  # search button
-  # searchButton.setIconName("system-search-symbolic")
-  # discard searchButton.bindProperty("active", searchBar, "search-mode-enabled", {bidirectional})
-  # header.packEnd searchButton
-
-  # search bar
-  with searchBar:
-    connectEntry entry
-    showCloseButton = false
-    child = entry
-    keyCaptureWidget = window
-
-  entry.halign = Align.center
 
 
   window.iconName = "camera-flash" # TODO
@@ -62,8 +33,6 @@ proc activate(app: gtk4.Application) =
   carouselGb.vexpand = true
   carouselGb.connect("page_changed", setCurrentPage2)
 
-  # keyPressController.connect("key-pressed", carouselKeyPressedCb, carouselGb)
-  window.addController(keyPressController)
 
   carouselIndicatorLines.carousel = carouselGb
 
@@ -75,20 +44,22 @@ proc activate(app: gtk4.Application) =
     # marginEnd = 60
     # marginTop = 30
     marginBottom = 30
-    append searchBar
     append carouselGb
 
   # TODO background color primary
-  with whiteBackBox:
-    vexpand = true
-    hexpand = true
-    append revealFileCRUD
-    append mainBox
-    append carouselIndicatorLines
+  # with whiteBackBox:
+  #   vexpand = true
+  #   hexpand = true
+  #   append revealFileCRUD
+  #   append mainBox
+  #   append carouselIndicatorLines
 
   with adwBox:
     append header 
     append whiteBackBox
+    append revealFileCRUD
+    append mainBox
+    append carouselIndicatorLines
 
 
   with window:

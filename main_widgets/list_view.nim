@@ -20,11 +20,10 @@ proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, full
   
 import ../widgets/boxWithPlayer
 proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, pageNum: int) =
-  echo path, " is ", gio.FileType.regular
+  # echo path, " is ", gio.FileType.regular
   let (_, _, ext) = fileInfo.getName().splitFile()
   row.btn2.label = "→"
   row.iconName = getFileIconFromExt ext
-  echo ext
   if ext == ".mp3":
     ###
     debugEcho "setup_cb, найден MP3"
@@ -34,7 +33,6 @@ proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, pageNum: i
     row.switchStackBtnSignalid = row.backBtn.connect("clicked", backToMainStackCb, row)
 
     row.addSecondStack playerBox
-    ###
     row.arrowBtnSignalid = row.btn2.connect("toggled", openSecondStackCb, row) # TODO функция перемещающая стак на плеер
   else:
     row.arrowBtnSignalid = row.btn2.connect("toggled", openFileCb, path) # TODO функция открывающая  файл
@@ -65,7 +63,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
 
   case fileType:
   of gio.FileType.unknown:
-    echo path, " is ", gio.FileType.unknown
+    # echo path, " is ", gio.FileType.unknown
     let (_, name, ext) = fileInfo.getName().splitFile()
     let isDir = ext == ""
 
@@ -174,6 +172,7 @@ proc createListView*(dir: string, num: int): Box =
     multiFilter = newEveryFilter()
     filterListModel = newFilterListModel(listModel(sortListModel), multiFilter)
     boolFilter = newBoolFilter()
+    boolFilter2 = newBoolFilter()
     # list
     ns = gtk4.newNoSelection(filterListModel.listModel)
     factory = gtk4.newSignalListItemFactory()
@@ -194,9 +193,11 @@ proc createListView*(dir: string, num: int): Box =
 
   # filter
   multiFilter.append(boolFilter)
+  multiFilter.append(boolFilter2)
 
   # filter expressions
   boolFilter.expression = newCClosureExpression(g_boolean_get_type(), nil, 0, nil, cast[Callback](filterHidden), nil, nil)
+  boolFilter2.expression = newCClosureExpression(g_boolean_get_type(), nil, 0, nil, cast[Callback](filterHidden2), nil, nil)
 
 
   gestureClick.setButton(3) # rigth click
@@ -206,9 +207,8 @@ proc createListView*(dir: string, num: int): Box =
 
   # TODO directoryListsStoreGb part of ListView
   directoryListsStoreGb[num] = dl
-  directoryListsStoreGb.printDirectoryListsStore()
-  
-  # lv.setCssClasses("rich-list")
+  # directoryListsStoreGb.printDirectoryListsStore()
+ 
   dl.setMonitored true
 
   with factory:
@@ -217,7 +217,7 @@ proc createListView*(dir: string, num: int): Box =
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
 
-  lv.inToKeyboardController()
+  # lv.inToKeyboardController()
   return lv.inToSearch(multiFilter)
 
 

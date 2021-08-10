@@ -68,7 +68,7 @@ proc deleteLastPage(self: CarouselWithPaths) =
   
   # directoryListsStoreGb[lastPageIndex] = nil
   directoryListsStoreGb.del lastPageIndex
-  directoryListsStoreGb.printDirectoryListsStore()
+  # directoryListsStoreGb.printDirectoryListsStore()
 
   # closeFilesOnPage(lastPageIndex)
 
