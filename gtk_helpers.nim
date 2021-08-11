@@ -3,23 +3,23 @@ import hashes, std/with
 import widgets/box_with_progress_bar_reveal
 import utils/sorts_and_filters
 
-const H_KEY = 43
+# const H_KEY = 43
 
-proc carouselKeyPressedCb(self: EventControllerKey, keyval: int, keycode: int, state: gdk4.ModifierType): bool =
-  # echo "keycode = ", keycode
-  # echo "keyval = ", keyval
-  # echo "gdk4.KEY_h = ", gdk4.KEY_h
-  if (state.contains ModifierFlag.control) and (keycode == H_KEY):
-    echo "ctrl h pressed"
-  return true
+# proc carouselKeyPressedCb(self: EventControllerKey, keyval: int, keycode: int, state: gdk4.ModifierType): bool =
+#   # echo "keycode = ", keycode
+#   # echo "keyval = ", keyval
+#   # echo "gdk4.KEY_h = ", gdk4.KEY_h
+#   if (state.contains ModifierFlag.control) and (keycode == H_KEY):
+#     echo "ctrl h pressed"
+#   return true
 
 # TODO disconnect 
-proc inToKeyboardController*(lv: ListView) = 
-  let keyPressController = newEventControllerKey()
-  lv.addController(keyPressController) 
-  keyPressController.connect("key-pressed", carouselKeyPressedCb)
+# proc inToKeyboardController*(lv: ListView) = 
+#   let keyPressController = newEventControllerKey()
+#   lv.addController(keyPressController) 
+#   keyPressController.connect("key-pressed", carouselKeyPressedCb)
 
-let HidefilterGb =  newBoolFilter()
+let HidefilterGb = newBoolFilter()
 HidefilterGb.expression = newCClosureExpression(g_boolean_get_type(), nil, 0, nil, cast[Callback](filterHidden22), nil, nil)
 
 proc ctrlHPressed(widget: ptr Widget00; args: ptr glib.Variant00; fm: MultiFilter): bool {.cdecl.} =
@@ -57,7 +57,7 @@ proc inToShortcutController*(lv: ListView, fm: MultiFilter) =
 
 proc inToScroll*(widget: Widget): ScrolledWindow =
   result = newScrolledWindow()
-  # result.minContentWidth = 200
+  result.minContentWidth = 240
   result.setPropagateNaturalWidth true
   result.vexpand = true
   # result.hexpand = true
@@ -109,6 +109,10 @@ proc inToSearch*(lv: ListView, fm: MultiFilter) : Box =
   # result.hexpand = true
   result.append searchBar
   result.append lv
+
+  # echo "Try to grab on lv"
+
+  # echo lv.grabFocus()
 
   
   

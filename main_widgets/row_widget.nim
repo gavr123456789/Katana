@@ -6,7 +6,7 @@ const SECOND_STACK_NAME = "secondBox"
 
 type 
   FileRow* = ref object of Stack 
-    info*: gio.FileInfo
+    # info*: gio.FileInfo
     fullPath*: string
     btn1*: ToggleButton
     btn2*: ToggleButton

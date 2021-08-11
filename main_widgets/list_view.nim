@@ -139,10 +139,12 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 ### LOGIC
 import tables
 
-proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pathAndNum: PathAndNum) =
+proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pathAndNum: NumAndListView) =
   echo "hello gestures ", nPress, " ", x, " ", y
   # debugEcho "try scroll to ", pathAndNum.num
   carouselGb.gotoPage(pathAndNum.num)
+  echo "try to sas"
+  echo pathAndNum.lv.grabFocus()
   
 
 
@@ -189,7 +191,8 @@ proc createListView*(dir: string, num: int): Box =
 
 
   gestureClick.setButton(3) # rigth click
-  gestureClick.connect("pressed", gestureRigthClickCb, ( num: num, path: dl.getFile().getPath()) ) 
+  # Передавать сюда лист вью и там грабать фокус
+  gestureClick.connect("pressed", gestureRigthClickCb, ( num: num, lv: lv) ) 
 
   lv.addController(gestureClick)
 
@@ -208,6 +211,8 @@ proc createListView*(dir: string, num: int): Box =
   # lv.inToKeyboardController()
   lv.inToShortcutController(multiFilter)
   
+  # echo "Try to grab on lv"
+  # echo lv.grabFocus()
   return lv.inToSearch(multiFilter)
 
 
