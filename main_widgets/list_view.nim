@@ -206,6 +206,8 @@ proc createListView*(dir: string, num: int): Box =
     connect("teardown", teardown_cb)
 
   # lv.inToKeyboardController()
+  lv.inToShortcutController(multiFilter)
+  
   return lv.inToSearch(multiFilter)
 
 
