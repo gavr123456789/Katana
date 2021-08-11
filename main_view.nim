@@ -12,9 +12,8 @@ proc activate(app: gtk4.Application) =
     window = adw.newApplicationWindow(app)
     header = adw.newHeaderBar()
     adwBox = newBox(Orientation.vertical, 0)
-    listView = createListView(".", 0).inToScroll.inToBox true
+    listView = createListView("/home/gavr", 0, true)#.inToScroll#.inToBox true
     mainBox = newBox(Orientation.vertical, 0)
-    # whiteBackBox = newBox(Orientation.vertical, 0)
 
     revealFileCRUD = createRevealerWithCounter(header)
     carouselIndicatorLines = newCarouselIndicatorLines()

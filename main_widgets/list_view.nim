@@ -149,8 +149,9 @@ proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble
 
 
 import ../utils/sorts_and_filters
+import ../widgets/box_with_progress_bar_reveal
 # Возвращать 2 значения, сам лист вью, и searchBar который потом добавлять в inToBox
-proc createListView*(dir: string, num: int): Box =
+proc createListView*(dir: string, num: int, revealerOpened: bool): BoxWithProgressBarReveal =
   let
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("standard::*", file)
@@ -166,7 +167,7 @@ proc createListView*(dir: string, num: int): Box =
     filterListModel = newFilterListModel(listModel(sortListModel), multiFilter)
     boolFilter = newBoolFilter()
     # list
-    ns = gtk4.newNoSelection(filterListModel.listModel)
+    ns = gtk4.newMultiSelection(filterListModel.listModel)
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
 
@@ -213,7 +214,7 @@ proc createListView*(dir: string, num: int): Box =
   
   # echo "Try to grab on lv"
   # echo lv.grabFocus()
-  return lv.inToSearch(multiFilter)
+  return lv.inToScroll().inToSearch(multiFilter, revealerOpened)
 
 
 import tables
@@ -231,7 +232,7 @@ proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
       lastToggledPerPage[pathAndNum.num] = self
 
     # Создать page с сурсом path
-    carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1).inToScroll.inToBox(false)
+    carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1, false)#.inToScroll#.inToBox(false)
     # Если текущая страница не равна той странице где кнопка то скролим туда, иначе лагает
 
   else:
@@ -241,7 +242,7 @@ proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
     # debugEcho "pathAndNum.num: ", pathAndNum.num
     carouselGb.removeNPagesAfter(pathAndNum.num)
     echo "\n\n"
-    echo getFreeMem()
+    # echo getFreeMem()
     echo GC_getStatistics()
     echo "\n\n"
     # remove last toggled

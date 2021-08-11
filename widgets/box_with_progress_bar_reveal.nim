@@ -18,7 +18,6 @@ proc createBoxWithProgressBarReveal*(revealOpened: bool): BoxWithProgressBarReve
   reveal.revealChild = revealOpened
   reveal.setChild progressBar
   result.append reveal
-
   result.vexpand = true
 
 func `showProgressBar=`*(self: BoxWithProgressBarReveal, revealChild: bool) = 
