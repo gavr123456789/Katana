@@ -64,6 +64,8 @@ proc createFileRow*(): FileRow =
 
 
   row.switchStackBtnSignalid = 0
+  row.arrowBtnSignalid = 0
+  row.fileBtnSignalid = 0
     
   row.transitionType = slideLeftRight
 

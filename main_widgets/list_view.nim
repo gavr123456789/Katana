@@ -93,11 +93,10 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   let row = listitem.getChild().FileRow
-  row.btn2.signalHandlerDisconnect(row.arrowBtnSignalid)
-  row.btn1.signalHandlerDisconnect(row.fileBtnSignalid)
-  # looks like it all already disconnected
-  if row.switchStackBtnSignalid != 0:
-    row.backBtn.signalHandlerDisconnect(row.switchStackBtnSignalid)
+
+  if row.arrowBtnSignalid != 0: row.btn2.signalHandlerDisconnect(row.arrowBtnSignalid)
+  if row.fileBtnSignalid != 0: row.btn1.signalHandlerDisconnect(row.fileBtnSignalid)
+  if row.switchStackBtnSignalid != 0: row.backBtn.signalHandlerDisconnect(row.switchStackBtnSignalid)
 
     
 
@@ -155,6 +154,7 @@ proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble
 
 import ../utils/sorts_and_filters
 import ../widgets/box_with_progress_bar_reveal
+import ../utils/shortcuts
 
 proc createListView*(dir: string, num: int, revealerOpened: bool): BoxWithProgressBarReveal =
   let
