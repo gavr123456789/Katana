@@ -12,6 +12,7 @@ func getFileIconFromExt*(ext: string): string =
       of ".png", ".jpg", ".jpeg": "folder-picture-symbolic"
       of ".mp3", ".wav": "deepin-music-player-symbolic"
       of ".mp4", "mkv": "camera-symbolic"
+      of ".webm": "acestreamplayer-symbolic"
       of ".gif": "avidemux_icon-symbolic"
       
       else: "folder-documents-symbolic"
@@ -22,7 +23,7 @@ func getFolderIconFromName*(folderName: string): string =
       of "Games": "games-app-symbolic"
       of "Apps": "applications-java-symbolic"
       of "Projects": "document-open-symbolic"
-      of "Programs": "nvim-symbolic"
+      of "Programs": "gnugo-symbolic"
       of "Plugins": "puzzle-piece-symbolic"
       of ".git": "git-cola-symbolic"
       of "Telegram": "mail-send-symbolic"

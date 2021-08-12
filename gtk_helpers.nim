@@ -3,22 +3,6 @@ import hashes, std/with
 import widgets/box_with_progress_bar_reveal
 import utils/sorts_and_filters
 
-# const H_KEY = 43
-
-# proc carouselKeyPressedCb(self: EventControllerKey, keyval: int, keycode: int, state: gdk4.ModifierType): bool =
-#   # echo "keycode = ", keycode
-#   # echo "keyval = ", keyval
-#   # echo "gdk4.KEY_h = ", gdk4.KEY_h
-#   if (state.contains ModifierFlag.control) and (keycode == H_KEY):
-#     echo "ctrl h pressed"
-#   return true
-
-# TODO disconnect 
-# proc inToKeyboardController*(lv: ListView) = 
-#   let keyPressController = newEventControllerKey()
-#   lv.addController(keyPressController) 
-#   keyPressController.connect("key-pressed", carouselKeyPressedCb)
-
 let HidefilterGb = newBoolFilter()
 HidefilterGb.expression = newCClosureExpression(g_boolean_get_type(), nil, 0, nil, cast[Callback](filterHidden22), nil, nil)
 
@@ -37,20 +21,31 @@ proc ctrlHPressed(widget: ptr Widget00; args: ptr glib.Variant00; fm: MultiFilte
   echo "ctrl h pressed"
   false
 
-import main_widgets/row_widget
+
 proc ctrlAPressed(widget: ptr Widget00; args: ptr glib.Variant00; lv: ListView): bool {.cdecl.} =
-  let lm = cast[ListModel](lv.model)
-  let nItems = lm.getNItems
+  let 
+    lm = cast[ListModel](lv.model)
+    model = lv.model
+    selectedCount = model.getSelection().size
+    allItemsInList = lm.getNItems
 
-  if nItems > 0:
-    let 
-      item = lm.getItem(0)
-      listItem = cast[FileInfo](item)
-      # row = listitem.getChild().FileRow
+  echo "selectedCount ", selectedCount
+  echo "allItemsInList ", allItemsInList
+  # if selectedCount == allItemsInList:
+  #   echo model.unselectAll
+  # else:
+  #   echo model.selectAll
+  # echo model.selectAll
+  # let nItems = lm.getNItems
 
-    echo "SASASASASA", listItem.name
-    listItem.name = "sas"
+  # if nItems > 0:
+  #   let 
+  #     item = lm.getItem(0)
+  #     listItem = cast[FileInfo](item)
+  #     # row = listitem.getChild().FileRow
 
+  #   echo "SASASASASA", listItem.name
+  #   listItem.name = "sas"
   false
 
 
@@ -76,25 +71,6 @@ proc inToScroll*(widget: Widget): ScrolledWindow =
   result.vexpand = true
   # result.hexpand = true
   result.child = widget
-  
-
-proc inToBox*(widget: Widget, revealOpened: bool): BoxWithProgressBarReveal =
-  result = createBoxWithProgressBarReveal(revealOpened)
-
-  let
-    searchBar = newSearchBar()
-    entry = newSearchEntry()
-  
-  with searchBar:
-    connectEntry entry
-    # showCloseButton = true
-    child = entry
-    keyCaptureWidget = result
-
-  result.marginTop = 30 # for scroll
-  result.prepend widget
-  result.prepend searchBar
-
 
 type
   MultiFilterAndSearchBar = tuple
@@ -126,6 +102,8 @@ proc inToSearch*(lv: Widget, fm: MultiFilter, revealerOpened: bool) : BoxWithPro
   let
     searchBar = newSearchBar()
     entry = newSearchEntry()
+  
+  echo entry.grabFocus()
 
   with searchBar:
     connectEntry entry

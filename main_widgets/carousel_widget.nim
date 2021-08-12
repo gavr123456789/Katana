@@ -37,8 +37,6 @@ proc setCurrentPage2*(self: CarouselWithPaths, index: int) =
 
 proc gotoPage*(self: CarouselWithPaths, index: int) = 
   setCurrentPage2(self, index)
-  # echo "FOCUS GRABBED BY ", index
-  # echo self.getNthPage(index).grabFocus()
   debugEcho "scrollToN: ", index
   self.scrollToFull self.getNthPage index, 500
 

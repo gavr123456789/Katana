@@ -12,20 +12,16 @@ proc activate(app: gtk4.Application) =
     window = adw.newApplicationWindow(app)
     header = adw.newHeaderBar()
     adwBox = newBox(Orientation.vertical, 0)
-    listView = createListView("/home/gavr", 0, true)#.inToScroll#.inToBox true
+    listView = createListView("/home/gavr", 0, true)
     mainBox = newBox(Orientation.vertical, 0)
 
     revealFileCRUD = createRevealerWithCounter(header)
     carouselIndicatorLines = newCarouselIndicatorLines()
     titleWithPlayer = createTitleStackWithPlayer()
 
-    # keyPressController = newEventControllerKey()
-
-
-
   window.iconName = "camera-flash" # TODO
 
-  # mainApplicationWindowGb = window
+
   header.titleWidget = titleWithPlayer
 
   carouselGb = createCarousel(listView)
@@ -45,13 +41,6 @@ proc activate(app: gtk4.Application) =
     marginBottom = 30
     append carouselGb
 
-  # TODO background color primary
-  # with whiteBackBox:
-  #   vexpand = true
-  #   hexpand = true
-  #   append revealFileCRUD
-  #   append mainBox
-  #   append carouselIndicatorLines
 
   with adwBox:
     append header 
@@ -66,6 +55,7 @@ proc activate(app: gtk4.Application) =
     title = "Katana"
     setChild adwBox
     show
+
 
 proc main =
   let app = newApplication("org.gtk.example")

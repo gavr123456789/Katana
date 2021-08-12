@@ -1,11 +1,11 @@
-import gintro/[gtk4, gobject, gio, adw]
+import gintro/[gtk4, gobject, gio, adw, glib]
 import std/with, os
-import ../types, ../utils, ../gtk_helpers, carousel_widget, row_widget
+import ../types, ../utils/ext_to_icons, ../gtk_helpers, carousel_widget, row_widget
 import ../stores/directory_lists_store
 
 proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum );
 proc openFileCb(self: ToggleButton, path: string );
-proc selectFileCb(self: ToggleButton, row: FileRow );
+proc selectFileCb(self: ToggleButton, pspec: ParamSpec, row: FileRow );
 
 # press arrow btn
 proc openFileCb(self: ToggleButton, path: string ) = 
@@ -54,6 +54,10 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   if fileInfo.isHidden == true:
     row.opacity = 0.5
 
+  discard listitem.bindProperty("selected", row.btn1, "active", {syncCreate})
+  # discard row.btn1.bindProperty("active", row.btn1, "active", {syncCreate})
+  row.btn1.connect("notify::active", selectFileCb, row)
+
   # debugEcho fileInfo.listAttributes
   # debugEcho "size: ", fileInfo.getSize
   # debugEcho "allocated-size: ", fileInfo.getAttributeUInt64("standard::allocated-size")
@@ -82,7 +86,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   of symbolicLink, special, shortcut, mountable:
     echo path, " is something else"
 
-  row.fileBtnSignalid = row.btn1.connect("toggled", selectFileCb, row)
+  # row.fileBtnSignalid = row.btn1.connect("toggled", selectFileCb, row)
   row.labelFileName.label = fileInfo.getName()
   # row.info = fileInfo
   row.fullPath = path
@@ -144,13 +148,14 @@ proc gestureRigthClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble
   # debugEcho "try scroll to ", pathAndNum.num
   carouselGb.gotoPage(pathAndNum.num)
   echo "try to sas"
+  echo pathAndNum.lv.focusable
   echo pathAndNum.lv.grabFocus()
   
 
 
 import ../utils/sorts_and_filters
 import ../widgets/box_with_progress_bar_reveal
-# Возвращать 2 значения, сам лист вью, и searchBar который потом добавлять в inToBox
+
 proc createListView*(dir: string, num: int, revealerOpened: bool): BoxWithProgressBarReveal =
   let
     file = gio.newGFileForPath(dir)
@@ -172,6 +177,8 @@ proc createListView*(dir: string, num: int, revealerOpened: bool): BoxWithProgre
     lv = newListView(ns, factory)
 
     gestureClick = newGestureClick()
+
+  lv.enableRubberband = true
 
   # sort
   ms.append(folderFirstSorter)
@@ -212,8 +219,7 @@ proc createListView*(dir: string, num: int, revealerOpened: bool): BoxWithProgre
   # lv.inToKeyboardController()
   lv.inToShortcutController(multiFilter)
   
-  # echo "Try to grab on lv"
-  # echo lv.grabFocus()
+
   return lv.inToScroll().inToSearch(multiFilter, revealerOpened)
 
 
@@ -232,7 +238,7 @@ proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
       lastToggledPerPage[pathAndNum.num] = self
 
     # Создать page с сурсом path
-    carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1, false)#.inToScroll#.inToBox(false)
+    carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1, false)
     # Если текущая страница не равна той странице где кнопка то скролим туда, иначе лагает
 
   else:
@@ -256,8 +262,7 @@ import ../stores/selected_store
 import sets
 import ../stores/gtk_widgets_store
 
-proc selectFileCb(self: ToggleButton, row: FileRow ) =
-  # debugEcho pathAndNum.path
+proc selectFileCb(self: ToggleButton, pspec: ParamSpec, row: FileRow ) =
   if self.active:
     selectedStoreGb.incl row
   else:
@@ -269,8 +274,6 @@ proc selectFileCb(self: ToggleButton, row: FileRow ) =
     # Показываем бар выбора действий
     revealFileCRUDGb.revealChild = true
   else: 
-    # Показываем бар выбора действий
-    discard
     revealFileCRUDGb.revealChild = false
 
 
