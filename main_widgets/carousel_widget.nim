@@ -9,10 +9,29 @@ type
 
 var carouselGb*: CarouselWithPaths
 
+# TODO добавить функции получения listView с нной страницы, и функции получения файла пути с каждой страцниы, заменить все
+# использования дириктори лист стор на эти функции
+###
 proc getCurrentPageWidget*(self: CarouselWithPaths): Widget = 
   assert self.nPages >= 0
   result = self.getNthPage(self.currentPage)
 
+proc getNPageWidget*(self: CarouselWithPaths, n: int): Widget = 
+  assert self.nPages >= 0
+  result = self.getNthPage(n)
+###
+proc getCurrentPageBoxWithProgressBar*(self: CarouselWithPaths): BoxWithProgressBarReveal = 
+  assert self.nPages >= 0
+  let boxWithProgressBar = self.getNthPage(self.currentPage).BoxWithProgressBarReveal
+  assert boxWithProgressBar != nil
+  result = boxWithProgressBar
+
+proc getNthPageBoxWithProgressBar*(self: CarouselWithPaths, n: int): BoxWithProgressBarReveal = 
+  assert self.nPages >= 0
+  let boxWithProgressBar = self.getNthPage(n).BoxWithProgressBarReveal
+  assert boxWithProgressBar != nil
+  result = boxWithProgressBar
+###
 proc getCurrentPageNumber*(self: CarouselWithPaths): int = 
   result = self.currentPage
 
@@ -24,20 +43,14 @@ proc createCarousel*(widget: Widget): CarouselWithPaths =
   result.append (widget)
 
 proc setCurrentPage2*(self: CarouselWithPaths, index: int) = 
-  echo "carusel N pages: ", self.nPages 
+  self.getCurrentPageBoxWithProgressBar.showProgressBar = false
+  self.getNthPageBoxWithProgressBar(index).showProgressBar = true
 
-  assert self.getCurrentPageWidget() != nil
-  assert self.getCurrentPageWidget().BoxWithProgressBarReveal != nil
-  assert self.getNthPage(index).BoxWithProgressBarReveal != nil
-
-  self.getCurrentPageWidget().BoxWithProgressBarReveal.showProgressBar = false
-  self.getNthPage(index).BoxWithProgressBarReveal.showProgressBar = true
-
-  self.currentPage = index
 
 proc gotoPage*(self: CarouselWithPaths, index: int) = 
   setCurrentPage2(self, index)
   debugEcho "scrollToN: ", index
+  self.currentPage = index
   self.scrollToFull self.getNthPage index, 500
 
 
@@ -81,7 +94,7 @@ proc deleteLastPage(self: CarouselWithPaths) =
 proc removeNPagesAfter*(self: CarouselWithPaths, n: int) =
   # если мы и удаляем все после текущей страницы, то делать на нее готу не надо
   if self.currentPage != n:
-    self.gotoPage(self.currentPage)
+    self.gotoPage(n)
     self.currentPage = n
   assert(n < self.nPages)
   assert(self.currentPage >= 0)

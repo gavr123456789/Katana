@@ -55,8 +55,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
     row.opacity = 0.5
 
   discard listitem.bindProperty("selected", row.btn1, "active", {syncCreate})
-  # discard row.btn1.bindProperty("active", row.btn1, "active", {syncCreate})
-  row.btn1.connect("notify::active", selectFileCb, row)
+  row.fileBtnSignalid = row.btn1.connect("notify::active", selectFileCb, row)
 
   # debugEcho fileInfo.listAttributes
   # debugEcho "size: ", fileInfo.getSize
@@ -65,7 +64,6 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
 
   case fileType:
   of gio.FileType.unknown:
-    # echo path, " is ", gio.FileType.unknown
     let (_, name, ext) = fileInfo.getName().splitFile()
     let isDir = ext == ""
     
@@ -95,13 +93,13 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   let row = listitem.getChild().FileRow
 
   if row.arrowBtnSignalid != 0: row.btn2.signalHandlerDisconnect(row.arrowBtnSignalid)
-  if row.fileBtnSignalid != 0: row.btn1.signalHandlerDisconnect(row.fileBtnSignalid)
+  # if row.fileBtnSignalid != 0: row.btn1.signalHandlerDisconnect(row.fileBtnSignalid)
   if row.switchStackBtnSignalid != 0: row.backBtn.signalHandlerDisconnect(row.switchStackBtnSignalid)
 
     
 
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
-  debugEcho "teardown_cb"
+  # debugEcho "teardown_cb"
   
   # if listitem.getChild != nil:
   #   debugEcho "refCount: ", listitem.getChild.refCount
@@ -116,7 +114,7 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   #   debugEcho "listitem.getItem == nil"
   
   if listitem != nil:
-    debugEcho "refCount: ", listitem.refCount
+    # debugEcho "refCount: ", listitem.refCount
     # listitem.child.unref
     # listitem.child.GC_unref
     listitem.child = nil
@@ -224,18 +222,18 @@ proc createListView*(dir: string, num: int, revealerOpened: bool): BoxWithProgre
 
 
 import tables
-var lastToggledPerPage = newTable[int, ToggleButton]()
+var lastToggledPerPageGb = newTable[int, ToggleButton]()
 
 proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
 
   if self.active:
     # Если на этой странице уже есть активированная кнопка
      
-    if lastToggledPerPage.contains pathAndNum.num:
-      lastToggledPerPage[pathAndNum.num].active = false
-      lastToggledPerPage[pathAndNum.num] = self
+    if lastToggledPerPageGb.contains pathAndNum.num:
+      lastToggledPerPageGb[pathAndNum.num].active = false
+      lastToggledPerPageGb[pathAndNum.num] = self
     else:
-      lastToggledPerPage[pathAndNum.num] = self
+      lastToggledPerPageGb[pathAndNum.num] = self
 
     # Создать page с сурсом path
     carouselGb.append createListView(pathAndNum.path, pathAndNum.num + 1, false)
@@ -247,12 +245,12 @@ proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
     # debugEcho "carouselGb.nPages: ", carouselGb.nPages
     # debugEcho "pathAndNum.num: ", pathAndNum.num
     carouselGb.removeNPagesAfter(pathAndNum.num)
-    echo "\n\n"
+    # echo "\n\n"
     # echo getFreeMem()
-    echo GC_getStatistics()
+    # echo GC_getStatistics()
     echo "\n\n"
     # remove last toggled
-    lastToggledPerPage.del pathAndNum.num
+    lastToggledPerPageGb.del pathAndNum.num
     
 
 

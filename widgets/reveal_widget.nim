@@ -103,7 +103,6 @@ proc openFileEntry(self: Button, revealerAndEntry: RevealerAndEntry) =
 # proc createFile(self: Button, folderNameEntry: gtk4.Entry) =
 
 
-
 proc createRevealerWithCounter*(header: adw.HeaderBar): RevealerWithCounter =
   result = newRevealer(RevealerWithCounter)
   let
@@ -114,6 +113,7 @@ proc createRevealerWithCounter*(header: adw.HeaderBar): RevealerWithCounter =
     revealBtnMove = newButtonFromIconName("insert-object-symbolic")
     revealBtnCopy = newButtonFromIconName("edit-copy-symbolic")
     revealBtnDel = newButtonFromIconName("user-trash-symbolic")
+    revealBtnClose = newButtonFromIconName("close-symbolic")
     # Create Btns
     revealBtnCreateFolder = newButtonFromIconName("folder-new-symbolic")
     revealBtnCreateFile = newButtonFromIconName("document-new-symbolic")
