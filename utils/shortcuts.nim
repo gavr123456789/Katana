@@ -27,35 +27,21 @@ proc escPressed(widget: ptr Widget00; args: ptr glib.Variant00;  lv: ListView): 
   echo model.unselectAll
   true
 
-# proc ctrlAPressed(widget: ptr Widget00; args: ptr glib.Variant00; lv: ListView): bool {.cdecl.} =
-#   let 
-#     lm = cast[ListModel](lv.model)
-#     model = lv.model
-#     selectedCount = model.getSelection().size
-#     allItemsInList = lm.getNItems
+import group_folder_by_types
+proc ctrlGPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+  debugEcho "ctrlGPressed with dir: ", dir
+  groupFolderByTypes(dir, GroupFormat.byType)
 
-#   echo "selectedCount ", selectedCount
-#   echo "allItemsInList ", allItemsInList
-#   # if selectedCount == allItemsInList:
-#   #   echo model.unselectAll
-#   # else:
-#   #   echo model.selectAll
-#   # echo model.selectAll
-#   # let nItems = lm.getNItems
+proc ctrlTPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+  debugEcho "ctrlDPressed with dir: ", dir
+  groupFolderByTypes(dir, GroupFormat.byDate)
 
-#   # if nItems > 0:
-#   #   let 
-#   #     item = lm.getItem(0)
-#   #     listItem = cast[FileInfo](item)
-#   #     # row = listitem.getChild().FileRow
-
-#   #   echo "SASASASASA", listItem.name
-#   #   listItem.name = "sas"
-#   false
-
+proc ctrlUPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+  debugEcho "ctrlUPressed with dir: ", dir
+  unpackFilesFromFoldersByTypes dir
 
 # adding ctrl h and ctrl a
-proc inToShortcutController*(lv: ListView, fm: MultiFilter) = 
+proc inToShortcutController*(lv: ListView, fm: MultiFilter, dir: string) = 
   echo "inToShortcutController"
   let shortcutController = newShortcutController()
   lv.addController(shortcutController) 
@@ -65,6 +51,16 @@ proc inToShortcutController*(lv: ListView, fm: MultiFilter) =
 
   let esc = newCallbackAction(cast[ShortcutFunc](escPressed), cast[pointer](lv), nil )
   shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("Escape"), esc))
+
+  let ctrlg = newCallbackAction(cast[ShortcutFunc](ctrlGPressed), cast[pointer](dir), nil )
+  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>G"), ctrlg))
+
+  let ctrlt = newCallbackAction(cast[ShortcutFunc](ctrlTPressed), cast[pointer](dir), nil )
+  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>T"), ctrlt))
+
+  let ctrlu = newCallbackAction(cast[ShortcutFunc](ctrlUPressed), cast[pointer](dir), nil )
+  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>U"), ctrlu))
+
 
   # itemType.
 

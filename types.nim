@@ -1,4 +1,4 @@
-import gintro/[gtk4, gobject, gio, adw]
+import gintro/[gtk4]
 
 type
   PathAndNum* = tuple

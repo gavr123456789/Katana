@@ -1,4 +1,4 @@
-import gintro/[gtk4, gobject, gio]
+import gintro/[gtk4, gobject]
 
 
 type 

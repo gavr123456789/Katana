@@ -6,3 +6,6 @@ func `[]=`*(table: var ListTable, key: auto, value: auto) =
   if table.hasKeyOrPut(key, @[value]):
     table[key].add value
 
+func add*(table: var ListTable, key: auto, value: auto) =
+  if table.hasKeyOrPut(key, @[value]):
+    table[key].add value

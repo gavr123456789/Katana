@@ -27,12 +27,12 @@ proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, pageNum: i
   if ext == ".mp3":
     ###
     debugEcho "setup_cb, найден MP3"
-    let playerBox = createBoxWithPlayer(path, pageNum)
-    row.backBtn = newButton("←")
-    playerBox.append row.backBtn
-    row.switchStackBtnSignalid = row.backBtn.connect("clicked", backToMainStackCb, row)
+    # let playerBox = createBoxWithPlayer(path, pageNum)
+    # row.backBtn = newButton("←")
+    # playerBox.append row.backBtn
+    # row.switchStackBtnSignalid = row.backBtn.connect("clicked", backToMainStackCb, row)
 
-    row.addSecondStack playerBox
+    # row.addSecondStack playerBox
     row.arrowBtnSignalid = row.btn2.connect("toggled", openSecondStackCb, row) # TODO функция перемещающая стак на плеер
   else:
     row.arrowBtnSignalid = row.btn2.connect("toggled", openFileCb, path) # TODO функция открывающая  файл
@@ -84,9 +84,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   of symbolicLink, special, shortcut, mountable:
     echo path, " is something else"
 
-  # row.fileBtnSignalid = row.btn1.connect("toggled", selectFileCb, row)
   row.labelFileName.label = fileInfo.getName()
-  # row.info = fileInfo
   row.fullPath = path
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
@@ -100,40 +98,10 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   # debugEcho "teardown_cb"
-  
-  # if listitem.getChild != nil:
-  #   debugEcho "refCount: ", listitem.getChild.refCount
-  #   listitem.setChild nil
-  # else:
-  #   debugEcho "listitem.getChild == nil"
 
-  # if listitem.getItem() != nil:
-  #   debugEcho "refCount: ", listitem.getItem().refCount
-  #   GC_unref listitem
-  # else:
-  #   debugEcho "listitem.getItem == nil"
-  
   if listitem != nil:
-    # debugEcho "refCount: ", listitem.refCount
-    # listitem.child.unref
-    # listitem.child.GC_unref
     listitem.child = nil
 
-    # var item = listitem.getItem()
-    # let row = listitem.getChild().FileRow
-
-    # row.unref
-    # item.unref
-    # item.GC_unref
-
-    # listitem.unref
-    # listitem.GC_unref
-
-    # listitem.getChild.unref
-    # listitem.getItem.unref
-    # listitem.child.unref
-    # debugEcho "refCount: ", listitem.refCount
-    # GC_fullCollect()
   else:
     debugEcho "listitem == nil"
 
@@ -176,7 +144,7 @@ proc createListView*(dir: string, num: int, revealerOpened: bool): BoxWithProgre
 
     gestureClick = newGestureClick()
 
-  lv.enableRubberband = true
+  # lv.enableRubberband = true
 
   # sort
   ms.append(folderFirstSorter)
@@ -208,16 +176,17 @@ proc createListView*(dir: string, num: int, revealerOpened: bool): BoxWithProgre
  
   dl.setMonitored true
 
+  let path = dl.getFile().getPath()
   with factory:
-    connect("setup", setup_cb, dl.getFile().getPath())
-    connect("bind", bind_cb, ( num: num, path: dl.getFile().getPath()) )
+    connect("setup", setup_cb, path)
+    connect("bind", bind_cb, ( num: num, path: path) )
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
 
+  debugEcho "SSASS  ", dir, "  ", path
   # lv.inToKeyboardController()
-  lv.inToShortcutController(multiFilter)
+  lv.inToShortcutController(multiFilter, dir)
   
-
   return lv.inToScroll().inToSearch(multiFilter, revealerOpened)
 
 
@@ -245,11 +214,7 @@ proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
     # debugEcho "carouselGb.nPages: ", carouselGb.nPages
     # debugEcho "pathAndNum.num: ", pathAndNum.num
     carouselGb.removeNPagesAfter(pathAndNum.num)
-    # echo "\n\n"
-    # echo getFreeMem()
-    # echo GC_getStatistics()
-    echo "\n\n"
-    # remove last toggled
+
     lastToggledPerPageGb.del pathAndNum.num
     
 
