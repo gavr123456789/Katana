@@ -37,8 +37,17 @@ proc ctrlTPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string):
   groupFolderByTypes(dir, GroupFormat.byDate)
 
 proc ctrlUPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+  # TODO если нажали ctrl U при этом слева от текущей есть открытая папка, и она одна начинается с _ то нужно закрыть все до текущей
   debugEcho "ctrlUPressed with dir: ", dir
   unpackFilesFromFoldersByTypes dir
+
+import os
+proc ctrlQPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+  discard os.execShellCmd("gnome-terminal --working-directory=" & dir)
+
+proc ctrlCPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+  discard os.execShellCmd("code " & dir)
+
 
 # adding ctrl h and ctrl a
 proc inToShortcutController*(lv: ListView, fm: MultiFilter, dir: string) = 
@@ -61,8 +70,12 @@ proc inToShortcutController*(lv: ListView, fm: MultiFilter, dir: string) =
   let ctrlu = newCallbackAction(cast[ShortcutFunc](ctrlUPressed), cast[pointer](dir), nil )
   shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>U"), ctrlu))
 
+  # TODO turn off on ellipsization, change global var, in widget creation check this global bool var
+  # let ctrle = newCallbackAction(cast[ShortcutFunc](ctrlUPressed), cast[pointer](dir), nil )
+  # shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>E"), ctrle))
 
-  # itemType.
+  let ctrlq = newCallbackAction(cast[ShortcutFunc](ctrlQPressed), cast[pointer](dir), nil )
+  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Alt>T"), ctrlq))
 
-  # let ctrla = newCallbackAction(cast[ShortcutFunc](ctrlAPressed), cast[pointer](lv), nil )
-  # shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>A"), ctrla))
+  let ctrlc = newCallbackAction(cast[ShortcutFunc](ctrlCPressed), cast[pointer](dir), nil )
+  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Alt>C"), ctrlc))

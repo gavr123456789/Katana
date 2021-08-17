@@ -94,8 +94,6 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   # if row.fileBtnSignalid != 0: row.btn1.signalHandlerDisconnect(row.fileBtnSignalid)
   if row.switchStackBtnSignalid != 0: row.backBtn.signalHandlerDisconnect(row.switchStackBtnSignalid)
 
-    
-
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   # debugEcho "teardown_cb"
 
@@ -104,6 +102,8 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 
   else:
     debugEcho "listitem == nil"
+
+
 
 ### LOGIC
 import tables
@@ -190,8 +190,8 @@ proc createListView*(dir: string, num: int, revealerOpened: bool): BoxWithProgre
   return lv.inToScroll().inToSearch(multiFilter, revealerOpened)
 
 
-import tables
-var lastToggledPerPageGb = newTable[int, ToggleButton]()
+
+import ../stores/last_toggled_per_page
 
 proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum ) =
 
