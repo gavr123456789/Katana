@@ -42,6 +42,7 @@ proc ctrlUPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string):
   unpackFilesFromFoldersByTypes dir
 
 import os
+# TODO take terminal run command to global var on program start and use it here
 proc ctrlQPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
   discard os.execShellCmd("gnome-terminal --working-directory=" & dir)
 

@@ -3,15 +3,26 @@ import std/with, os
 import ../types, ../utils/ext_to_icons, ../gtk_helpers, carousel_widget, row_widget
 import ../stores/directory_lists_store
 
+type 
+  PathAndExt = tuple
+    path: string
+    ext: string
+    name: string
+
+
 proc openFolderCb(self: ToggleButton, pathAndNum: PathAndNum );
-proc openFileCb(self: ToggleButton, path: string );
 proc selectFileCb(self: ToggleButton, pspec: ParamSpec, row: FileRow );
 
 # press arrow btn
-proc openFileCb(self: ToggleButton, path: string ) = 
+proc openFileCb(self: ToggleButton, pathAndExt: PathAndExt ) = 
   if self.active == true:
     self.active = false
-    gtk_helpers.openFileInApp(path)
+    if pathAndExt.ext == ".sh":
+      let command = "gnome-terminal --wait --command \"" & pathAndExt.path & "\""
+      echo command
+      discard os.execShellCmd(command)
+    else: 
+      gtk_helpers.openFileInApp(pathAndExt.path)
 
 ### FABRIC
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, fullPath: string) =
@@ -21,7 +32,7 @@ proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, full
 import ../widgets/boxWithPlayer
 proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, pageNum: int) =
   # echo path, " is ", gio.FileType.regular
-  let (_, _, ext) = fileInfo.getName().splitFile()
+  let (_, name, ext) = fileInfo.getName().splitFile()
   row.btn2.label = "→"
   row.iconName = getFileIconFromExt ext
   if ext == ".mp3":
@@ -35,7 +46,7 @@ proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, pageNum: i
     # row.addSecondStack playerBox
     row.arrowBtnSignalid = row.btn2.connect("toggled", openSecondStackCb, row) # TODO функция перемещающая стак на плеер
   else:
-    row.arrowBtnSignalid = row.btn2.connect("toggled", openFileCb, path) # TODO функция открывающая  файл
+    row.arrowBtnSignalid = row.btn2.connect("toggled", openFileCb, (path: path, ext: ext, name: name)) # TODO функция открывающая  файл
 
 proc parseDir(row: FileRow, path: string, fileInfo: gio.FileInfo, num: int) = 
       # echo path, " is ", gio.FileType.directory
