@@ -1,7 +1,7 @@
 import gintro/[gtk4, gobject, gio, pango, glib, adw]
 import std/with
 import types
-import utils/set_file_row_for_file
+import gtk_utils/set_file_row_for_file
 import widgets/btn_with_label_image
 
 proc createRow*(): Row =

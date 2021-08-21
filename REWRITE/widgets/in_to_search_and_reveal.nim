@@ -1,13 +1,11 @@
 import gintro/[gtk4, gobject, gio, pango, glib, adw]
 import std/with
-
+import ../types
 # BOX WITH REVEAL
-type 
-  BoxWithProgressBarReveal* = ref object of Box
-    revealer*: Revealer
 
-proc createBoxWithProgressBarReveal*(revealOpened: bool): BoxWithProgressBarReveal = 
-  result = newBox(BoxWithProgressBarReveal, Orientation.vertical, 0)
+
+proc createBoxWithProgressBarReveal*(revealOpened: bool): Page = 
+  result = newBox(Page, Orientation.vertical, 0)
   let
     reveal = newRevealer() 
     progressBar = newProgressBar()
@@ -21,7 +19,7 @@ proc createBoxWithProgressBarReveal*(revealOpened: bool): BoxWithProgressBarReve
   result.append reveal
   result.vexpand = true
 
-func `showProgressBar=`*(self: BoxWithProgressBarReveal, revealChild: bool) = 
+func `showProgressBar=`*(self: Page, revealChild: bool) = 
   self.revealer.revealChild = revealChild
 
 
@@ -49,9 +47,9 @@ proc entryChanged(entry: SearchEntry, mlAndSb: MultiFilterAndSearchBar) =
     mlAndSb.searchBar.searchMode = false
   echo entry.text
 
-proc inToSearch*(lv: Widget, fm: MultiFilter, revealerOpened: bool) : BoxWithProgressBarReveal =
-  result = createBoxWithProgressBarReveal(revealerOpened)
-  
+proc inToSearch*(lv: Widget, page: Page, fm: MultiFilter, revealerOpened: bool) : Page =
+  # result = createBoxWithProgressBarReveal(revealerOpened)
+  result = page
   let
     searchBar = newSearchBar()
     entry = newSearchEntry()

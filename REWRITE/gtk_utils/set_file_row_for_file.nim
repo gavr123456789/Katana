@@ -5,10 +5,12 @@ import os
 import ../utils/ext_to_icons
 
 proc setAsDir(row: Row, name: string) =
+  row.kind = DirOrFile.dir
   row.iconName = getFolderIconFromName(name)
   
 
 proc setAsFile(row: Row, ext: string) =
+  row.kind = DirOrFile.file
   row.iconName = getFileIconFromExt(ext) 
 
 proc set_file_row_for_file*(row: Row, fileInfo: gio.FileInfo) =

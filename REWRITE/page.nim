@@ -4,9 +4,17 @@ import row
 import utils/sorts_and_filters
 import widgets/in_to_scroll
 import widgets/in_to_search_and_reveal
-import utils/set_file_row_for_file
-import utils/shortcuts
+import gtk_utils/set_file_row_for_file
+import gtk_utils/shortcuts
+import types
 
+proc openFolder(btn: ToggleButton, page: Page) = 
+  # echo  "folder pressed"
+  
+  page.changeActivatedArrowBtn(btn)
+
+proc openFile(btn: ToggleButton, page: Page) = 
+  echo  "file pressed"
 
 import types
 
@@ -17,12 +25,19 @@ proc getFileName(info: gio.FileInfo): string =
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild(createRow())
   
-proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
+proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, page: Page) =
   let 
     row = listitem.getChild().Row
     fileInfo = cast[gio.FileInfo](listitem.getItem())
 
+  # kind choosed
   row.set_file_row_for_file(fileInfo)
+  case row.kind
+  of DirOrFile.dir: 
+    row.btn2.connect("toggled", openFolder, page)
+  of DirOrFile.file: 
+    row.btn2.connect("toggled", openFile, page)
+
 
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
@@ -53,6 +68,7 @@ proc createListView(dir: string, revealerOpened: bool): Widget =
     ns = gtk4.newMultiSelection(filterListModel.listModel)
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
+    page = createBoxWithProgressBarReveal(revealerOpened)
 
     gestureClick = newGestureClick()
   
@@ -77,13 +93,12 @@ proc createListView(dir: string, revealerOpened: bool): Widget =
   #factory
   with factory:
     connect("setup", setup_cb)
-    connect("bind", bind_cb)
+    connect("bind", bind_cb, page)
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
 
   lv.inToShortcutController(multiFilter, dir)
-
-  return lv.inToScroll().inToSearch(multiFilter, revealerOpened)
+  return lv.inToScroll().inToSearch(page, multiFilter, revealerOpened)
   
 
 
@@ -103,8 +118,8 @@ proc activate(app: gtk4.Application) =
 
   with window:
     child = mainBox
-    title = "Katana"
-    defaultSize = (600, 400)
+    title = "Katana Page"
+    defaultSize = (200, 100)
     show
 
 

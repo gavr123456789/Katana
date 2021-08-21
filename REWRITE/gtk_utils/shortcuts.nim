@@ -1,5 +1,6 @@
 import gintro/[gtk4, gdk4, gobject, gio, glib]
-import sorts_and_filters
+import ../utils/sorts_and_filters
+import ../utils/group_folder_by_types
 
 
 let HidefilterGb = newBoolFilter()
@@ -27,7 +28,6 @@ proc escPressed(widget: ptr Widget00; args: ptr glib.Variant00;  lv: ListView): 
   echo model.unselectAll
   true
 
-import group_folder_by_types
 proc ctrlGPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
   debugEcho "ctrlGPressed with dir: ", dir
   groupFolderByTypes(dir, GroupFormat.byType)
