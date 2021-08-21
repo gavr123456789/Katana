@@ -5,15 +5,24 @@ type
     file
     dir
 
+
+
 type 
   Page* = ref object of Box
     revealer*: Revealer
     activatedArrowBtn*: ToggleButton
+    directoryList*: DirectoryList
+
+type
+  PageAndFileInfo* = tuple
+    page: Page  
+    info: gio.FileInfo
+
 
 proc changeActivatedArrowBtn*(self: Page, btn: ToggleButton) =
   assert self != nil
   if self.activatedArrowBtn == btn: return
-  
+
   if self.activatedArrowBtn != nil:
     self.activatedArrowBtn.active = false
   

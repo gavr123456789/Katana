@@ -7,11 +7,18 @@ import widgets/in_to_search_and_reveal
 import gtk_utils/set_file_row_for_file
 import gtk_utils/shortcuts
 import types
+# import os
 
-proc openFolder(btn: ToggleButton, page: Page) = 
-  # echo  "folder pressed"
-  
-  page.changeActivatedArrowBtn(btn)
+proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
+  let 
+    currentBtnFile = pageAndFileInfo.info.name
+    pathToCurrentFile = pageAndFileInfo.page.directoryList.file.path & "/" & currentBtnFile
+
+  echo  "folder pressed ", pathToCurrentFile 
+  pageAndFileInfo.page.directoryList.setFile(gio.newGFileForPath(pathToCurrentFile))
+  # TODO uncomment. while we opening folders in same view - not needed
+  # pageAndFileInfo.page.changeActivatedArrowBtn(btn)
+
 
 proc openFile(btn: ToggleButton, page: Page) = 
   echo  "file pressed"
@@ -28,15 +35,16 @@ proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, page: Page) =
   let 
     row = listitem.getChild().Row
-    fileInfo = cast[gio.FileInfo](listitem.getItem())
+    info = cast[gio.FileInfo](listitem.getItem())
 
   # kind choosed
-  row.set_file_row_for_file(fileInfo)
+  row.set_file_row_for_file(info)
   case row.kind
   of DirOrFile.dir: 
-    row.btn2.connect("toggled", openFolder, page)
+    row.btn2.connect("toggled", openFolder, (page: page, info: info))
   of DirOrFile.file: 
-    row.btn2.connect("toggled", openFile, page)
+    discard
+    # row.btn2.connect("toggled", openFile, page)
 
 
 
@@ -68,11 +76,11 @@ proc createListView(dir: string, revealerOpened: bool): Widget =
     ns = gtk4.newMultiSelection(filterListModel.listModel)
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
-    page = createBoxWithProgressBarReveal(revealerOpened)
+    page = createPage(revealerOpened, dl)
 
     gestureClick = newGestureClick()
   
-
+  
   
 
   # sort

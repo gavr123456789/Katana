@@ -4,8 +4,10 @@ import ../types
 # BOX WITH REVEAL
 
 
-proc createBoxWithProgressBarReveal*(revealOpened: bool): Page = 
+proc createPage*(revealOpened: bool, directoryList: DirectoryList): Page = 
   result = newBox(Page, Orientation.vertical, 0)
+  result.directoryList = directoryList
+
   let
     reveal = newRevealer() 
     progressBar = newProgressBar()
@@ -48,7 +50,7 @@ proc entryChanged(entry: SearchEntry, mlAndSb: MultiFilterAndSearchBar) =
   echo entry.text
 
 proc inToSearch*(lv: Widget, page: Page, fm: MultiFilter, revealerOpened: bool) : Page =
-  # result = createBoxWithProgressBarReveal(revealerOpened)
+  # result = createPage(revealerOpened)
   result = page
   let
     searchBar = newSearchBar()
