@@ -5,26 +5,33 @@ func getFileIconFromExt*(ext: string): string =
       of ".py": "applications-python-symbolic"
       of ".nim", ".nimble": "nvim-symbolic"
       of ".gitignore": "appimagekit-github-desktop-symbolic"
-      of ".exe": "wine-winecfg-symbolic"
+      of ".exe", ".dll": "wine-winecfg-symbolic"
       of ".kt": "folder-kotlin-symbolic"
       of ".js": "folder-js-symbolic"
       of ".node": "folder-nodejs-symbolic"
+      of ".go": "folder-go-symbolic"
+      of ".cpp": "khangman-symbolic"
+
       of ".jpg", ".jpeg", ".JPEG", ".JPG": "image-x-generic-symbolic"
       of ".png": "folder-picture-symbolic"
+
       of ".mp3", ".wav": "deepin-music-player-symbolic"
       of ".mp4", ".mkv": "camera-symbolic"
       of ".webm": "acestreamplayer-symbolic"
       of ".gif": "avidemux_icon-symbolic"
+
       of ".7z", ".gz", ".zip": "7zip-symbolic"
+
       of ".pdf": "document-viewer-symbolic"
-      of ".go": "folder-go-symbolic"
+      of ".svg": "function-third-order-symbolic"
       of ".css": "large-brush-symbolic"
       of ".txt": "text-symbolic"
-      # of ".mds": ""
-      of ".sh": "root-terminal-app-symbolic"
-      of ".svg": "function-third-order-symbolic"
+      of ".sh": "gnome-eterm-symbolic"
       of ".ui": "object-packing-symbolic"
       of ".qbs": "QtIcon-symbolic"
+      # of ".mds": ""
+      of ".sql": "libreoffice-base-symbolic"
+      of ".bin": "hex-symbolic"
       
       else: "folder-documents-symbolic"
 

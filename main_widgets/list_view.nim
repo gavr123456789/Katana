@@ -1,5 +1,5 @@
 import gintro/[gtk4, gobject, gio, adw, glib]
-import std/with, os
+import std/with, os, strutils
 import ../types, ../utils/ext_to_icons, ../gtk_helpers, carousel_widget, row_widget
 import ../stores/directory_lists_store
 
@@ -18,7 +18,8 @@ proc openFileCb(self: ToggleButton, pathAndExt: PathAndExt ) =
   if self.active == true:
     self.active = false
     if pathAndExt.ext == ".sh":
-      let command = "gnome-terminal --wait --command \"" & pathAndExt.path & "\""
+      let pathWithEscapedSpaces = pathAndExt.path.replace(" ", "\\ ")
+      let command = "gnome-terminal --wait --command \"" & pathWithEscapedSpaces & "\""
       echo command
       discard os.execShellCmd(command)
     else: 
@@ -29,7 +30,7 @@ proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, full
   listitem.setChild(createFileRow())
 
   
-import ../widgets/boxWithPlayer
+# import ../widgets/boxWithPlayer
 proc parseRegular(row: FileRow, path: string, fileInfo: gio.FileInfo, pageNum: int) =
   # echo path, " is ", gio.FileType.regular
   let (_, name, ext) = fileInfo.getName().splitFile()
@@ -69,7 +70,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
   row.fileBtnSignalid = row.btn1.connect("notify::active", selectFileCb, row)
 
   # debugEcho fileInfo.listAttributes
-  # debugEcho "size: ", fileInfo.getSize
+  debugEcho "name: ", fileName, " size: ", fileInfo.getSize
   # debugEcho "allocated-size: ", fileInfo.getAttributeUInt64("standard::allocated-size")
   # debugEcho "standard::content-type: ", fileInfo.getAttributeString("standard::content-type")
 
@@ -97,6 +98,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, pathA
 
   row.labelFileName.label = fileInfo.getName()
   row.fullPath = path
+
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   let row = listitem.getChild().FileRow
