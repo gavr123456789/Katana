@@ -1,3 +1,7 @@
+# Stage
+Rewriting from scratchi in REWRITE folder with better arch. 
+
+
 This is a browser of tree-like data structures, but so far it is exclusively a file browser.
 
 Here demo where you can see core ideas.  
