@@ -12,6 +12,7 @@ type
     revealer*: Revealer
     activatedArrowBtn*: ToggleButton
     directoryList*: DirectoryList
+    selection*: MultiSelection
 
 type
   PageAndFileInfo* = tuple

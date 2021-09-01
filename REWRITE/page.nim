@@ -3,25 +3,21 @@ import std/with
 import row
 import utils/sorts_and_filters
 import widgets/in_to_scroll
+import widgets/path
 import widgets/in_to_search_and_reveal
 import gtk_utils/set_file_row_for_file
 import gtk_utils/shortcuts
 import types
-# import os
 
-proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
-  let 
-    currentBtnFile = pageAndFileInfo.info.name
-    pathToCurrentFile = pageAndFileInfo.page.directoryList.file.path & "/" & currentBtnFile
 
-  echo  "folder pressed ", pathToCurrentFile 
-  pageAndFileInfo.page.directoryList.setFile(gio.newGFileForPath(pathToCurrentFile))
-  # TODO uncomment. while we opening folders in same view - not needed
-  # pageAndFileInfo.page.changeActivatedArrowBtn(btn)
+proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo);
 
 
 proc openFile(btn: ToggleButton, page: Page) = 
   echo  "file pressed"
+
+proc goBackCb(btn: Button, page: Page);
+
 
 import types
 
@@ -37,8 +33,12 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, page:
     row = listitem.getChild().Row
     info = cast[gio.FileInfo](listitem.getItem())
 
-  # kind choosed
-  row.set_file_row_for_file(info)
+
+  row.set_file_row_for_file(info)  # kind choosed
+
+  # selected = toggled
+  discard listitem.bindProperty("selected", row.btn1, "active", {})
+
   case row.kind
   of DirOrFile.dir: 
     row.btn2.connect("toggled", openFolder, (page: page, info: info))
@@ -57,7 +57,7 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild (nil)
 
 
-proc createListView(dir: string, revealerOpened: bool): Widget =
+proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEntry: PathWidget): Widget =
   let
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("*", file)
@@ -76,12 +76,13 @@ proc createListView(dir: string, revealerOpened: bool): Widget =
     ns = gtk4.newMultiSelection(filterListModel.listModel)
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
-    page = createPage(revealerOpened, dl)
+    page = createPage(revealerOpened, dl, ns)
 
     gestureClick = newGestureClick()
   
   
-  
+  backBtn.connect("clicked", goBackCb, page)
+  # pathEntry.text = "sas"
 
   # sort
   ms.append(folderFirstSorter)
@@ -105,6 +106,7 @@ proc createListView(dir: string, revealerOpened: bool): Widget =
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
 
+
   lv.inToShortcutController(multiFilter, dir)
   return lv.inToScroll().inToSearch(page, multiFilter, revealerOpened)
   
@@ -115,20 +117,29 @@ proc createListView(dir: string, revealerOpened: bool): Widget =
 
 proc activate(app: gtk4.Application) =
   let
+    dir = "."
     window = adw.newApplicationWindow(app)
     mainBox = newBox(Orientation.vertical, 0)
-    listView = createListView(".", true)
+    backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
+    pathWidget = createPathWidget(dir)
+    page = createListView(dir, true, backBtn, pathWidget)
     header = adw.newHeaderBar()
 
+
+  header.packStart backBtn
+  header.titleWidget = pathWidget
   with mainBox: 
     append header
-    append listView
+    append page
+  
+  # header.titleWidget = pathWidget
 
   with window:
     child = mainBox
-    title = "Katana Page"
+    title = "Katana"
     defaultSize = (200, 100)
     show
+
 
 
 when isMainModule:
@@ -136,3 +147,24 @@ when isMainModule:
   app.connect("activate", activate)
   discard run(app)
 
+
+import os
+proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
+  let 
+    currentBtnFile = pageAndFileInfo.info.name
+    pathToCurrentFile = pageAndFileInfo.page.directoryList.file.path / currentBtnFile
+
+  echo  "folder pressed ", pathToCurrentFile 
+  pageAndFileInfo.page.directoryList.setFile(gio.newGFileForPath(pathToCurrentFile))
+  # TODO uncomment. while we opening folders in same view - not needed
+  # pageAndFileInfo.page.changeActivatedArrowBtn(btn)
+
+
+proc goBackCb(btn: Button, page: Page) = 
+  let 
+    # currentBtnFile = pageAndFileInfo.info.name
+    pathToCurrentFolder = page.directoryList.file.path 
+    backPath = os.parentDir(pathToCurrentFolder)
+  if pathToCurrentFolder != "/":
+    page.directoryList.setFile(gio.newGFileForPath(backPath))
+  echo "back"

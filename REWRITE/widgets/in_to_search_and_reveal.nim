@@ -4,9 +4,10 @@ import ../types
 # BOX WITH REVEAL
 
 
-proc createPage*(revealOpened: bool, directoryList: DirectoryList): Page = 
+proc createPage*(revealOpened: bool, directoryList: DirectoryList, selection: MultiSelection): Page = 
   result = newBox(Page, Orientation.vertical, 0)
   result.directoryList = directoryList
+  result.selection = selection
 
   let
     reveal = newRevealer() 
