@@ -245,7 +245,6 @@ proc selectFileCb(self: ToggleButton, pspec: ParamSpec, row: FileRow ) =
     selectedStoreGb.excl row
 
   if selectedStoreGb.len != 0:
-    discard
     
     # Показываем бар выбора действий
     revealFileCRUDGb.revealChild = true

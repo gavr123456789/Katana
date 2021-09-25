@@ -30,7 +30,7 @@ proc sortFolderFirst*(fileInfo: ptr FileInfo00): cint {.cdecl.} =
 proc filterHidden22*(fileInfo: ptr FileInfo00): bool {.cdecl.} = 
   var f = newFileInfo()
   gintro_hack(f, fileInfo)
-  # return f.isHidden()
+  
   if f.isHidden():
     echo "         false" 
     return false

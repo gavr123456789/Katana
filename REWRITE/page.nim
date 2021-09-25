@@ -128,6 +128,7 @@ proc activate(app: gtk4.Application) =
 
   header.packStart backBtn
   header.titleWidget = pathWidget
+  
   with mainBox: 
     append header
     append page
