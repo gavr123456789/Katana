@@ -4,14 +4,16 @@ import page
 import widgets/path
 
 proc activate(app: gtk4.Application) =
+
   let
     dir = "."
     window = adw.newApplicationWindow(app)
     mainBox = newBox(Orientation.vertical, 0)
     backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
-    pathWidget = createPathWidget(dir)
+    pathWidget = createPathWidget(".")
     page = createListView(dir, true, backBtn, pathWidget)
     header = adw.newHeaderBar()
+
 
 
   header.packStart backBtn

@@ -26,7 +26,7 @@ proc insertPath*(self: GlobalPath, path: string) =
 
 
 proc setPath*(self: GlobalPath, path: static string) =
-  static: assert DirSep in path
+  static: assert DirSep in path or path == "."
   self.path = path
 
 

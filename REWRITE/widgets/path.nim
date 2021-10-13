@@ -30,7 +30,7 @@ proc addMiddleClick(toggleBtn: ToggleWithNum, path: GlobalPath ) =
   toggleBtn.addController(gestureClick)
 
 proc createPathWidget*(path: static string): PathWidget = 
-  static: assert DirSep in path
+  # static: assert (DirSep in path or "." in path)
 
   let 
     pathWidget = newBox(PathWidget, Orientation.horizontal, 0)
