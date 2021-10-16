@@ -1,4 +1,5 @@
-This is a browser of tree-like data structures, but so far it is exclusively a file browser.
+This is a browser of tree-like data structures, but so far it is exclusively a file browser.  
+But later it can be a Smalltalk like browser for code/json/databases etc.
 
 # Stage
 Rewriting from scratchi in REWRITE folder with better arch. 
