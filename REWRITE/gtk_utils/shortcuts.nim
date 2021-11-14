@@ -12,6 +12,7 @@ proc ctrlHPressed(widget: ptr Widget00; args: ptr glib.Variant00; fm: MultiFilte
   let filtersCount = mfAsList.getNItems()
   echo "Filters count = ", filtersCount
 
+  # вручную удаляем все выставленные фильтры
   if filtersCount >= 1:
     fm.remove(0)
     fm.remove(1)
@@ -25,7 +26,7 @@ proc ctrlHPressed(widget: ptr Widget00; args: ptr glib.Variant00; fm: MultiFilte
 proc escPressed(widget: ptr Widget00; args: ptr glib.Variant00;  lv: ListView): bool {.cdecl.} =
   let 
     model = lv.model
-  echo model.unselectAll
+  discard model.unselectAll
   true
 
 proc ctrlGPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =

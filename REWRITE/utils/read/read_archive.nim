@@ -6,7 +6,7 @@ createTarball("../utils", "examples.tar.gz")
 # open it
 var tarbol = Tarball()
 tarbol.open("examples.tar.gz")
-echo tarbol.contents
+# echo tarbol.contents
 
 # import zippy/ziparchives
 

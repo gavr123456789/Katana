@@ -48,7 +48,6 @@ proc entryChanged(entry: SearchEntry, mlAndSb: MultiFilterAndSearchBar) =
   else:
     ff.addPattern("*")
     mlAndSb.searchBar.searchMode = false
-  echo entry.text
 
 proc inToSearch*(lv: Widget, page: Page, fm: MultiFilter, revealerOpened: bool) : Page =
   # result = createPage(revealerOpened)
@@ -57,8 +56,6 @@ proc inToSearch*(lv: Widget, page: Page, fm: MultiFilter, revealerOpened: bool) 
     searchBar = newSearchBar()
     entry = newSearchEntry()
   
-  echo entry.grabFocus()
-
   with searchBar:
     connectEntry entry
     # showCloseButton = true

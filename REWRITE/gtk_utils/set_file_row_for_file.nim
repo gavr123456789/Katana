@@ -37,11 +37,9 @@ proc set_file_row_for_file*(row: Row, fileInfo: gio.FileInfo) =
 
 
   of regular:
-    # echo name, "regular"
     setAsFile(row, name)
       
   of directory:
-    echo "SET AS DIR in set file row for file: ", name
     row.setAsDir name
 
   of symbolicLink, special, shortcut, mountable:

@@ -16,8 +16,6 @@ proc createButtonWithLabelAndImage*(image: Image, labelFileName: Label): ToggleB
     toggleButton = newToggleButton()
     buttonChildBox = newBox(Orientation.horizontal, 5)
 
-  echo image == nil
-  echo labelFileName == nil
   with buttonChildBox:
     append image
     append labelFileName
