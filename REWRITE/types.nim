@@ -10,9 +10,10 @@ type
     activatedArrowBtn*: ToggleButton
     directoryList*: DirectoryList
     selection*: MultiSelection
+    
   Row* = ref object of Box
-    btn1*: ToggleButton
-    btn2*: ToggleButton
+    btn1*: ToggleButton # выбор файла
+    btn2*: ToggleButton # переход в директорию или открытие файла
     image*: Image
     labelFileName*: Label
     kind*: DirOrFile

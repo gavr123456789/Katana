@@ -2,7 +2,7 @@ import gintro/[gtk4, gobject, gio, pango, glib, adw]
 import std/with
 import row
 import utils/sorts_and_filters
-import widgets/in_to_scroll
+import gtk_utils/widgets_utils
 import widgets/path
 import widgets/in_to_search_and_reveal
 import gtk_utils/set_file_row_for_file
