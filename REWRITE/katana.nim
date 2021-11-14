@@ -15,7 +15,6 @@ proc activate(app: gtk4.Application) =
     header = adw.newHeaderBar()
 
 
-
   header.packStart backBtn
   header.titleWidget = pathWidget
   with mainBox: 
@@ -27,11 +26,11 @@ proc activate(app: gtk4.Application) =
   with window:
     content = mainBox
     title = "Katana"
-    defaultSize = (200, 100)
+    defaultSize = (400, 600)
     show
 
 
 when isMainModule:
-  let app = newApplication("org.gtk.example")
+  let app = newApplication("com.github.gavr123456789.Katana")
   app.connect("activate", activate)
   discard run(app)

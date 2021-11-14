@@ -8,17 +8,28 @@ import widgets/in_to_search_and_reveal
 import gtk_utils/set_file_row_for_file
 import gtk_utils/shortcuts
 import types
+import os
+
+# proc openFile(btn: ToggleButton, page: Page) = 
+#   echo  "file pressed"
 
 
-proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo);
+proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
+  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo().cstring
+  pageAndFileInfo.page.directoryList.setFile(gio.newGFileForPath(fullPath))
+  # TODO uncomment. while we opening folders in same view - not needed
+  # pageAndFileInfo.page.changeActivatedArrowBtn(btn)
 
-
-proc openFile(btn: ToggleButton, page: Page) = 
-  echo  "file pressed"
-
-proc goBackCb(btn: Button, page: Page);
-
-
+proc goBackCb(btn: Button, page: Page) = 
+  let 
+    # currentBtnFile = pageAndFileInfo.info.name
+    pathToCurrentFolder = page.directoryList.file.path 
+    backPath = os.parentDir(pathToCurrentFolder)
+  if pathToCurrentFolder != "/":
+    page.directoryList.setFile(gio.newGFileForPath(backPath.cstring))
+    echo "DIS WAS SET TO ", backPath
+    echo "back"
+    
 
 
 # Factory signals
@@ -105,8 +116,9 @@ proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEnt
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
 
-
-  lv.inToShortcutController(multiFilter, dir)
+  echo "Выставили шоткат директории на ", dir
+  # Надо передавать туда такой объект внутри которого вседа актуальная директория
+  lv.inToShortcutController(multiFilter, page.directoryList)
   return lv.inToScroll().inToSearch(page, multiFilter, revealerOpened)
   
 
@@ -148,24 +160,6 @@ when isMainModule:
   discard run(app)
 
 
-import os
-proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
-  let 
-    currentBtnFile = pageAndFileInfo.info.name
-    pathToCurrentFile = pageAndFileInfo.page.directoryList.file.path / currentBtnFile
-
-  pageAndFileInfo.page.directoryList.setFile(gio.newGFileForPath(pathToCurrentFile.cstring))
-  # TODO uncomment. while we opening folders in same view - not needed
-  # pageAndFileInfo.page.changeActivatedArrowBtn(btn)
 
 
-proc goBackCb(btn: Button, page: Page) = 
-  let 
-    # currentBtnFile = pageAndFileInfo.info.name
-    pathToCurrentFolder = page.directoryList.file.path 
-    backPath = os.parentDir(pathToCurrentFolder)
-  if pathToCurrentFolder != "/":
-    page.directoryList.setFile(gio.newGFileForPath(backPath.cstring))
-    echo "DIS WAS SET TO ", backPath
-    echo "back"
-    
+

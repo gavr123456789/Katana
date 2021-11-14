@@ -20,6 +20,8 @@ proc createRow*(): Row =
 
   row.btn1 = createButtonWithLabelAndImage(row.image, row.labelFileName)
   row.btn2 = newToggleButton()
+  # row.btn1.addCssClass("flat")
+  # row.btn2.addCssClass("flat")
   row.btn2.label = "→"
 
   

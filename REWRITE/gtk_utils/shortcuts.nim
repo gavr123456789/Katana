@@ -22,65 +22,63 @@ proc ctrlHPressed(widget: ptr Widget00; args: ptr glib.Variant00; fm: MultiFilte
   echo "ctrl h pressed"
   true
 
-
+# Callbacks
 proc escPressed(widget: ptr Widget00; args: ptr glib.Variant00;  lv: ListView): bool {.cdecl.} =
   let 
     model = lv.model
   discard model.unselectAll
   true
 
-proc ctrlGPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
-  debugEcho "ctrlGPressed with dir: ", dir
-  groupFolderByTypes(dir, GroupFormat.byType)
+proc ctrlGPressed(widget: ptr Widget00; args: ptr glib.Variant00;  directoryList: gtk4.DirectoryList): bool {.cdecl.} =
+  let path = directoryList.file.path
+  debugEcho "ctrlGPressed with dir: ", path
+  groupFolderByTypes(path, GroupFormat.byType)
 
-proc ctrlTPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
-  debugEcho "ctrlDPressed with dir: ", dir
-  groupFolderByTypes(dir, GroupFormat.byDate)
+proc ctrlTPressed(widget: ptr Widget00; args: ptr glib.Variant00;  directoryList: gtk4.DirectoryList): bool {.cdecl.} =
+  let path = directoryList.file.path
+  debugEcho "ctrlDPressed with dir: ", path
+  groupFolderByTypes(path, GroupFormat.byDate)
 
-proc ctrlUPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+proc ctrlUPressed(widget: ptr Widget00; args: ptr glib.Variant00;  directoryList: gtk4.DirectoryList): bool {.cdecl.} =
   # TODO если нажали ctrl U при этом слева от текущей есть открытая папка, и она одна начинается с _ то нужно закрыть все до текущей
-  debugEcho "ctrlUPressed with dir: ", dir
-  unpackFilesFromFoldersByTypes dir
+  let path = directoryList.file.path
+  debugEcho "ctrlUPressed with dir: ", path
+  unpackFilesFromFoldersByTypes path
 
 import os
 # TODO take terminal run command to global var on program start and use it here
-proc altTPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
-  echo "try to open dir: ", dir
-  discard os.execShellCmd("gnome-terminal --working-directory=" & dir)
+proc altTPressed(widget: ptr Widget00; args: ptr glib.Variant00;  directoryList: gtk4.DirectoryList): bool {.cdecl.} =
+  let path = directoryList.file.path
+  echo "try to open dir: ", path
+  discard os.execShellCmd("gnome-terminal --working-directory=" & path)
 
-proc altCPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
-  echo "try to open code in dir: ", dir
-  discard os.execShellCmd("code " & dir)
+proc altCPressed(widget: ptr Widget00; args: ptr glib.Variant00;  directoryList: gtk4.DirectoryList): bool {.cdecl.} =
+  let path = directoryList.file.path
+  echo "try to open code in dir: ", path
+  discard os.execShellCmd("code " & path)
 
+
+# Shortcut Settings
+proc addShortcutHelper(shortcutController: ShortcutController, shortcutKey: string, callbackFunc: auto, customData: auto) = 
+  let ctrlh = newCallbackAction(cast[ShortcutFunc](callbackFunc), cast[pointer](customData), nil )
+  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString(shortcutKey), ctrlh))
 
 # adding ctrl h and ctrl a
-proc inToShortcutController*(lv: ListView, fm: MultiFilter, dir: string) = 
+proc inToShortcutController*(lv: ListView, fm: MultiFilter, directoryList: gtk4.DirectoryList) = 
+
   let shortcutController = newShortcutController()
   lv.addController(shortcutController) 
 
-  let ctrlh = newCallbackAction(cast[ShortcutFunc](ctrlHPressed), cast[pointer](fm), nil )
-  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>H"), ctrlh))
+  shortcutController.addShortcutHelper("<Control>H", ctrlHPressed, fm)
+  shortcutController.addShortcutHelper("Escape", escPressed, lv)
 
-  let esc = newCallbackAction(cast[ShortcutFunc](escPressed), cast[pointer](lv), nil )
-  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("Escape"), esc))
+  shortcutController.addShortcutHelper("<Control>G", ctrlGPressed, directoryList)
+  shortcutController.addShortcutHelper("<Control>T", ctrlTPressed, directoryList)
+  shortcutController.addShortcutHelper("<Control>U", ctrlUPressed, directoryList)
 
-  let ctrlg = newCallbackAction(cast[ShortcutFunc](ctrlGPressed), cast[pointer](dir), nil )
-  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>G"), ctrlg))
-
-  let ctrlt = newCallbackAction(cast[ShortcutFunc](ctrlTPressed), cast[pointer](dir), nil )
-  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>T"), ctrlt))
-
-  let ctrlu = newCallbackAction(cast[ShortcutFunc](ctrlUPressed), cast[pointer](dir), nil )
-  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>U"), ctrlu))
+  shortcutController.addShortcutHelper("<Alt>T", altTPressed, directoryList)
+  shortcutController.addShortcutHelper("<Alt>C", altCPressed, directoryList)
 
   # TODO turn off on ellipsization, change global var, in widget creation check this global bool var
   # let ctrle = newCallbackAction(cast[ShortcutFunc](ctrlUPressed), cast[pointer](dir), nil )
   # shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>E"), ctrle))
-
-  echo "-------inToShortcutController----------DIR IS ", dir
-
-  let ctrlq = newCallbackAction(cast[ShortcutFunc](altTPressed), cast[pointer](dir), nil )
-  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Alt>T"), ctrlq))
-
-  let ctrlc = newCallbackAction(cast[ShortcutFunc](altCPressed), cast[pointer](dir), nil )
-  shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Alt>C"), ctrlc))

@@ -21,9 +21,9 @@ proc createButtonWithLabelAndImage*(image: Image, labelFileName: Label): ToggleB
     append labelFileName
 
   with labelFileName:
+    # ellipsize = EllipsizeMode.middle
     wrap = true
     wrapMode = pango.WrapMode.wordChar
-    # ellipsize = EllipsizeMode.middle
     maxWidthChars = 15
   
   toggleButton.child = buttonChildBox
