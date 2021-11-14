@@ -20,7 +20,7 @@ proc set_file_row_for_file*(row: Row, fileInfo: gio.FileInfo) =
     (_, name, ext) = fileInfo.getName().splitFile()
     isDir = ext == ""
 
-  row.labelFileName.text = fileInfo.name
+  row.labelFileName.text = fileInfo.name.cstring
 
   if fileInfo.isHidden == true:
     row.opacity = 0.5
@@ -41,8 +41,8 @@ proc set_file_row_for_file*(row: Row, fileInfo: gio.FileInfo) =
     setAsFile(row, name)
       
   of directory:
-    echo name, " directory"
-    setAsDir(row, ext)
+    echo "SET AS DIR in set file row for file: ", name
+    row.setAsDir name
 
   of symbolicLink, special, shortcut, mountable:
     echo name, " is something else"

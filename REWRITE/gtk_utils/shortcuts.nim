@@ -54,7 +54,6 @@ proc altCPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): 
 
 # adding ctrl h and ctrl a
 proc inToShortcutController*(lv: ListView, fm: MultiFilter, dir: string) = 
-  echo "DIR IS ", dir
   let shortcutController = newShortcutController()
   lv.addController(shortcutController) 
 
@@ -76,6 +75,8 @@ proc inToShortcutController*(lv: ListView, fm: MultiFilter, dir: string) =
   # TODO turn off on ellipsization, change global var, in widget creation check this global bool var
   # let ctrle = newCallbackAction(cast[ShortcutFunc](ctrlUPressed), cast[pointer](dir), nil )
   # shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>E"), ctrle))
+
+  echo "-------inToShortcutController----------DIR IS ", dir
 
   let ctrlq = newCallbackAction(cast[ShortcutFunc](altTPressed), cast[pointer](dir), nil )
   shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Alt>T"), ctrlq))

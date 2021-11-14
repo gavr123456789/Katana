@@ -27,36 +27,36 @@ proc createRow*(): Row =
   hbox.append row.btn2
 
   result = row
-  # echo "row created"
 
 
-
-
-
-
-proc activate(app: gtk4.Application) =
-  let
-    window = adw.newApplicationWindow(app)
-    mainBox = newBox(Orientation.vertical, 0)
-    file = gio.newGFileForPath(".")
-    fileInfo = file.queryInfo("*", {})
-    row = createRow()
-    header = adw.newHeaderBar()
-
-  row.set_file_row_for_file(fileInfo)
-
-  with mainBox: 
-    append header
-    append row
-
-  with window:
-    content = mainBox
-    title = "Katana row"
-    defaultSize = (100, 100)
-    show
 
 
 when isMainModule:
-  let app = newApplication("org.gtk.example")
-  app.connect("activate", activate)
-  discard run(app)
+  proc activate(app: gtk4.Application) =
+    let
+      window = adw.newApplicationWindow(app)
+      mainBox = newBox(Orientation.vertical, 0)
+      file = gio.newGFileForPath(".")
+      fileInfo = file.queryInfo("*", {})
+      row = createRow()
+      header = adw.newHeaderBar()
+
+    row.set_file_row_for_file(fileInfo)
+
+    with mainBox: 
+      append header
+      append row
+
+    with window:
+      content = mainBox
+      title = "Katana row"
+      defaultSize = (100, 100)
+      show
+
+  proc main() =
+
+    let app = newApplication("org.gtk.example")
+    app.connect("activate", activate)
+    discard run(app)
+
+  main()

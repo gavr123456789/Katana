@@ -53,11 +53,13 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   # echo "unbind"
 
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
-  echo listitem.child == nil
+  # echo listitem.child == nil
   listitem.setChild (nil)
 
 
 proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEntry: PathWidget): Widget =
+  echo "----createListView---- DIR IS ", dir  
+  
   let
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("*", file)
@@ -154,8 +156,8 @@ proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) =
     currentBtnFile = pageAndFileInfo.info.name
     pathToCurrentFile = pageAndFileInfo.page.directoryList.file.path / currentBtnFile
 
-  echo  "folder pressed ", pathToCurrentFile 
-  pageAndFileInfo.page.directoryList.setFile(gio.newGFileForPath(pathToCurrentFile))
+  # echo  "folder pressed ", pathToCurrentFile 
+  pageAndFileInfo.page.directoryList.setFile(gio.newGFileForPath(pathToCurrentFile.cstring))
   # TODO uncomment. while we opening folders in same view - not needed
   # pageAndFileInfo.page.changeActivatedArrowBtn(btn)
 

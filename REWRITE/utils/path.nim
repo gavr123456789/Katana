@@ -25,8 +25,8 @@ proc insertPath*(self: GlobalPath, path: string) =
   self.path = selfSplitted.join $DirSep
 
 
-proc setPath*(self: GlobalPath, path: static string) =
-  static: assert DirSep in path or path == "."
+proc setPath*(self: GlobalPath, path: string) =
+  assert DirSep in path or path == "."
   self.path = path
 
 

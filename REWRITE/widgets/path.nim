@@ -29,7 +29,7 @@ proc addMiddleClick(toggleBtn: ToggleWithNum, path: GlobalPath ) =
   gestureClick.connect("pressed", gestureMiddleClickCb, (toggleBtn, path)) # TODO fun
   toggleBtn.addController(gestureClick)
 
-proc createPathWidget*(path: static string): PathWidget = 
+proc createPathWidget*(path: string): PathWidget = 
   # static: assert (DirSep in path or "." in path)
 
   let 

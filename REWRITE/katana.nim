@@ -10,7 +10,7 @@ proc activate(app: gtk4.Application) =
     window = adw.newApplicationWindow(app)
     mainBox = newBox(Orientation.vertical, 0)
     backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
-    pathWidget = createPathWidget(".")
+    pathWidget = createPathWidget(dir)
     page = createListView(dir, true, backBtn, pathWidget)
     header = adw.newHeaderBar()
 

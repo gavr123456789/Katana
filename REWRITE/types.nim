@@ -5,16 +5,18 @@ type
     file
     dir
 
-
-
-type 
   Page* = ref object of Box
     revealer*: Revealer
     activatedArrowBtn*: ToggleButton
     directoryList*: DirectoryList
     selection*: MultiSelection
+  Row* = ref object of Box
+    btn1*: ToggleButton
+    btn2*: ToggleButton
+    image*: Image
+    labelFileName*: Label
+    kind*: DirOrFile
 
-type
   PageAndFileInfo* = ref object
     page*: Page  
     info*: gio.FileInfo
@@ -30,12 +32,5 @@ proc changeActivatedArrowBtn*(self: Page, btn: ToggleButton) =
   self.activatedArrowBtn = btn
   # btn2.active = true
 
-type
-  Row* = ref object of Box
-    btn1*: ToggleButton
-    btn2*: ToggleButton
-    image*: Image
-    labelFileName*: Label
-    kind*: DirOrFile
 proc `iconName=`*(self: Row, iconName: string) =
   self.image.setFromIconName(iconName)
