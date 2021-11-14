@@ -50,11 +50,11 @@ let procParser = peg("proct", d: Dict2):
 #     d.kind = $3
 
 var varbable: Table[string, string]
-doAssert procParser.match("proc moveFiles(files: seqstring) =", varbable).ok
-doAssert procParser.match("func addUnders(fileExt: string): string =", varbable).ok
-doAssert procParser.match("proc unpackFilesFromFoldersByTypes*(dir: string) =", varbable).ok
-doAssert procParser.match("proc unpackFilesFromFoldersByTypes*(dir: int = 4) =", varbable).ok
-# doAssert procParser.match("proc collect(dir: string, sas: string): TableRef[string, seq[string]] =", varbable).ok
+# doAssert procParser.match("proc moveFiles(files: seqstring) =", varbable).ok
+# doAssert procParser.match("func addUnders(fileExt: string): string =", varbable).ok
+# doAssert procParser.match("proc unpackFilesFromFoldersByTypes*(dir: string) =", varbable).ok
+# doAssert procParser.match("proc unpackFilesFromFoldersByTypes*(dir: int = 4) =", varbable).ok
+doAssert procParser.match("proc collect(dir: string, sas: string): TableRef[string, seq[string]] =", varbable).ok
 
 
 echo varbable

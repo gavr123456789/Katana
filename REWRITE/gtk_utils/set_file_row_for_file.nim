@@ -37,7 +37,7 @@ proc set_file_row_for_file*(row: Row, fileInfo: gio.FileInfo) =
 
 
   of regular:
-    echo name, "regular"
+    # echo name, "regular"
     setAsFile(row, name)
       
   of directory:

@@ -28,7 +28,7 @@ func `showProgressBar=`*(self: Page, revealChild: bool) =
 
 # CB
 type
-  MultiFilterAndSearchBar = tuple
+  MultiFilterAndSearchBar = ref object
     fm: MultiFilter
     searchBar: SearchBar
 
@@ -65,7 +65,7 @@ proc inToSearch*(lv: Widget, page: Page, fm: MultiFilter, revealerOpened: bool) 
     child = entry
     keyCaptureWidget = result
 
-  entry.connect("search-changed", entryChanged, (fm: fm, searchBar: searchBar))
+  entry.connect("search-changed", entryChanged, MultiFilterAndSearchBar(fm: fm, searchBar: searchBar))
 
   entry.halign = Align.center
 

@@ -15,9 +15,9 @@ type
     selection*: MultiSelection
 
 type
-  PageAndFileInfo* = tuple
-    page: Page  
-    info: gio.FileInfo
+  PageAndFileInfo* = ref object
+    page*: Page  
+    info*: gio.FileInfo
 
 
 proc changeActivatedArrowBtn*(self: Page, btn: ToggleButton) =

@@ -43,16 +43,18 @@ proc ctrlUPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string):
 
 import os
 # TODO take terminal run command to global var on program start and use it here
-proc ctrlQPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+proc altTPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+  echo "try to open dir: ", dir
   discard os.execShellCmd("gnome-terminal --working-directory=" & dir)
 
-proc ctrlCPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+proc altCPressed(widget: ptr Widget00; args: ptr glib.Variant00;  dir: string): bool {.cdecl.} =
+  echo "try to open code in dir: ", dir
   discard os.execShellCmd("code " & dir)
 
 
 # adding ctrl h and ctrl a
 proc inToShortcutController*(lv: ListView, fm: MultiFilter, dir: string) = 
-  echo "inToShortcutController"
+  echo "DIR IS ", dir
   let shortcutController = newShortcutController()
   lv.addController(shortcutController) 
 
@@ -75,8 +77,8 @@ proc inToShortcutController*(lv: ListView, fm: MultiFilter, dir: string) =
   # let ctrle = newCallbackAction(cast[ShortcutFunc](ctrlUPressed), cast[pointer](dir), nil )
   # shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Control>E"), ctrle))
 
-  let ctrlq = newCallbackAction(cast[ShortcutFunc](ctrlQPressed), cast[pointer](dir), nil )
+  let ctrlq = newCallbackAction(cast[ShortcutFunc](altTPressed), cast[pointer](dir), nil )
   shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Alt>T"), ctrlq))
 
-  let ctrlc = newCallbackAction(cast[ShortcutFunc](ctrlCPressed), cast[pointer](dir), nil )
+  let ctrlc = newCallbackAction(cast[ShortcutFunc](altCPressed), cast[pointer](dir), nil )
   shortcutController.addShortcut(newShortcut(shortcutTriggerParseString("<Alt>C"), ctrlc))

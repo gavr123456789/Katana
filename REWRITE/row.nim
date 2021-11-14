@@ -27,7 +27,7 @@ proc createRow*(): Row =
   hbox.append row.btn2
 
   result = row
-  echo "row created"
+  # echo "row created"
 
 
 
@@ -50,7 +50,7 @@ proc activate(app: gtk4.Application) =
     append row
 
   with window:
-    child = mainBox
+    content = mainBox
     title = "Katana row"
     defaultSize = (100, 100)
     show

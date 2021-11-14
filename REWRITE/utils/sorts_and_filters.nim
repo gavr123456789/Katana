@@ -6,7 +6,7 @@ proc gintro_hack*(f: auto, p: auto) =
 
 # sords
 proc sortAlphabet*(fileInfo: ptr FileInfo00): cstring {.cdecl.} = 
-  echo "sortAlphabet"
+  # echo "sortAlphabet"
   var f = newFileInfo()
   gintro_hack(f, fileInfo)
   result = g_strdup(f.getName() )

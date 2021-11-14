@@ -19,7 +19,7 @@ proc openFile(btn: ToggleButton, page: Page) =
 proc goBackCb(btn: Button, page: Page);
 
 
-import types
+
 
 # Factory signals
 proc getFileName(info: gio.FileInfo): string =
@@ -41,7 +41,7 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, page:
 
   case row.kind
   of DirOrFile.dir: 
-    row.btn2.connect("toggled", openFolder, (page: page, info: info))
+    row.btn2.connect("toggled", openFolder, PageAndFileInfo(page: page, info: info))
   of DirOrFile.file: 
     discard
     # row.btn2.connect("toggled", openFile, page)
@@ -78,11 +78,10 @@ proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEnt
     lv = newListView(ns, factory)
     page = createPage(revealerOpened, dl, ns)
 
-    gestureClick = newGestureClick()
+    # gestureClick = newGestureClick()
   
   
   backBtn.connect("clicked", goBackCb, page)
-  # pathEntry.text = "sas"
 
   # sort
   ms.append(folderFirstSorter)
@@ -136,7 +135,7 @@ proc activate(app: gtk4.Application) =
   # header.titleWidget = pathWidget
 
   with window:
-    child = mainBox
+    content = mainBox
     title = "Katana"
     defaultSize = (200, 100)
     show
@@ -167,5 +166,7 @@ proc goBackCb(btn: Button, page: Page) =
     pathToCurrentFolder = page.directoryList.file.path 
     backPath = os.parentDir(pathToCurrentFolder)
   if pathToCurrentFolder != "/":
-    page.directoryList.setFile(gio.newGFileForPath(backPath))
-  echo "back"
+    page.directoryList.setFile(gio.newGFileForPath(backPath.cstring))
+    echo "DIS WAS SET TO ", backPath
+    echo "back"
+    

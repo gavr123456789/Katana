@@ -25,7 +25,7 @@ proc activate(app: gtk4.Application) =
   # header.titleWidget = pathWidget
 
   with window:
-    child = mainBox
+    content = mainBox
     title = "Katana"
     defaultSize = (200, 100)
     show
