@@ -28,11 +28,13 @@ type
 
 # TODO add digits
 let procParser = peg("proct", d: Dict2):
-  proct <- ("proc" | "func" | "method" | "template" | "macro") * Space * word * *Space * ?args * *Space * '='
+  proct <- ("proc" | "func" | "method" | "template" | "macro") * +Space * word * *Space * ?args * *Space * ?returnType * *Space * '=' * *Space
   args <- '(' * pairs * ')'
   pairs <- pair * *(',' * *Space * pair)
   word <- +Alpha
-  pair <- >word * ':' * *Space * >word:
+  argumentType <- +{'A'..'Z','a'..'z','0'..'9', '[', ']'}
+  returnType <-  ':' * *Space * argumentType 
+  pair <- >word * ':' * *Space * >argumentType:
     d[$1] = $2
 
 let varParser = peg("variable", d: Variable):
@@ -44,13 +46,16 @@ let varParser = peg("variable", d: Variable):
     d.kind = $3
 
 var varbable: Table[string, string]
-doAssert procParser.match("proc sasss(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: Data) =", varbable).ok
+doAssert procParser.match("proc moveFiles(files: seqstring) =", varbable).ok
+doAssert procParser.match("func addUnders(fileExt: string): string =", varbable).ok
+
+
 echo varbable
-
-
-var varDeclatarion: Variable = Variable()
-doAssert varParser.match("""var variableName: Function = Function(kind: FuncType.PROC, name: "sas", args: @[("sas", "sus")])""", varDeclatarion).ok
-echo varDeclatarion
+# proc sasss(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: Data) =
+# proc moveFiles(files: seq[string], dest: string) =
+# var varDeclatarion: Variable = Variable()
+# doAssert varParser.match("""var variableName: Function = Function(kind: FuncType.PROC, name: "sas", args: @[("sas", "sus")])""", varDeclatarion).ok
+# echo varDeclatarion
 
 
 
@@ -62,8 +67,15 @@ proc parseNim =
     echo "пусто"
 
     return
-  # for i, codeString in entireFile:
-  #   echo i, " sasas  ", codeString
+  for i, codeString in entireFile:
+    # echo i, " sasas  ", codeString
+    # var varDeclatarion: Variable = Variable()
+    # if varParser.match(codeString, varDeclatarion).ok:
+    #   echo i, " has var declaration"
+    var varbable: Table[string, string]
+    if procParser.match(codeString, varbable).ok:
+      echo i + 1, " has proc declaration"
+      
   
     
 parseNim()
