@@ -9,9 +9,21 @@ import gtk_utils/set_file_row_for_file
 import gtk_utils/shortcuts
 import types
 import os
+import gtk_utils/utils
+import strutils
 
-# proc openFile(btn: ToggleButton, page: Page) = 
-#   echo  "file pressed"
+proc openFile(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
+  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+
+  if btn.active == true:
+    btn.active = false
+    if fullPath.endsWith ".sh" :
+      let pathWithEscapedSpaces = fullPath.replace(" ", "\\ ")
+      let command = "gnome-terminal --wait --command \"" & pathWithEscapedSpaces & "\""
+      echo command
+      discard os.execShellCmd(command)
+    else: 
+      openFileInApp(fullPath.cstring)
 
 
 proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
@@ -54,8 +66,8 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, page:
   of DirOrFile.dir: 
     row.btn2.connect("toggled", openFolder, PageAndFileInfo(page: page, info: info))
   of DirOrFile.file: 
-    discard
-    # row.btn2.connect("toggled", openFile, page)
+    # discard
+    row.btn2.connect("toggled", openFile,  PageAndFileInfo(page: page, info: info))
 
 
 
@@ -68,8 +80,8 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
 
 
 
-proc expressionHelper(getTypeFunc: auto, callBackFunc: auto): CClosureExpression = 
-  newCClosureExpression(getTypeFunc, nil, 0, nil, cast[Callback](callBackFunc), nil, nil)
+proc newExpression(gType: GType, callBackFunc: auto): CClosureExpression = 
+  newCClosureExpression(gType, nil, 0, nil, cast[Callback](callBackFunc), nil, nil)
 
 proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEntry: PathWidget): Widget =
   echo "----createListView---- DIR IS ", dir  
@@ -105,11 +117,11 @@ proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEnt
   ms.append(stringSorter)
 
   # sort expressions
-  stringSorter.expression = expressionHelper(g_string_get_type(), sortAlphabet)
-  dotFilesFirstSorter.expression = expressionHelper(g_int_get_type(), sortDotFilesFirst)
-  folderFirstSorter.expression = expressionHelper(g_int_get_type(), sortFolderFirst)
+  stringSorter.expression = newExpression(g_string_get_type(), sortAlphabet)
+  dotFilesFirstSorter.expression = newExpression(g_int_get_type(), sortDotFilesFirst)
+  folderFirstSorter.expression = newExpression(g_int_get_type(), sortFolderFirst)
   folderFirstSorter.sortOrder = SortType.descending
-  boolFilter.expression = expressionHelper(g_boolean_get_type(), filterHidden22)
+  boolFilter.expression = newExpression(g_boolean_get_type(), filterHidden22)
 
   # filter
   multiFilter.append(boolFilter)
