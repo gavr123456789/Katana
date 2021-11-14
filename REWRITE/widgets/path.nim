@@ -59,7 +59,7 @@ proc createPathWidget*(path: string): PathWidget =
     toggleBtn.group = prevToggleBtn
     prevToggleBtn = toggleBtn
 
-    pathWidget.append toggleBtn
+    # pathWidget.append toggleBtn
   
 
 proc addToPathWidget(self: PathWidget, path: string) = 

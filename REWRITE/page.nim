@@ -12,16 +12,20 @@ import os
 import gtk_utils/utils
 import strutils
 
+# import utils/read/
+
 proc openFile(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
 
   if btn.active == true:
     btn.active = false
-    if fullPath.endsWith ".sh" :
+    if fullPath.endsWith ".sh":
       let pathWithEscapedSpaces = fullPath.replace(" ", "\\ ")
       let command = "gnome-terminal --wait --command \"" & pathWithEscapedSpaces & "\""
       echo command
       discard os.execShellCmd(command)
+    elif fullPath.endsWith ".zip":
+      echo "zip archive"
     else: 
       openFileInApp(fullPath.cstring)
 
