@@ -66,6 +66,11 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild (nil)
 
 
+
+
+proc expressionHelper(getTypeFunc: auto, callBackFunc: auto): CClosureExpression = 
+  newCClosureExpression(getTypeFunc, nil, 0, nil, cast[Callback](callBackFunc), nil, nil)
+
 proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEntry: PathWidget): Widget =
   echo "----createListView---- DIR IS ", dir  
   
@@ -100,11 +105,11 @@ proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEnt
   ms.append(stringSorter)
 
   # sort expressions
-  stringSorter.expression = newCClosureExpression(g_string_get_type(), nil, 0, nil, cast[Callback](sortAlphabet), nil, nil)
-  dotFilesFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortDotFilesFirst), nil, nil)
-  folderFirstSorter.expression = newCClosureExpression(g_int_get_type(), nil, 0, nil, cast[Callback](sortFolderFirst), nil, nil)
+  stringSorter.expression = expressionHelper(g_string_get_type(), sortAlphabet)
+  dotFilesFirstSorter.expression = expressionHelper(g_int_get_type(), sortDotFilesFirst)
+  folderFirstSorter.expression = expressionHelper(g_int_get_type(), sortFolderFirst)
   folderFirstSorter.sortOrder = SortType.descending
-  boolFilter.expression = newCClosureExpression(g_boolean_get_type(), nil, 0, nil, cast[Callback](filterHidden22), nil, nil)
+  boolFilter.expression = expressionHelper(g_boolean_get_type(), filterHidden22)
 
   # filter
   multiFilter.append(boolFilter)
@@ -124,42 +129,38 @@ proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEnt
 
 
 
-
-
-proc activate(app: gtk4.Application) =
-  let
-    dir = "."
-    window = adw.newApplicationWindow(app)
-    mainBox = newBox(Orientation.vertical, 0)
-    backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
-    pathWidget = createPathWidget(".")
-    page = createListView(dir, true, backBtn, pathWidget)
-    header = adw.newHeaderBar()
-
-
-  header.packStart backBtn
-  header.titleWidget = pathWidget
-  
-  with mainBox: 
-    append header
-    append page
-  
-  # header.titleWidget = pathWidget
-
-  with window:
-    content = mainBox
-    title = "Katana"
-    defaultSize = (200, 100)
-    show
-
-
-
 when isMainModule:
-  let app = newApplication("org.gtk.example")
-  app.connect("activate", activate)
-  discard run(app)
+  proc activate(app: gtk4.Application) =
+    let
+      dir = "."
+      window = adw.newApplicationWindow(app)
+      mainBox = newBox(Orientation.vertical, 0)
+      backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
+      pathWidget = createPathWidget(".")
+      page = createListView(dir, true, backBtn, pathWidget)
+      header = adw.newHeaderBar()
 
 
+    header.packStart backBtn
+    header.titleWidget = pathWidget
+    
+    with mainBox: 
+      append header
+      append page
+    
+    # header.titleWidget = pathWidget
+
+    with window:
+      content = mainBox
+      title = "Katana"
+      defaultSize = (200, 100)
+      show
 
 
+  proc main = 
+    let app = newApplication("org.gtk.example")
+    app.connect("activate", activate)
+    discard run(app)
+
+  main()
 
