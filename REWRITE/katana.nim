@@ -2,11 +2,12 @@ import gintro/[gtk4, gobject, gio, pango, glib, adw]
 import std/with
 import page
 import widgets/path
+import os
 
 proc activate(app: gtk4.Application) =
 
   let
-    dir = "."
+    dir = os.getHomeDir()
     window = adw.newApplicationWindow(app)
     mainBox = newBox(Orientation.vertical, 0)
     backBtn = newButtonFromIconName("go-previous-symbolic") # temp?

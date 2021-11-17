@@ -14,20 +14,42 @@ import strutils
 
 # import utils/read/
 
-proc openFile(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
+proc openFile(pageAndFileInfo: PageAndFileInfo) =
   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
 
-  if btn.active == true:
-    btn.active = false
-    if fullPath.endsWith ".sh":
+  if fullPath.endsWith ".sh":
       let pathWithEscapedSpaces = fullPath.replace(" ", "\\ ")
-      let command = "gnome-terminal --wait --command \"" & pathWithEscapedSpaces & "\""
+      let command = "gnome-terminal -- bash -c \"" & pathWithEscapedSpaces & "; exec bash\""
       echo command
       discard os.execShellCmd(command)
-    elif fullPath.endsWith ".zip":
-      echo "zip archive"
-    else: 
-      openFileInApp(fullPath.cstring)
+  elif fullPath.endsWith ".zip":
+    echo "zip archive"
+  else: 
+    echo "onClick"
+    # openFileInApp(fullPath.cstring)
+
+
+proc gestureMiddleClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pageAndFileInfo: PageAndFileInfo) =
+  echo "middle click"
+  # if pageAndFileInfo.button.active == true:
+  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+  openFileInApp(fullPath.cstring)
+
+
+proc openFileCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
+  if btn.active == true:
+    btn.active = false
+    openFile(pageAndFileInfo)
+
+proc gestureLongPressCb(
+  self: GestureLongPress,
+  x: cdouble,
+  y: cdouble, 
+  pageAndFileInfo: PageAndFileInfo
+) =
+  echo "long press cb"
+  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+  openFileInApp(fullPath.cstring)
 
 
 proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
@@ -49,8 +71,6 @@ proc goBackCb(btn: Button, page: Page) =
 
 
 # Factory signals
-proc getFileName(info: gio.FileInfo): string =
-  return info.getName()  
 
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild(createRow())
@@ -71,7 +91,20 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, page:
     row.btn2.connect("toggled", openFolder, PageAndFileInfo(page: page, info: info))
   of DirOrFile.file: 
     # discard
-    row.btn2.connect("toggled", openFile,  PageAndFileInfo(page: page, info: info))
+    row.btn2.connect("toggled", openFileCb,  PageAndFileInfo(page: page, info: info))
+    let 
+      gestureLongPress = newGestureLongPress()
+      gestureMiddleClick = newGestureClick()
+
+    with gestureLongPress:
+      connect("pressed", gestureLongPressCb, PageAndFileInfo(page: page, info: info))
+    with gestureMiddleClick:
+      setButton(2)
+      connect("pressed", gestureMiddleClickCb, PageAndFileInfo(page: page, info: info))
+    with row.btn2:
+      # addController(gestureLongPress)
+      addController(gestureMiddleClick)
+    # gestureLongPress.group(gestureLeftClick)
 
 
 

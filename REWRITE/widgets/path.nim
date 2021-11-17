@@ -15,7 +15,6 @@ type
     toggleBtn: ToggleWithNum
     path: GlobalPath
 
-  MiddleClick = proc (self: GestureClick, nPress: int, x: cdouble, y: cdouble, arg: ToggleWithNum){.closure.}
 
 
 
@@ -44,7 +43,7 @@ proc createPathWidget*(path: string): PathWidget =
   let 
     splittedPath = path.split DirSep
 
-  var prevToggleBtn = newToggleButton(ToggleWithNum, splittedPath[0])
+  var prevToggleBtn = newToggleButton(ToggleWithNum, splittedPath[0].cstring)
   prevToggleBtn.addMiddleClick(result.path)
   prevToggleBtn.num = 0
 
