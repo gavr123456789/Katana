@@ -13,23 +13,29 @@ type FilePopup* = object
   createFolderBtn*: Button
   createFileBtn*: Button
 
-proc createFile(btn: Button, entryAndPopover: EntryAndPopoverAndPage) = 
-  echo "createFile clicked"
+proc createFile(btn: Button, data: EntryAndPopoverAndPage) = 
   let
-    entry = entryAndPopover.entry
-    popover = entryAndPopover.popover
-    entryText = entry.text
-    currentPathToDir = entryAndPopover.page.directoryList.file.path 
+    entryText = data.entry.text
+    currentPathToDir = data.page.directoryList.file.path 
     pathToNewFile = currentPathToDir / entryText
 
-  popover.popdown()
-  echo entryText.len
+  data.popover.popdown()
 
   if not dirExists(pathToNewFile):
     writeFile(pathToNewFile, "")
-    entry.text = ""
+    data.entry.text = ""
     
-  
+proc createFolder(btn: Button, data: EntryAndPopoverAndPage) = 
+  let
+    entryText = data.entry.text
+    currentPathToDir = data.page.directoryList.file.path 
+    pathToNewFile = currentPathToDir / entryText
+
+  data.popover.popdown()
+
+  if not dirExists(pathToNewFile):
+    createDir(pathToNewFile)
+    data.entry.text = ""
 
 proc createPopup*(page: Page): FilePopup =
   let
@@ -43,6 +49,9 @@ proc createPopup*(page: Page): FilePopup =
 
   with createFileBtn: 
     connect("clicked", createFile, EntryAndPopoverAndPage(entry: entry, page: page, popover: popover))
+  with createFolderBtn: 
+    connect("clicked", createFolder, EntryAndPopoverAndPage(entry: entry, page: page, popover: popover))
+
   with entryWithBtnBox:
     append entry
     append createFolderBtn
