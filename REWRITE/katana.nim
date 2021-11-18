@@ -1,10 +1,10 @@
 import gintro/[gtk4, gobject, gio, pango, glib, adw]
 import std/with
-import page
+import std/os
+import page, types
 import widgets/path
 import widgets/create_file_popup
-import os
-
+import unpack
 
 proc activate(app: gtk4.Application) =
   let
@@ -13,10 +13,9 @@ proc activate(app: gtk4.Application) =
     mainBox = newBox(Orientation.vertical, 0)
     backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
     pathWidget = createPathWidget(dir)
-    page = createListView(dir, true, backBtn, pathWidget)
+    pageAndWidget = createListView(dir, true, backBtn, pathWidget)
+    filePopup = createPopup(pageAndWidget.page)
     header = adw.newHeaderBar()
-    filePopup = createPopup()
-  echo "qqqqqqqqqqqqqqqqqq"
   assert filePopup.menuButton != nil
   with header:
     packStart backBtn
@@ -24,7 +23,7 @@ proc activate(app: gtk4.Application) =
     titleWidget = pathWidget
   with mainBox: 
     append header
-    append page
+    append pageAndWidget.widget
   
   # header.titleWidget = pathWidget
 

@@ -22,10 +22,13 @@ type
     page*: Page  
     info*: gio.FileInfo
   # For gesture click
-  PageAndFileInfoAndButton* = ref object
+  PageAndFileInfoAndButton* = object
     page*: Page  
     info*: gio.FileInfo
     button*: ToggleButton
+  PageAndWidget* = object
+    page*: Page  
+    widget*: Widget
 
 
 proc changeActivatedArrowBtn*(page: Page, btn: ToggleButton) =

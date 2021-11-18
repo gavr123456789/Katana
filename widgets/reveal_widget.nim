@@ -4,6 +4,9 @@ import sets
 import ../stores/selected_store
 import ../stores/gtk_widgets_store
 import ../main_widgets/carousel_widget
+import ../stores/directory_lists_store
+import tables
+import os
 
 type 
   RevealerWithCounter* = ref object of gtk4.Revealer
@@ -24,9 +27,6 @@ proc deleteFiles(self: Button) =
   revealFileCRUDGb.revealChild = false
   selectedStoreGb.clear()
 
-import ../stores/directory_lists_store
-import tables
-import os
 
 proc copyFiles(self: Button) = 
   let q = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path

@@ -1,18 +1,9 @@
 import gintro/[gtk4, gobject, gio, pango, glib, adw]
-import std/with
-import row
+import std/[with, os, strutils]
+import row, types
+import gtk_utils/[set_file_row_for_file, widgets_utils, shortcuts, utils]
 import utils/sorts_and_filters
-import gtk_utils/widgets_utils
-import widgets/path
-import widgets/in_to_search_and_reveal
-import gtk_utils/set_file_row_for_file
-import gtk_utils/shortcuts
-import types
-import os
-import gtk_utils/utils
-import strutils
-
-# import utils/read/
+import widgets/[path, in_to_search_and_reveal]
 
 proc openFile(pageAndFileInfo: PageAndFileInfo) =
   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
@@ -25,8 +16,8 @@ proc openFile(pageAndFileInfo: PageAndFileInfo) =
   elif fullPath.endsWith ".zip":
     echo "zip archive"
   else: 
-    echo "onClick"
-    # openFileInApp(fullPath.cstring)
+    # echo "onClick"
+    openFileInApp(fullPath.cstring)
 
 
 proc gestureMiddleClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pageAndFileInfo: PageAndFileInfo) =
@@ -61,13 +52,14 @@ proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) =
 proc goBackCb(btn: Button, page: Page) = 
   let 
     # currentBtnFile = pageAndFileInfo.info.name
-    pathToCurrentFolder = page.directoryList.file.path 
-    backPath = os.parentDir(pathToCurrentFolder)
-  if pathToCurrentFolder != "/":
+    currentPath = page.directoryList.file.path 
+    backPath = os.parentDir(currentPath)
+  if currentPath != "/":
     page.directoryList.setFile(gio.newGFileForPath(backPath.cstring))
     echo "DIS WAS SET TO ", backPath
     echo "back"
     
+
 
 
 # Factory signals
@@ -107,7 +99,6 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, page:
     # gestureLongPress.group(gestureLeftClick)
 
 
-
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   discard
 
@@ -115,13 +106,15 @@ proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild (nil)
 
 
-
-
 proc newExpression(gType: GType, callBackFunc: auto): CClosureExpression = 
   newCClosureExpression(gType, nil, 0, nil, cast[Callback](callBackFunc), nil, nil)
 
-proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEntry: PathWidget): Widget =
-  echo "----createListView---- DIR IS ", dir  
+proc createListView*(
+  dir: string,
+  revealerOpened: bool,
+  backBtn: Button, 
+  pathEntry: PathWidget
+  ): PageAndWidget =
   
   let
     file = gio.newGFileForPath(dir)
@@ -145,9 +138,9 @@ proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEnt
 
     # gestureClick = newGestureClick()
   
-  
+  doAssert page != nil
   backBtn.connect("clicked", goBackCb, page)
-
+  # createFileBtn.connect("clicked", createFile, EntryAndPopoverAndPage(page: page, entry: ))
   # sort
   ms.append(folderFirstSorter)
   ms.append(dotFilesFirstSorter)
@@ -170,46 +163,8 @@ proc createListView*(dir: string, revealerOpened: bool, backBtn: Button, pathEnt
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
 
-  echo "Выставили шоткат директории на ", dir
   # Надо передавать туда такой объект внутри которого вседа актуальная директория
   lv.inToShortcutController(multiFilter, page.directoryList)
-  return lv.inToScroll().inToSearch(page, multiFilter, revealerOpened)
-  
 
-
-
-when isMainModule:
-  proc activate(app: gtk4.Application) =
-    let
-      dir = "."
-      window = adw.newApplicationWindow(app)
-      mainBox = newBox(Orientation.vertical, 0)
-      backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
-      pathWidget = createPathWidget(".")
-      page = createListView(dir, true, backBtn, pathWidget)
-      header = adw.newHeaderBar()
-
-
-    header.packStart backBtn
-    header.titleWidget = pathWidget
-    
-    with mainBox: 
-      append header
-      append page
-    
-    # header.titleWidget = pathWidget
-
-    with window:
-      content = mainBox
-      title = "Katana"
-      defaultSize = (200, 100)
-      show
-
-
-  proc main = 
-    let app = newApplication("org.gtk.example")
-    app.connect("activate", activate)
-    discard run(app)
-
-  main()
-
+  result.widget = lv.inToScroll().inToSearch(page, multiFilter, revealerOpened)
+  result.page = page
