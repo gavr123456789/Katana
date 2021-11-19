@@ -10,7 +10,9 @@ proc setAsDir(row: Row, name: string) =
   
 
 proc setAsFile(row: Row, ext: string) =
+  doAssert ext != ""
   row.kind = DirOrFile.file
+  debugEcho "set file ", ext, " for icon"
   row.iconName = getFileIconFromExt(ext) 
 
 proc set_file_row_for_file*(row: Row, fileInfo: gio.FileInfo) =
@@ -19,7 +21,7 @@ proc set_file_row_for_file*(row: Row, fileInfo: gio.FileInfo) =
     # fileName = fileInfo.name
     (_, name, ext) = fileInfo.getName().splitFile()
     isDir = ext == ""
-
+  # echo "yyyyL: ", fileInfo.getName().splitFile()
   row.labelFileName.text = fileInfo.name.cstring
 
   if fileInfo.isHidden == true:
@@ -37,7 +39,7 @@ proc set_file_row_for_file*(row: Row, fileInfo: gio.FileInfo) =
 
 
   of regular:
-    setAsFile(row, name)
+    setAsFile(row, ext)
       
   of directory:
     row.setAsDir name

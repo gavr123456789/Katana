@@ -41,7 +41,7 @@ proc changeActivatedArrowBtn*(page: Page, btn: ToggleButton) =
   page.activatedArrowBtn = btn
   # btn2.active = true
 
-proc `iconName=`*(row: Row, iconName: string) =
+func `iconName=`*(row: Row, iconName: string) =
   row.image.setFromIconName(iconName)
 
 import os

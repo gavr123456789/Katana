@@ -4,7 +4,6 @@ import std/os
 import page, types
 import widgets/path
 # import widgets/create_file_popup
-import unpack
 
 proc activate(app: gtk4.Application) =
   let

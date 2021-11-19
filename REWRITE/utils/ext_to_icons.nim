@@ -5,7 +5,7 @@ func getFileIconFromExt*(ext: string): string =
       of ".py": "applications-python-symbolic"
       of ".nim", ".nimble": "nvim-symbolic"
       of ".gitignore": "appimagekit-github-desktop-symbolic"
-      of ".exe", ".dll": "wine-winecfg-symbolic"
+      of ".exe", ".dll", ".bat": "wine-winecfg-symbolic"
       of ".kt": "folder-kotlin-symbolic"
       of ".js": "folder-js-symbolic"
       of ".node": "folder-nodejs-symbolic"
@@ -32,7 +32,10 @@ func getFileIconFromExt*(ext: string): string =
       # of ".mds": ""
       of ".sql": "libreoffice-base-symbolic"
       of ".bin": "hex-symbolic"
-      
+      # of ".md"
+      # of ".yml"
+      # of ".json"
+
       else: "folder-documents-symbolic"
 
 
