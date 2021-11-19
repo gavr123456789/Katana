@@ -5,6 +5,14 @@ import gtk_utils/[set_file_row_for_file, widgets_utils, shortcuts, utils]
 import utils/sorts_and_filters
 import widgets/[path, in_to_search_and_reveal, create_file_popup]
 
+proc createListView*(
+  dir: string,
+  revealerOpened: bool,
+  carousel: Carousel
+  # backBtn: Button, 
+  # pathEntry: PathWidget
+  ): PageAndWidget ;
+
 proc openFile(pageAndFileInfo: PageAndFileInfo) =
   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
 
@@ -25,6 +33,15 @@ proc gestureMiddleClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdoubl
   # if pageAndFileInfo.button.active == true:
   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
   openFileInApp(fullPath.cstring)
+
+proc gestureMiddleClick2Cb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: PageAndFileInfoAndCarousel) =
+  # if pageAndFileInfo.button.active == true:
+  let pageAndFileInfo = PageAndFileInfo(page: data.page, info: data.info)
+  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+  echo "middle click directory "
+  let x = createListView(fullPath, true, data.carousel)
+  data.carousel.append(x.widget)
+  # openFileInApp(fullPath.cstring)
 
 
 proc openFileCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
@@ -77,7 +94,13 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, data:
 
   case row.kind
   of DirOrFile.dir: 
+      
+    let gestureMiddleClick = newGestureClick()
     row.btn2.connect("toggled", openFolder, PageAndFileInfo(page: data.pageWidget, info: info))
+    with gestureMiddleClick:
+      setButton(2)
+      connect("pressed", gestureMiddleClick2Cb, PageAndFileInfoAndCarousel(page: data.pageWidget, info: info, carousel: data.carousel))
+    row.btn2.addController gestureMiddleClick
   of DirOrFile.file: 
     # discard
     row.btn2.connect("toggled", openFileCb,  PageAndFileInfo(page: data.pageWidget, info: info))
