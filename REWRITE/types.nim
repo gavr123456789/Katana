@@ -1,5 +1,6 @@
 import gintro/[gtk4, gobject, gio, pango, glib, adw]
 
+
 type 
   DirOrFile* = enum
     file
@@ -29,6 +30,9 @@ type
   PageAndWidget* = object
     page*: Page  
     widget*: Widget
+  CarouselPage* = tuple
+    pageWidget: Page
+    carousel: Carousel
 
 
 proc changeActivatedArrowBtn*(page: Page, btn: ToggleButton) =

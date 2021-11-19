@@ -28,7 +28,6 @@ proc backToMainStackCb*(btn: Button, row: FileRow) =
 
 # import title_with_player
 proc openSecondStackCb*(toggleBtn: ToggleButton, row: FileRow) =
-
   if toggleBtn.active == true:
     toggleBtn.active = false
     row.setVisibleChildName(SECOND_STACK_NAME)

@@ -53,7 +53,7 @@ proc activate(app: gtk4.Application) =
   with window:
     defaultSize = (600, 400)
     title = "Katana"
-    setChild adwBox
+    content = adwBox
     show
 
 

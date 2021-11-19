@@ -59,15 +59,12 @@ proc goBackCb(btn: Button, page: Page) =
     echo "DIS WAS SET TO ", backPath
     echo "back"
     
-
-
-
+  
 # Factory signals
-
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   listitem.setChild(createRow())
   
-proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, page: Page) =
+proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, data: CarouselPage) =
   let 
     row = listitem.getChild().Row
     info = cast[gio.FileInfo](listitem.getItem())
@@ -80,19 +77,19 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, page:
 
   case row.kind
   of DirOrFile.dir: 
-    row.btn2.connect("toggled", openFolder, PageAndFileInfo(page: page, info: info))
+    row.btn2.connect("toggled", openFolder, PageAndFileInfo(page: data.pageWidget, info: info))
   of DirOrFile.file: 
     # discard
-    row.btn2.connect("toggled", openFileCb,  PageAndFileInfo(page: page, info: info))
+    row.btn2.connect("toggled", openFileCb,  PageAndFileInfo(page: data.pageWidget, info: info))
     let 
-      gestureLongPress = newGestureLongPress()
+      # gestureLongPress = newGestureLongPress()
       gestureMiddleClick = newGestureClick()
 
-    with gestureLongPress:
-      connect("pressed", gestureLongPressCb, PageAndFileInfo(page: page, info: info))
+    # with gestureLongPress:
+    #   connect("pressed", gestureLongPressCb, PageAndFileInfo(page: data.page, info: info))
     with gestureMiddleClick:
       setButton(2)
-      connect("pressed", gestureMiddleClickCb, PageAndFileInfo(page: page, info: info))
+      connect("pressed", gestureMiddleClickCb, PageAndFileInfo(page: data.pageWidget, info: info))
     with row.btn2:
       # addController(gestureLongPress)
       addController(gestureMiddleClick)
@@ -112,6 +109,7 @@ proc newExpression(gType: GType, callBackFunc: auto): CClosureExpression =
 proc createListView*(
   dir: string,
   revealerOpened: bool,
+  carousel: Carousel
   # backBtn: Button, 
   # pathEntry: PathWidget
   ): PageAndWidget =
@@ -164,9 +162,10 @@ proc createListView*(
   multiFilter.append(boolFilter)
 
   #factory
+  var asd: CarouselPage = (pageWidget: page, carousel: carousel)
+  factory.connect("bind", bind_cb, asd)
   with factory:
     connect("setup", setup_cb)
-    connect("bind", bind_cb, page)
     connect("unbind", unbind_cb)
     connect("teardown", teardown_cb)
 

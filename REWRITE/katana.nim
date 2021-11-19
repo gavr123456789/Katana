@@ -12,23 +12,26 @@ proc activate(app: gtk4.Application) =
     mainBox = newBox(Orientation.vertical, 0)
     # backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
     pathWidget = createPathWidget(dir)
-    pageAndWidget = createListView(dir, true)
-    pageAndWidget2 = createListView(dir, true)
+    carousel = newCarousel()
+    pageAndWidget = createListView(dir, true, carousel)
+    # pageAndWidget2 = createListView(dir, true, carousel)
     # filePopup = createPopup(pageAndWidget.page)
     header = adw.newHeaderBar()
     boxOfPages = newBox(Orientation.horizontal, 0)
 
-  with boxOfPages:
-    append pageAndWidget.widget
-    append pageAndWidget2.widget
 
+  # with boxOfPages:
+  #   append pageAndWidget.widget
+  #   append pageAndWidget2.widget
+  carousel.append(pageAndWidget.widget)
+  # carousel.append(pageAndWidget2.widget)
   with header:
     # packStart backBtn
     # packStart filePopup.menuButton
     titleWidget = pathWidget
   with mainBox: 
     append header
-    append boxOfPages
+    append carousel
   
   # header.titleWidget = pathWidget
 
