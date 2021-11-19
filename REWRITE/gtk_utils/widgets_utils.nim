@@ -14,7 +14,7 @@ proc inToScroll*(widget: Widget): ScrolledWindow =
 proc createButtonWithLabelAndImage*(image: Image, labelFileName: Label): ToggleButton =
   let 
     toggleButton = newToggleButton()
-    buttonChildBox = newBox(Orientation.horizontal, 5)
+    buttonChildBox = newBox(Orientation.horizontal, 4)
 
   with buttonChildBox:
     append image

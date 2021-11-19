@@ -3,7 +3,7 @@ import std/[with, os, strutils]
 import row, types
 import gtk_utils/[set_file_row_for_file, widgets_utils, shortcuts, utils]
 import utils/sorts_and_filters
-import widgets/[path, in_to_search_and_reveal]
+import widgets/[path, in_to_search_and_reveal, create_file_popup]
 
 proc openFile(pageAndFileInfo: PageAndFileInfo) =
   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
@@ -112,14 +112,15 @@ proc newExpression(gType: GType, callBackFunc: auto): CClosureExpression =
 proc createListView*(
   dir: string,
   revealerOpened: bool,
-  backBtn: Button, 
-  pathEntry: PathWidget
+  # backBtn: Button, 
+  # pathEntry: PathWidget
   ): PageAndWidget =
   
   let
     file = gio.newGFileForPath(dir)
     dl = gtk4.newDirectoryList("*", file)
     lm = listModel(dl)
+    mainBox = newBox(Orientation.vertical, 0)
     # sorts
     ms = newMultiSorter()
     stringSorter = newStringSorter()
@@ -135,10 +136,16 @@ proc createListView*(
     factory = gtk4.newSignalListItemFactory()
     lv = newListView(ns, factory)
     page = createPage(revealerOpened, dl, ns)
+    # toolbar
+    toolbarBox = newBox(Orientation.horizontal, 0)
+    backBtn = newButtonFromIconName("go-previous-symbolic") 
+    filePopup = createPopup(page)
+
 
     # gestureClick = newGestureClick()
   
   doAssert page != nil
+
   backBtn.connect("clicked", goBackCb, page)
   # createFileBtn.connect("clicked", createFile, EntryAndPopoverAndPage(page: page, entry: ))
   # sort
@@ -165,6 +172,17 @@ proc createListView*(
 
   # Надо передавать туда такой объект внутри которого вседа актуальная директория
   lv.inToShortcutController(multiFilter, page.directoryList)
+  let fileManager = lv.inToScroll().inToSearch(page, multiFilter, revealerOpened)
 
-  result.widget = lv.inToScroll().inToSearch(page, multiFilter, revealerOpened)
+  with toolbarBox:
+    # addCssClass("linked")
+    append backBtn
+    append filePopup.menuButton
+  filePopup.menuButton.addCssClass("flat")
+  backBtn.addCssClass("flat")
+  with mainBox:
+    append toolbarBox
+    append fileManager
+
+  result.widget = mainBox
   result.page = page

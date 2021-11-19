@@ -3,7 +3,7 @@ import std/with
 import std/os
 import page, types
 import widgets/path
-import widgets/create_file_popup
+# import widgets/create_file_popup
 import unpack
 
 proc activate(app: gtk4.Application) =
@@ -11,19 +11,25 @@ proc activate(app: gtk4.Application) =
     dir = os.getHomeDir()
     window = adw.newApplicationWindow(app)
     mainBox = newBox(Orientation.vertical, 0)
-    backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
+    # backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
     pathWidget = createPathWidget(dir)
-    pageAndWidget = createListView(dir, true, backBtn, pathWidget)
-    filePopup = createPopup(pageAndWidget.page)
+    pageAndWidget = createListView(dir, true)
+    pageAndWidget2 = createListView(dir, true)
+    # filePopup = createPopup(pageAndWidget.page)
     header = adw.newHeaderBar()
-  assert filePopup.menuButton != nil
+    boxOfPages = newBox(Orientation.horizontal, 0)
+
+  with boxOfPages:
+    append pageAndWidget.widget
+    append pageAndWidget2.widget
+
   with header:
-    packStart backBtn
-    packStart filePopup.menuButton
+    # packStart backBtn
+    # packStart filePopup.menuButton
     titleWidget = pathWidget
   with mainBox: 
     append header
-    append pageAndWidget.widget
+    append boxOfPages
   
   # header.titleWidget = pathWidget
 

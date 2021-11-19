@@ -66,6 +66,6 @@ proc inToSearch*(lv: Widget, page: Page, fm: MultiFilter, revealerOpened: bool) 
 
   entry.halign = Align.center
 
-  result.marginTop = 30 # for scroll
+  # result.marginTop = 30 # for scroll
   result.prepend lv
   result.prepend searchBar
