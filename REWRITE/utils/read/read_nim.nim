@@ -22,8 +22,6 @@ type
 
 # var x = Function(kind: FuncType.PROC, name: "sas", args: @[("sas", "sus")])
   
-
-# TODO add digits
 let procParser = peg("proct", d: Dict2):
   proct <- ("proc" | "func" | "method" | "template" | "macro") * +Space * funcName * *Space * ?args * *Space * ?returnType * *Space * '=' * *Space
   args <- '(' * pairs * ')'
