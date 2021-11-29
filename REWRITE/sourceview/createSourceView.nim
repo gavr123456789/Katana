@@ -1,4 +1,4 @@
-import gintro/[gtk4, gobject, gio, pango, adw, glib, gdk4, gtksource5]
+import gintro/[gtk4, gobject, gio, pango,  glib, gdk4, gtksource5]
 import std/with
 import createWordCompletion
 
@@ -14,22 +14,23 @@ proc createSourceView*(): gtksource5.View =
 
 
   # var lang = guessLanguage(langManager, files[0].path, nil)
+
   # add word provider
+  sourceBuffer.setLanguage(lang)
   createWordCompletion(sourceView, sourceCompletion)
 
   # add syntax highlight
-  echo langManager.getLanguageIds()
-  sourceBuffer.setLanguage(lang)
+  # echo langManager.getLanguageIds()
 
   # set nim scheme
   
   with sourceView:
-    enableSnippets = true
+    # enableSnippets = true
     showLineNumbers = true
     monospace = true
     autoIndent = true
-    leftMargin = 40
-    rightMargin = 2
+    # leftMargin = 40
+    # rightMargin = 2
     hexpand = true
     vexpand = true
     smartBackspace = true
@@ -38,11 +39,7 @@ proc createSourceView*(): gtksource5.View =
   result = sourceView
 
 
-
-proc getCompletionBtnCb(btn: Button) = 
-  echo "sas"
-
-proc createPage*(getCompletitionBtn: Button): Box = 
+proc createPage*(): Box = 
   let 
     sourceView = createSourceView()
     scrolledWindow = newScrolledWindow()
@@ -53,9 +50,6 @@ proc createPage*(getCompletitionBtn: Button): Box =
   with sourceViewWithPreviewBox:
     append scrolledWindow
     # append sourceStyleSchemePreview
-
-  # connects
-  getCompletitionBtn.connect("clicked", getCompletionBtnCb)
 
   scrolledWindow.child = sourceView
   result = sourceViewWithPreviewBox

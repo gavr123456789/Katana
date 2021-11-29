@@ -1,45 +1,39 @@
-import gintro/[gtk4, gobject, gio, pango, adw, glib, gdk4]
+import gintro/[gtk4, gobject, gio, pango, glib, gdk4]
 import std/with
 import createSourceView
-
-proc windowOnClose(self: adw.ApplicationWindow, x: string): bool = 
-  echo x
-  return gdk4.EVENT_PROPAGATE
-
 
 
 
 proc activate(app: gtk4.Application) =
-  adw.init()
+  # adw.init()
 
   let
-    window = adw.newApplicationWindow(app)
-    header = adw.newHeaderBar()
+    window = gtk4.newApplicationWindow(app)
+    # header = adw.newHeaderBar()
     mainBox = newBox(Orientation.vertical, 0)
-    tabBar = newTabBar()
-    tabView = newTabView()
-    getCompletionBtn = newButton("get completition")
-
-    sourceViewScrolled = createPage(getCompletionBtn)
-
-  let page1 = tabView.append sourceViewScrolled
+    # tabBar = newTabBar()
+    # tabView = newTabView()
+    # sourceViewScrolled = createPage()
+    sourceView = createSourceView()
 
 
-  tabBar.view = tabView
-  window.connect("close_request", windowOnClose, "closing")
+  # let page1 = tabView.append sourceViewScrolled
+
+
+  # tabBar.view = tabView
 
   with mainBox: 
-    append header
-    append tabBar
-    append tabView
-
-  with header:
-    packStart getCompletionBtn
+    # append header
+    # append tabBar
+    # append sourceViewScrolled
+    append sourceView
+  # with header:
+  #   packStart getCompletionBtn
 
   with window:
-    content = mainBox
+    child = mainBox
     title = ""
-    defaultSize = (100, 300)
+    defaultSize = (600, 600)
     show
 
 proc main() =
