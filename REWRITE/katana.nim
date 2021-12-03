@@ -14,7 +14,6 @@ proc activate(app: gtk4.Application) =
     pathWidget = createPathWidget(dir)
     carousel = newCarousel()
     pageAndWidget = createListView(dir, true, carousel)
-    # pageAndWidget2 = createListView(dir, true, carousel)
     # filePopup = createPopup(pageAndWidget.page)
     header = adw.newHeaderBar()
     boxOfPages = newBox(Orientation.horizontal, 0)

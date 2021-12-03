@@ -1,11 +1,11 @@
 import gintro/[gtk4, gobject, gio, pango, glib, adw]
-
+import state
 
 type 
   DirOrFile* = enum
     file
     dir
-
+# TODO скрыть directoryList и создавать Page через функцию newPage
   Page* = ref object of Box
     revealer*: Revealer
     activatedArrowBtn*: ToggleButton
@@ -57,3 +57,10 @@ func `iconName=`*(row: Row, iconName: string) =
 import os
 proc getFullPathFromPageAndFileInfo*(pageAndFileInfo: PageAndFileInfo): string = 
   pageAndFileInfo.page.directoryList.file.path / pageAndFileInfo.info.name
+
+proc getPathFromPage*(page: Page): string = 
+  page.directoryList.file.path
+
+proc setPagePath*(page: Page, path: string) = 
+  page.directoryList.setFile(gio.newGFileForPath(path.cstring))
+  changeState(path)

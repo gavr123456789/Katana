@@ -4,7 +4,7 @@ import row, types
 import gtk_utils/[set_file_row_for_file, widgets_utils, shortcuts, utils]
 import utils/sorts_and_filters
 import widgets/[path, in_to_search_and_reveal, create_file_popup]
-
+import state
 proc createListView*(
   dir: string,
   revealerOpened: bool,
@@ -28,13 +28,17 @@ proc openFile(pageAndFileInfo: PageAndFileInfo) =
     openFileInApp(fullPath.cstring)
 
 
-proc gestureMiddleClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pageAndFileInfo: PageAndFileInfo) =
+proc gestureMiddleClickFileCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pageAndFileInfo: PageAndFileInfo) =
   echo "middle click"
   # if pageAndFileInfo.button.active == true:
   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
   openFileInApp(fullPath.cstring)
 
-proc gestureMiddleClick2Cb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: PageAndFileInfoAndCarousel) =
+proc gestureRightClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, page: Page) =
+  changeState(page.getPathFromPage())
+  # changeState("sas")
+
+proc gestureMiddleClickDirCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: PageAndFileInfoAndCarousel) =
   # if pageAndFileInfo.button.active == true:
   let pageAndFileInfo = PageAndFileInfo(page: data.page, info: data.info)
   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
@@ -49,20 +53,22 @@ proc openFileCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) =
     btn.active = false
     openFile(pageAndFileInfo)
 
-proc gestureLongPressCb(
-  self: GestureLongPress,
-  x: cdouble,
-  y: cdouble, 
-  pageAndFileInfo: PageAndFileInfo
-) =
-  echo "long press cb"
-  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
-  openFileInApp(fullPath.cstring)
+# proc gestureLongPressCb(
+#   self: GestureLongPress,
+#   x: cdouble,
+#   y: cdouble, 
+#   pageAndFileInfo: PageAndFileInfo
+# ) =
+#   echo "long press cb"
+#   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+#   openFileInApp(fullPath.cstring)
 
 
 proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
-  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo().cstring
-  pageAndFileInfo.page.directoryList.setFile(gio.newGFileForPath(fullPath))
+
+  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+
+  pageAndFileInfo.page.setPagePath(fullPath)
   # TODO uncomment. while we opening folders in same view - not needed
   # pageAndFileInfo.page.changeActivatedArrowBtn(btn)
 
@@ -72,7 +78,7 @@ proc goBackCb(btn: Button, page: Page) =
     currentPath = page.directoryList.file.path 
     backPath = os.parentDir(currentPath)
   if currentPath != "/":
-    page.directoryList.setFile(gio.newGFileForPath(backPath.cstring))
+    page.setPagePath(backPath)
     echo "DIS WAS SET TO ", backPath
     echo "back"
     
@@ -93,31 +99,27 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, data:
   discard listitem.bindProperty("selected", row.btn1, "active", {})
 
   case row.kind
+
   of DirOrFile.dir: 
-      
     let gestureMiddleClick = newGestureClick()
     row.btn2.connect("toggled", openFolder, PageAndFileInfo(page: data.pageWidget, info: info))
     with gestureMiddleClick:
       setButton(2)
-      connect("pressed", gestureMiddleClick2Cb, PageAndFileInfoAndCarousel(page: data.pageWidget, info: info, carousel: data.carousel))
+      connect("pressed", gestureMiddleClickDirCb, PageAndFileInfoAndCarousel(page: data.pageWidget, info: info, carousel: data.carousel))
     row.btn2.addController gestureMiddleClick
+
   of DirOrFile.file: 
-    # discard
     row.btn2.connect("toggled", openFileCb,  PageAndFileInfo(page: data.pageWidget, info: info))
     let 
-      # gestureLongPress = newGestureLongPress()
       gestureMiddleClick = newGestureClick()
 
-    # with gestureLongPress:
-    #   connect("pressed", gestureLongPressCb, PageAndFileInfo(page: data.page, info: info))
     with gestureMiddleClick:
       setButton(2)
-      connect("pressed", gestureMiddleClickCb, PageAndFileInfo(page: data.pageWidget, info: info))
+      connect("pressed", gestureMiddleClickFileCb, PageAndFileInfo(page: data.pageWidget, info: info))
+
     with row.btn2:
       # addController(gestureLongPress)
-      addController(gestureMiddleClick)
-    # gestureLongPress.group(gestureLeftClick)
-
+      addController gestureMiddleClick
 
 proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   discard
@@ -161,11 +163,10 @@ proc createListView*(
     toolbarBox = newBox(Orientation.horizontal, 0)
     backBtn = newButtonFromIconName("go-previous-symbolic") 
     filePopup = createPopup(page)
-
-
-    # gestureClick = newGestureClick()
   
   doAssert page != nil
+
+
 
   backBtn.connect("clicked", goBackCb, page)
   # createFileBtn.connect("clicked", createFile, EntryAndPopoverAndPage(page: page, entry: ))
@@ -208,3 +209,13 @@ proc createListView*(
 
   result.widget = mainBox
   result.page = page
+
+  let gestureRightClick = newGestureClick()
+
+  # with gestureRightClick:
+  #   setButton(3)
+  #   connect("pressed", gestureRightClickCb, page)
+  # mainBox.addController gestureRightClick
+  return result
+
+    
