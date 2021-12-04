@@ -22,8 +22,6 @@ proc createPage*(revealOpened: bool, directoryList: DirectoryList, selection: Mu
   result.append reveal
   result.vexpand = true
 
-func `showProgressBar=`*(self: Page, revealChild: bool) = 
-  self.revealer.revealChild = revealChild
 
 
 # CB

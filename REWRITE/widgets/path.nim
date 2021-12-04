@@ -7,7 +7,7 @@ import ../state
 
 
 type 
-  ToggleWithNum = ref object of ToggleButton
+  ToggleWithNum = ref object of Button
     num: int
 
   Data = tuple
@@ -28,7 +28,6 @@ proc addMiddleClick(toggleBtn: ToggleWithNum, path: GlobalPath ) =
   toggleBtn.addController(gestureClick)
 
 proc createPathWidget*(path: string): PathWidget = 
-  # static: assert (DirSep in path or "." in path)
 
   let 
     pathWidget = newBox(PathWidget, Orientation.horizontal, 0)
@@ -42,7 +41,7 @@ proc createPathWidget*(path: string): PathWidget =
   let 
     splittedPath = path.split DirSep
 
-  var prevToggleBtn = newToggleButton(ToggleWithNum, splittedPath[0].cstring)
+  var prevToggleBtn = newButton(ToggleWithNum, splittedPath[0].cstring)
   prevToggleBtn.addMiddleClick(result.path)
   prevToggleBtn.num = 0
 
@@ -51,11 +50,12 @@ proc createPathWidget*(path: string): PathWidget =
   for i, str in splittedPath[1..^2]:
     echo "path widget, path part = ", str
     let 
-      toggleBtn = newToggleButton(ToggleWithNum, str.cstring)
+      toggleBtn = newButton(ToggleWithNum, str.cstring)
     toggleBtn.addMiddleClick(result.path)
+    toggleBtn.addCssClass("flat")
     toggleBtn.num = i + 1
 
-    toggleBtn.group = prevToggleBtn
+    # toggleBtn.group = prevToggleBtn
     prevToggleBtn = toggleBtn
 
     pathWidget.append toggleBtn

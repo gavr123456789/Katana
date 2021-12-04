@@ -12,11 +12,17 @@ var selectedFilesRevealer*: RevealerWithCounter
 var selectedFilesPaths: HashSet[string] 
 var selectedFoldersPaths: HashSet[string] 
 
+var lastSelectedPage: Page
+
+proc removeLastSelectedPage*() = 
+  lastSelectedPage = nil
+
+# Files
 proc addToSelectedFiles*(path: string) =
   selectedFilesPaths.incl path
   echo "current selected files: ", selectedFilesPaths
 
-proc deleteFromSelectedFiles*(path: string) =
+proc removeFromSelectedFiles*(path: string) =
   selectedFilesPaths.excl path
   echo "current selected folder: ", selectedFilesPaths
 
@@ -35,10 +41,41 @@ proc getCountOfSelectedFilesAndFolders*(): int =
 
 proc deleteAllSelectedFiles*() = 
   deleteAllFilesAsync(selectedFilesPaths)
+  selectedFilesPaths.clear()
+  
+proc deleteAllSelectedFolders*() = 
+  deleteAllFoldersAsync(selectedFoldersPaths)
+  selectedFoldersPaths.clear()
+
+proc selectedFilesContainsPath*(path: string): bool = 
+  selectedFilesPaths.contains path
+proc selectedFoldersContainsPath*(path: string): bool = 
+  selectedFoldersPaths.contains path
 
 
 proc changeCurrentPath*(selectedPath: string) = 
   echo "selectedPathGb changed to ", selectedPath
   # selectedPathGb = selectedPath
   selectedPathGb2.setPath selectedPath
+
+# GUI
+import gintro/gtk4
+
+func `showProgressBar=`(self: Page, revealChild: bool) =
+  self.revealer.revealChild = revealChild
+
+proc showProgressBar*(self: Page) = 
+  if self == lastSelectedPage:
+    return
+
+  if lastSelectedPage == nil:
+    lastSelectedPage = self
+    self.showProgressBar = true
+  else:
+    lastSelectedPage.showProgressBar = false
+    self.showProgressBar = true
+    lastSelectedPage = self
+
+
+    
 

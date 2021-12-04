@@ -8,19 +8,13 @@ import ../types
 proc deleteFiles(self: Button) = 
   # for x in sequence:
   deleteAllSelectedFiles()
-  discard
-  # Удалить все из 
-  # for x in selectedStoreGb.items:
-  #   let xfile = gio.newGFileForPath(x.fullPath)
-  #   xfile.deleteAsync(10, nil, nil, nil)
-  #   debugEcho "deleted: ", x.fullPath
-  # debugEcho "-----sssasss-----"
-  
-  # revealFileCRUDGb.revealChild = false
-  # selectedStoreGb.clear()
+  deleteAllSelectedFolders()
+  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
+
 
 
 proc copyFiles(self: Button) = 
+  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
   discard
   # let q = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path
   # for x in selectedStoreGb.items:
@@ -34,6 +28,7 @@ proc copyFiles(self: Button) =
   # selectedStoreGb.clear()
 
 proc moveFiles(self: Button) = 
+  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
   discard
   # let q = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path
   # for x in selectedStoreGb.items:

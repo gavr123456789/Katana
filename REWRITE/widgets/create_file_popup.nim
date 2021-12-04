@@ -33,7 +33,7 @@ proc createFolder(btn: Button, data: EntryAndPopoverAndPage) =
 
   data.popover.popdown()
 
-  if not dirExists(pathToNewFile):
+  if not dirExists(pathToNewFile) and not fileExists(pathToNewFile):
     createDir(pathToNewFile)
     data.entry.text = ""
 

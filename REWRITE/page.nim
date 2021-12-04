@@ -1,8 +1,8 @@
 import gintro/[gtk4, gobject, gio, pango, glib, adw]
-import std/[with, os, strutils]
+import std/[with, os, strutils, sets]
 import row, types
 import gtk_utils/[set_file_row_for_file, widgets_utils, shortcuts, utils]
-import utils/sorts_and_filters
+import utils/[sorts_and_filters, file_service]
 import widgets/[path, in_to_search_and_reveal, create_file_popup, selected_files]
 import state
 proc createListView*(
@@ -36,7 +36,8 @@ proc gestureMiddleClickFileCb(self: GestureClick, nPress: int, x: cdouble, y: cd
 
 proc gestureRightClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, page: Page) =
   changeCurrentPath(page.getPathFromPage())
-  # changeCurrentPath("sas")
+  page.showProgressBar()
+
 
 proc gestureMiddleClickDirCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: PageAndFileInfoAndCarousel) =
   # if pageAndFileInfo.button.active == true:
@@ -53,22 +54,17 @@ proc openFileCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) =
     btn.active = false
     openFile(pageAndFileInfo)
 
-# proc gestureLongPressCb(
-#   self: GestureLongPress,
-#   x: cdouble,
-#   y: cdouble, 
-#   pageAndFileInfo: PageAndFileInfo
-# ) =
-#   echo "long press cb"
-#   let fullPath = pageAndFileInfo.getPathToFile()
-#   openFileInApp(fullPath.cstring)
 
 proc folderSelectedCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
   let pathToFile = pageAndFileInfo.getPathToFile()
   if btn.active:
     addToSelectedFolders(pathToFile)
+    for x in getAllFilesFromDir(pathToFile):
+      addToSelectedFiles(x)
   else:
     deleteFromSelectedFolders(pathToFile)
+    for x in getAllFilesFromDir(pathToFile):
+      removeFromSelectedFiles(x)
   selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
 
 proc fileSelectedCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
@@ -76,7 +72,7 @@ proc fileSelectedCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) =
   if btn.active:
     addToSelectedFiles(pathToFile)
   else:
-    deleteFromSelectedFiles(pathToFile)
+    removeFromSelectedFiles(pathToFile)
   selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
 
 proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
@@ -94,7 +90,31 @@ proc goBackCb(btn: Button, page: Page) =
     page.setPagePath(backPath)
     echo "DIS WAS SET TO ", backPath
     echo "back"
-    
+
+proc closePageCb(btn: Button, carouselAndPage: CarouselAndPageWidget) = 
+  let carousel = carouselAndPage.carousel
+  carousel.remove carouselAndPage.pageWidget
+  echo "QQQQQQQQQQQQQQQQ", carouselAndPage.pageWidget == nil
+  var i = 0
+  # while carouselAndPage.pageWidget != nil:
+    # carouselAndPage.pageWidget.unref()
+    # i.inc()
+    # echo i
+  carouselAndPage.pageWidget.unref()
+
+  removeLastSelectedPage()
+
+  # carouselAndPage.pageWidget.unref()
+  # carouselAndPage.pageWidget = nil
+  # carouselAndPage.pageWidget.unref()
+
+  echo "WWWWWWWWWWWWWWWW", carouselAndPage.pageWidget == nil
+
+  if carousel.nPages == 0:
+    let pageAndWidget = createListView(os.getHomeDir(), true, carousel)
+    # pathWidget = createPathWidget(os.getHomeDir())
+    carousel.append(pageAndWidget.widget)
+
   
 # Factory signals
 proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
@@ -104,20 +124,25 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, data:
   let 
     row = listitem.getChild().Row
     info = cast[gio.FileInfo](listitem.getItem())
-
+    pageAndFileInfo = PageAndFileInfo(page: data.pageWidget, info: info)
+    filePath = pageAndFileInfo.getPathToFile()
 
   row.set_file_row_for_file(info)  # kind choosed
 
   # selected = toggled
   discard listitem.bindProperty("selected", row.btn1, "active", {})
-
+  
+    
   case row.kind
 
   of DirOrFile.dir: 
     let gestureMiddleClick = newGestureClick()
     row.btn2.connect("toggled", openFolder, PageAndFileInfo(page: data.pageWidget, info: info))
     row.btn1.connect("toggled", folderSelectedCb, PageAndFileInfo(page: data.pageWidget, info: info))
-
+    
+    if selectedFoldersContainsPath filePath:
+      echo "selected files containg ", filePath
+      row.btn1.active = true
 
     with gestureMiddleClick:
       setButton(2)
@@ -125,8 +150,12 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, data:
     row.btn2.addController gestureMiddleClick
 
   of DirOrFile.file: 
-    row.btn2.connect("toggled", openFileCb,  PageAndFileInfo(page: data.pageWidget, info: info))
-    row.btn1.connect("toggled", fileSelectedCb, PageAndFileInfo(page: data.pageWidget, info: info))
+    if selectedFilesContainsPath filePath:
+      echo "selected files containg ", filePath
+      row.btn1.active = true
+
+    row.btn2.connect("toggled", openFileCb,  pageAndFileInfo)
+    row.btn1.connect("toggled", fileSelectedCb, pageAndFileInfo)
     
     let 
       gestureMiddleClick = newGestureClick()
@@ -143,6 +172,7 @@ proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
   discard
 
 proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
+  # listitem.getChild.unref()
   listitem.setChild (nil)
 
 
@@ -153,8 +183,6 @@ proc createListView*(
   dir: string,
   revealerOpened: bool,
   carousel: Carousel
-  # backBtn: Button, 
-  # pathEntry: PathWidget
   ): PageAndWidget =
   
   let
@@ -180,6 +208,7 @@ proc createListView*(
     # toolbar
     toolbarBox = newBox(Orientation.horizontal, 0)
     backBtn = newButtonFromIconName("go-previous-symbolic") 
+    closeBtn = newButtonFromIconName("close-symbolic") 
     filePopup = createPopup(page)
   
   doAssert page != nil
@@ -187,6 +216,7 @@ proc createListView*(
 
 
   backBtn.connect("clicked", goBackCb, page)
+  closeBtn.connect("clicked", closePageCb, CarouselAndPageWidget(carousel: carousel, pageWidget: mainBox))
   # createFileBtn.connect("clicked", createFile, EntryAndPopoverAndPage(page: page, entry: ))
   # sort
   ms.append(folderFirstSorter)
@@ -214,26 +244,31 @@ proc createListView*(
   # Надо передавать туда такой объект внутри которого вседа актуальная директория
   lv.inToShortcutController(multiFilter, page.directoryList)
   let fileManager = lv.inToScroll().inToSearch(page, multiFilter, revealerOpened)
-
+  
   with toolbarBox:
     # addCssClass("linked")
-    append backBtn
-    append filePopup.menuButton
+    hexpand = true
+    prepend filePopup.menuButton
+    prepend backBtn
+    append closeBtn
   filePopup.menuButton.addCssClass("flat")
   backBtn.addCssClass("flat")
+  closeBtn.addCssClass("flat")
+  
   with mainBox:
     append toolbarBox
     append fileManager
 
   result.widget = mainBox
   result.page = page
+  page.showProgressBar()
 
   let gestureRightClick = newGestureClick()
 
-  # with gestureRightClick:
-  #   setButton(3)
-  #   connect("pressed", gestureRightClickCb, page)
-  # mainBox.addController gestureRightClick
+  with gestureRightClick:
+    setButton(3)
+    connect("pressed", gestureRightClickCb, page)
+  mainBox.addController gestureRightClick
   return result
 
     

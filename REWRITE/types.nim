@@ -39,7 +39,9 @@ type
   CarouselPage* = tuple
     pageWidget: Page
     carousel: Carousel
-
+  CarouselAndPageWidget* = object 
+    pageWidget*: Widget
+    carousel*: Carousel
 
   PathWidget* = ref object of Box
     backBtn*: Button
