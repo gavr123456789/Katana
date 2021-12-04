@@ -3,7 +3,7 @@ import std/[with, os, strutils]
 import row, types
 import gtk_utils/[set_file_row_for_file, widgets_utils, shortcuts, utils]
 import utils/sorts_and_filters
-import widgets/[path, in_to_search_and_reveal, create_file_popup]
+import widgets/[path, in_to_search_and_reveal, create_file_popup, selected_files]
 import state
 proc createListView*(
   dir: string,
@@ -14,7 +14,7 @@ proc createListView*(
   ): PageAndWidget ;
 
 proc openFile(pageAndFileInfo: PageAndFileInfo) =
-  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+  let fullPath = pageAndFileInfo.getPathToFile()
 
   if fullPath.endsWith ".sh":
       let pathWithEscapedSpaces = fullPath.replace(" ", "\\ ")
@@ -31,17 +31,17 @@ proc openFile(pageAndFileInfo: PageAndFileInfo) =
 proc gestureMiddleClickFileCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, pageAndFileInfo: PageAndFileInfo) =
   echo "middle click"
   # if pageAndFileInfo.button.active == true:
-  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+  let fullPath = pageAndFileInfo.getPathToFile()
   openFileInApp(fullPath.cstring)
 
 proc gestureRightClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, page: Page) =
-  changeState(page.getPathFromPage())
-  # changeState("sas")
+  changeCurrentPath(page.getPathFromPage())
+  # changeCurrentPath("sas")
 
 proc gestureMiddleClickDirCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: PageAndFileInfoAndCarousel) =
   # if pageAndFileInfo.button.active == true:
   let pageAndFileInfo = PageAndFileInfo(page: data.page, info: data.info)
-  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+  let fullPath = pageAndFileInfo.getPathToFile()
   echo "middle click directory "
   let x = createListView(fullPath, true, data.carousel)
   data.carousel.append(x.widget)
@@ -60,14 +60,27 @@ proc openFileCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) =
 #   pageAndFileInfo: PageAndFileInfo
 # ) =
 #   echo "long press cb"
-#   let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
+#   let fullPath = pageAndFileInfo.getPathToFile()
 #   openFileInApp(fullPath.cstring)
 
+proc folderSelectedCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
+  let pathToFile = pageAndFileInfo.getPathToFile()
+  if btn.active:
+    addToSelectedFolders(pathToFile)
+  else:
+    deleteFromSelectedFolders(pathToFile)
+  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
+
+proc fileSelectedCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
+  let pathToFile = pageAndFileInfo.getPathToFile()
+  if btn.active:
+    addToSelectedFiles(pathToFile)
+  else:
+    deleteFromSelectedFiles(pathToFile)
+  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
 
 proc openFolder(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
-
-  let fullPath = pageAndFileInfo.getFullPathFromPageAndFileInfo()
-
+  let fullPath = pageAndFileInfo.getPathToFile()
   pageAndFileInfo.page.setPagePath(fullPath)
   # TODO uncomment. while we opening folders in same view - not needed
   # pageAndFileInfo.page.changeActivatedArrowBtn(btn)
@@ -103,6 +116,9 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, data:
   of DirOrFile.dir: 
     let gestureMiddleClick = newGestureClick()
     row.btn2.connect("toggled", openFolder, PageAndFileInfo(page: data.pageWidget, info: info))
+    row.btn1.connect("toggled", folderSelectedCb, PageAndFileInfo(page: data.pageWidget, info: info))
+
+
     with gestureMiddleClick:
       setButton(2)
       connect("pressed", gestureMiddleClickDirCb, PageAndFileInfoAndCarousel(page: data.pageWidget, info: info, carousel: data.carousel))
@@ -110,6 +126,8 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, data:
 
   of DirOrFile.file: 
     row.btn2.connect("toggled", openFileCb,  PageAndFileInfo(page: data.pageWidget, info: info))
+    row.btn1.connect("toggled", fileSelectedCb, PageAndFileInfo(page: data.pageWidget, info: info))
+    
     let 
       gestureMiddleClick = newGestureClick()
 

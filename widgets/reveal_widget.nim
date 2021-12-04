@@ -167,7 +167,3 @@ proc createRevealerWithCounter*(header: adw.HeaderBar): RevealerWithCounter =
 
   result.child = centerBox
 
-
-# func inc*(self: RevealerWithCounter) = self.counter.inc()
-# func reset*(self: RevealerWithCounter) = self.counter = 0
-# func dec*(self: RevealerWithCounter) = self.counter.inc()

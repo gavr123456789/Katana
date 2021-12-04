@@ -1,7 +1,6 @@
 import os, strutils
 
-type
-  GlobalPath* = ref object
+type GlobalPath* = ref object
     path: string
 
 proc addToPath*(self: GlobalPath, dirOrFile: string) =

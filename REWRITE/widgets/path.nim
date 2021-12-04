@@ -1,13 +1,12 @@
 import gintro/[gtk4, gobject, gio, pango, glib, adw]
 import os, strutils, std/with
-import ../utils/path
+import ../utils/pathUtils
+import ../types
+import ../state
+
+
 
 type 
-  PathWidget* = ref object of Box
-    backBtn*: Button
-    entry*: Entry
-    path: GlobalPath
-  
   ToggleWithNum = ref object of ToggleButton
     num: int
 
@@ -49,22 +48,30 @@ proc createPathWidget*(path: string): PathWidget =
 
   pathWidget.append prevToggleBtn
 
-  for i, str in splittedPath[1..^1]:
+  for i, str in splittedPath[1..^2]:
+    echo "path widget, path part = ", str
     let 
-      toggleBtn = newToggleButton(ToggleWithNum, str)
+      toggleBtn = newToggleButton(ToggleWithNum, str.cstring)
     toggleBtn.addMiddleClick(result.path)
     toggleBtn.num = i + 1
 
     toggleBtn.group = prevToggleBtn
     prevToggleBtn = toggleBtn
 
-    # pathWidget.append toggleBtn
+    pathWidget.append toggleBtn
   
 
-proc addToPathWidget(self: PathWidget, path: string) = 
-  self.path.addToPath path
-  let tglBtn = newToggleButton()
-  # ...
+proc getPathToFile*(pageAndFileInfo: PageAndFileInfo): string = 
+  pageAndFileInfo.page.directoryList.file.path / pageAndFileInfo.info.name
+
+proc getPathFromPage*(page: Page): string = 
+  page.directoryList.file.path
+
+proc setPagePath*(page: Page, path: string) = 
+  page.directoryList.setFile(gio.newGFileForPath(path.cstring))
+  changeCurrentPath(path)
+
+
 
 when isMainModule:
   proc activate(app: gtk4.Application) =

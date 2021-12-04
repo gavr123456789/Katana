@@ -1,5 +1,5 @@
 import gintro/[gtk4, gobject, gio, pango, glib, adw]
-import state
+import utils/pathUtils
 
 type 
   DirOrFile* = enum
@@ -41,6 +41,11 @@ type
     carousel: Carousel
 
 
+  PathWidget* = ref object of Box
+    backBtn*: Button
+    entry*: Entry
+    path*: GlobalPath
+
 proc changeActivatedArrowBtn*(page: Page, btn: ToggleButton) =
   assert page != nil
   if page.activatedArrowBtn == btn: return
@@ -54,13 +59,12 @@ proc changeActivatedArrowBtn*(page: Page, btn: ToggleButton) =
 func `iconName=`*(row: Row, iconName: string) =
   row.image.setFromIconName(iconName)
 
-import os
-proc getFullPathFromPageAndFileInfo*(pageAndFileInfo: PageAndFileInfo): string = 
-  pageAndFileInfo.page.directoryList.file.path / pageAndFileInfo.info.name
 
-proc getPathFromPage*(page: Page): string = 
-  page.directoryList.file.path
 
-proc setPagePath*(page: Page, path: string) = 
-  page.directoryList.setFile(gio.newGFileForPath(path.cstring))
-  changeState(path)
+type 
+  RevealerWithCounter* = ref object of gtk4.Revealer
+    counter: Natural
+  
+  RevealerAndEntry* = tuple
+    revealer: Revealer
+    entry: Entry
