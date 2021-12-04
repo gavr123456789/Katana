@@ -2,11 +2,16 @@ This is a browser of tree-like data structures, but so far it is exclusively a f
 But later it can be a Smalltalk like browser for code/json/databases etc.
 
 # Stage
-Rewriting from scratchi in REWRITE folder with better arch. 
+Rewriting from scratch in REWRITE folder with better arch.  
+
 
 
 Here demo where you can see core ideas.  
-# Demo
+# After rewrite
+
+https://user-images.githubusercontent.com/30507409/144709791-26fb998a-6c0d-4a5d-8f0e-c591fa157b8a.mp4
+
+# Before rewrite
 
 
 https://user-images.githubusercontent.com/30507409/127471713-1243adb7-e4b4-4b8c-a569-e9decd57140d.mp4
