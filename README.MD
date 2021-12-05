@@ -1,6 +1,7 @@
 This is a browser of tree-like data structures, but so far it is exclusively a file browser.  
 But later it can be a Smalltalk like browser for code/json/databases etc.
 
+"- good task for newcommers" - if you wanna help - create issue and I'll explain what to do
 # Stage
 - [X] Rewriting from scratch in REWRITE folder with better arch.  
 - [X] Create files and folders
@@ -33,7 +34,8 @@ But later it can be a Smalltalk like browser for code/json/databases etc.
 - [ ] Flatpak build
 - [ ] install script for Windows
 - [ ] save state - good task for newcommers
-
+- [ ] open apps from desktop entry - good task for newcommers
+- [ ] settings
 
 Here demo where you can see core ideas.  
 # After rewrite
