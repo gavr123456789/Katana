@@ -12,81 +12,28 @@ proc deleteFiles(self: Button) =
   selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
 
 
-
 proc copyFiles(self: Button) = 
   copyAllSelectedFolders()
   copyAllSelectedFiles()
   selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
-  discard
 
 
 proc moveFiles(self: Button) = 
   # Запустить чтото что оставит среди выделенных файлов только те что
   moveAllSelectedFolders()
   moveAllSelectedFiles()
-  
   selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
   
-  discard
-  # let q = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path
-  # for x in selectedStoreGb.items:
-  #   let xfile = gio.newGFileForPath(x.fullPath)
-  #   let copyPath = gio.newGFileForPath(q / xfile.basename)
-  #   if x.fullPath != q / xfile.basename:
-  #     echo xfile.move(copyPath, {gio.FileCopyFlag.backup}, nil, nil, nil)
-  #     debugEcho "moved from: ", x.fullPath, " to: ", q / xfile.basename
-  #   else: 
-  #     x.btn1.active = false
 
-  # revealFileCRUDGb.revealChild = false
-  # selectedStoreGb.clear()
+proc renameFiles(self: Button, entry: Entry) = 
+  renameAllFiles(entry.text)
+  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
+proc openRenameRevealer(btn: ToggleButton, reveal: Revealer) =
+  if btn.active:
+    reveal.revealChild = true
+  else: 
+    reveal.revealChild = false
 
-proc createFile(entry: Entry, reveal: Revealer) = 
-  discard
-  # echo entry.text.len
-  # if entry.text.len == 0:
-  #   reveal.revealChild = false
-  #   return
-
-  # let currentPath = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path / entry.text
-  # echo currentPath
-  # if not dirExists(currentPath):
-  #   writeFile(currentPath, "")
-    
-  # reveal.revealChild = false
-  # entry.text = ""
-  
-
-
-proc createFolder(entry: Entry, reveal: Revealer) = 
-  discard
-  # echo reveal.revealChild
-
-  # if entry.text.len == 0:
-  #   reveal.revealChild = false
-  #   return
-
-  # let currentPath = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path / entry.text
-  # if not dirExists(currentPath):
-  #   createDir(currentPath)
-  
-  # reveal.revealChild = false
-  # entry.text = ""
-  
-
-
-proc openFolderEntry(self: Button, revealerAndEntry: RevealerAndEntry) =
-  revealerAndEntry.revealer.revealChild = not revealerAndEntry.revealer.revealChild
-  if revealerAndEntry.revealer.revealChild:
-    discard revealerAndEntry.entry.grabFocus()
-
-
-proc openFileEntry(self: Button, revealerAndEntry: RevealerAndEntry) =
-  revealerAndEntry.revealer.revealChild = not revealerAndEntry.revealer.revealChild
-  if revealerAndEntry.revealer.revealChild:
-    discard revealerAndEntry.entry.grabFocus()
-
-# proc createFile(self: Button, folderNameEntry: gtk4.Entry) =
 
 
 proc createSelectedFilesRevealer*(): RevealerWithCounter =
@@ -99,57 +46,47 @@ proc createSelectedFilesRevealer*(): RevealerWithCounter =
     revealBtnMove = newButtonFromIconName("insert-object-symbolic")
     revealBtnCopy = newButtonFromIconName("edit-copy-symbolic")
     revealBtnDel = newButtonFromIconName("user-trash-symbolic")
-    # revealBtnClose = newButtonFromIconName("close-symbolic")
-    # Create Btns
-    revealBtnCreateFolder = newButtonFromIconName("folder-new-symbolic")
-    revealBtnCreateFile = newButtonFromIconName("document-new-symbolic")
-    # Revealers
-    folderNameReveal = newRevealer()
-    fileNameReveal = newRevealer()
-    # Name Entries
-    folderNameEntry = newEntry()
-    fileNameEntry = newEntry()
 
-  # with headerButtonsBox: 
-  #   append revealBtnCreateFolder
-  #   append folderNameReveal
-  #   append revealBtnCreateFile
-  #   append fileNameReveal
+    revealBtnRename = newToggleButton()
+    renameBtn = newButtonFromIconName("user-trash-symbolic")
+
+    revealRenameBox = newBox(Orientation.horizontal, 0)
+    revealRenameEntry = newEntry()
+    reveal = newRevealer()
   
-  with folderNameReveal:
-    child = folderNameEntry
-    hexpand = true
-    transitionType = RevealerTransitionType.slideLeft
+  revealBtnRename.iconName = "document-edit-symbolic"
 
-  with fileNameReveal:
-    child = fileNameEntry
-    hexpand = true
-    transitionType = RevealerTransitionType.slideLeft
 
-  # with header: 
-  #   packStart headerButtonsBox
-  
+  with revealRenameBox:
+    append revealRenameEntry
+    append renameBtn
+
+  reveal.transitionType = RevealerTransitionType.swingUp
+  reveal.transitionDuration = 200
+  reveal.revealChild = false
+  reveal.setChild revealRenameBox
+
   with revealBox:
     setCssClasses("linked")
     orientation = Orientation.horizontal
     append revealBtnMove
     append revealBtnCopy
     append revealBtnDel
+    append revealBtnRename
+    append reveal
   
 
   revealBtnDel.connect("clicked", deleteFiles)
   revealBtnCopy.connect("clicked", copyFiles)
   revealBtnMove.connect("clicked", moveFiles)
 
-  revealBtnCreateFolder.connect("clicked", openFolderEntry, (folderNameReveal, folderNameEntry))
-  revealBtnCreateFile.connect("clicked", openFileEntry, (fileNameReveal, fileNameEntry)) # fileNameEntry
-
-  fileNameEntry.hexpand = true
-  fileNameEntry.connect("activate", createFile, fileNameReveal)
-  folderNameEntry.connect("activate", createFolder, folderNameReveal)
   
+  revealBtnRename.connect("toggled", openRenameRevealer, reveal)
+  renameBtn.connect("clicked", renameFiles, revealRenameEntry)
+
+  
+
   centerBox.centerWidget = revealBox
-  # centerBox.centerWidget = renameEntry
 
   result.child = centerBox
 

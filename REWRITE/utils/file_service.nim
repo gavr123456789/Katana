@@ -1,12 +1,6 @@
 import gintro/[gio]
 import sets, os
 
-# type FilesAndDirs = object
-#   files: HashSet[string]
-#   dirs: HashSet[string]
-
-# func separateFilesFromDirs(paths: HashSet[string]): FilesAndDirs =
-  
 proc deleteAllFoldersAsync*(paths: HashSet[string]) =
   for path in paths:
     os.removeDir path
@@ -74,7 +68,27 @@ proc getAllFilesFromDir*(path: string): HashSet[string] =
     result.incl file
 
 
-proc optimizeFiles(folders, files: HashSet[string]) =
-  discard
-  let dummyFolders = toHashSet(["q/w/e", "q/w"]) # оставить только q w
-  # 1 - найти минимальную общую точку
+proc renameFile(path, newName: string) {.inline.} = 
+  moveFile(path, path.splitPath().head / newName)
+
+import std/tables
+proc renameFiles*(paths: HashSet[string], newName: string) =
+  if paths.len == 1:
+    for path in paths:
+      moveFile(path, path.splitPath().head / newName)
+      return
+
+
+  # найти те файлы что лежат в одной и той же папке
+  var sas = initTable[string, HashSet[string]]()
+  for path in paths:
+    sas[path.splitPath().head].incl path # хешсет не был засечен чтобы в него уже чето инклюдить
+
+  # пути к файлам которые там лежат
+  echo sas
+  # for path in sas.keys:
+  #   echo "key: ", path, " value: ", sas[path]
+  #   echo "==="
+  
+  # for path in paths:
+  #   renameFile(path, newName)

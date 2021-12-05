@@ -61,6 +61,11 @@ proc copyAllSelectedFiles*() =
   copyAllFilesAsync(selectedFilesPaths, selectedPathGb2.path)
   selectedFilesPaths.clear()
 
+proc renameAllFiles*(newName: string) =
+  renameFiles(selectedFilesPaths, newName)
+  renameFiles(selectedFoldersPaths, newName)
+  selectedFoldersPaths.clear()
+  selectedFilesPaths.clear()
 
 proc selectedFilesContainsPath*(path: string): bool = 
   selectedFilesPaths.contains path

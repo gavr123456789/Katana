@@ -11,6 +11,7 @@ func getFileIconFromExt*(ext: string): string =
       of ".node": "folder-nodejs-symbolic"
       of ".go": "folder-go-symbolic"
       of ".cpp": "khangman-symbolic"
+      
 
       of ".jpg", ".jpeg", ".JPEG", ".JPG": "image-x-generic-symbolic"
       of ".png": "folder-picture-symbolic"
@@ -53,7 +54,7 @@ func getFolderIconFromName*(folderName: string): string =
       of "Games": "games-app-symbolic"
       of "Apps": "applications-java-symbolic"
       of "Projects": "document-open-symbolic"
-      of "Programs": "grid-filled-symbolic"
+      of "Programs": "folder-app-symbolic"
       of "Plugins": "puzzle-piece-symbolic"
       of ".git": "git-cola-symbolic"
       of "Telegram", "Telegram Desktop": "mail-send-symbolic"
