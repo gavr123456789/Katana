@@ -10,6 +10,7 @@ type EntryAndPopoverAndPage* = object
 
 type FilePopup* = object 
   menuButton*: MenuButton
+  terminalButton*: MenuButton
   createFolderBtn*: Button
   createFileBtn*: Button
 
@@ -21,7 +22,7 @@ proc createFile(btn: Button, data: EntryAndPopoverAndPage) =
 
   data.popover.popdown()
 
-  if not dirExists(pathToNewFile):
+  if not dirExists(pathToNewFile) and isValidFilename(pathToNewFile):
     writeFile(pathToNewFile, "")
     data.entry.text = ""
     
@@ -41,19 +42,42 @@ proc createPopup*(page: Page): FilePopup =
   let
     menuButton = newMenuButton()
     popover = newPopover()
+    runNowBtn = newButtonFromIconName("play-symbolic")
+    runInTermBtn = newButtonFromIconName("terminal-symbolic")
 
-    entry = newEntry()
+    terminalButton = newMenuButton()
+    popover2 = newPopover()
+    termEntry = newEntry()
+    termBox = newBox(Orientation.horizontal, 0)
+
+    fileNameEntry = newEntry()
     createFolderBtn = newButtonFromIconName("folder-new-symbolic")
     createFileBtn = newButtonFromIconName("document-new-symbolic")
     entryWithBtnBox = newBox(Orientation.horizontal, 0)
 
+  # Configure terminal popover
+  termBox.addCssClass("lingked")
+  popover2.child = termBox
+  termEntry.hexpand = true
+  popover2.hexpand = true
+  with terminalButton: 
+    iconName = "terminal-symbolic"
+    popover = popover2
+  
+  with termBox:
+    append termEntry
+    append runNowBtn
+    append runInTermBtn
+
+  
+  # Configure file creating popover
   with createFileBtn: 
-    connect("clicked", createFile, EntryAndPopoverAndPage(entry: entry, page: page, popover: popover))
+    connect("clicked", createFile, EntryAndPopoverAndPage(entry: fileNameEntry, page: page, popover: popover))
   with createFolderBtn: 
-    connect("clicked", createFolder, EntryAndPopoverAndPage(entry: entry, page: page, popover: popover))
+    connect("clicked", createFolder, EntryAndPopoverAndPage(entry: fileNameEntry, page: page, popover: popover))
 
   with entryWithBtnBox:
-    append entry
+    append fileNameEntry
     append createFolderBtn
     append createFileBtn
     setCssClasses("linked")
@@ -65,5 +89,6 @@ proc createPopup*(page: Page): FilePopup =
 
   with result:
     menuButton = menuButton
+    terminalButton = terminalButton
     createFolderBtn = createFolderBtn
     createFileBtn = createFileBtn

@@ -1,7 +1,7 @@
 import os, strutils
 
 type GlobalPath* = ref object
-    path: string
+    path*: string
 
 proc addToPath*(self: GlobalPath, dirOrFile: string) =
   self.path = self.path / dirOrFile
@@ -24,7 +24,7 @@ proc insertPath*(self: GlobalPath, path: string) =
   self.path = selfSplitted.join $DirSep
 
 
-proc setPath*(self: GlobalPath, path: string) =
+proc setPath*(self: GlobalPath, path: string) {. inline .} =
   assert DirSep in path or path == "."
   self.path = path
 

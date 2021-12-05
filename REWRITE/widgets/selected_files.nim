@@ -14,21 +14,19 @@ proc deleteFiles(self: Button) =
 
 
 proc copyFiles(self: Button) = 
+  copyAllSelectedFolders()
+  copyAllSelectedFiles()
   selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
   discard
-  # let q = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path
-  # for x in selectedStoreGb.items:
-  #   let xfile = gio.newGFileForPath(x.fullPath)
-  #   let copyPath = gio.newGFileForPath(q / xfile.basename)
-  #   x.btn1.active = false
-  #   xfile.copyAsync(copyPath, {gio.FileCopyFlag.backup}, 10, nil, nil, nil, nil, nil)
-  #   debugEcho "copyed from: ", x.fullPath, " to: ", q / xfile.basename
 
-  # revealFileCRUDGb.revealChild = false
-  # selectedStoreGb.clear()
 
 proc moveFiles(self: Button) = 
+  # Запустить чтото что оставит среди выделенных файлов только те что
+  moveAllSelectedFolders()
+  moveAllSelectedFiles()
+  
   selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
+  
   discard
   # let q = directoryListsStoreGb[carouselGb.getCurrentPageNumber()].file.path
   # for x in selectedStoreGb.items:

@@ -25,7 +25,7 @@ func getFileIconFromExt*(ext: string): string =
       of ".pdf": "document-viewer-symbolic"
       of ".svg": "function-third-order-symbolic"
       of ".css": "large-brush-symbolic"
-      of ".txt": "text-symbolic"
+      of ".txt": "accessories-text-editor-symbolic"
       of ".sh": "gnome-eterm-symbolic"
       of ".ui": "object-packing-symbolic"
       of ".qbs": "QtIcon-symbolic"
@@ -35,6 +35,15 @@ func getFileIconFromExt*(ext: string): string =
       # of ".md"
       # of ".yml"
       # of ".json"
+      # office
+      of ".xls": "x-office-calendar-symbolic"
+      of ".doc", ".docx": "x-office-document-symbolic"
+      of "": "application-x-executable-symbolic" 
+      # VM
+      of "vbox": "application-x-appliance-symbolic"
+      of "vdi": "folder-vm-symbolic"
+      # font
+      of "tff": "font-x-generic-symbolic"
 
       else: "folder-documents-symbolic"
 
@@ -50,5 +59,5 @@ func getFolderIconFromName*(folderName: string): string =
       of "Telegram", "Telegram Desktop": "mail-send-symbolic"
       of "node_modules": "folder-nodejs-symbolic"
       of "Books": "folder-library-symbolic" # file-catalog-symbolic
-      
+      of "VirtualBox VMs": "folder-vm-symbolic"
       else: "sidebar-places-symbolic" # sidebar-places-symbolic "inode-directory-symbolic"

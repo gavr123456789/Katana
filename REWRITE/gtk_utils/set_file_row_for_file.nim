@@ -12,7 +12,7 @@ proc setAsDir(row: Row, name: string) =
 proc setAsFile(row: Row, ext: string) =
   # doAssert ext != ""
   row.kind = DirOrFile.file
-  debugEcho "set file ", ext, " for icon"
+  # debugEcho "set file ", ext, " for icon"
   row.iconName = getFileIconFromExt(ext) 
 
 proc set_file_row_for_file*(row: Row, fileInfo: gio.FileInfo) =
