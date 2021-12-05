@@ -3,14 +3,24 @@ But later it can be a Smalltalk like browser for code/json/databases etc.
 
 # Stage
 - [X] Rewriting from scratch in REWRITE folder with better arch.  
+- [X] Create files and folders
+- [ ] Put simple content to new creating file
 - [X] move files and folders
 - [X] copy files and folders
+- [X] delete files and folders
+- [X] show icons depend on file format
 - [X] run sh files with click, open in code with middle click
+- [X] ctrl H to show hidden files
+- [X] sorter and filter by hidden, alphabet sorter
+- [X] create groups from file formats (ctrl G to group, ctrl U to ungroup) 
+- [X] create groups by date creation (ctrl T to group by Time, ctrl U to ungroup) 
+- [X] search in current folder(just start typing when in in focus)
 - [X] multi-spilit panels (middle click on folder to open in new page)
-- [X] open folder in code
-- [X] open folder in terminal
+- [X] open folder in code (alt C)
+- [X] open folder in terminal (alt T)
 - [X] run command in folder
 - [ ] run command in new terminal
+- [ ] change exec flag of file - good task for newcommers
 - [ ] detect terminal of KDE and Windows
 - [ ] Multi-rename
 - [ ] put icons in to resources
