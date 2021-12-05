@@ -2,8 +2,27 @@ This is a browser of tree-like data structures, but so far it is exclusively a f
 But later it can be a Smalltalk like browser for code/json/databases etc.
 
 # Stage
-Rewriting from scratch in REWRITE folder with better arch.  
-
+- [X] Rewriting from scratch in REWRITE folder with better arch.  
+- [X] move files and folders
+- [X] copy files and folders
+- [X] run sh files with click, open in code with middle click
+- [X] multi-spilit panels (middle click on folder to open in new page)
+- [X] open folder in code
+- [X] open folder in terminal
+- [X] run command in folder
+- [ ] run command in new terminal
+- [ ] detect terminal of KDE and Windows
+- [ ] Multi-rename
+- [ ] put icons in to resources
+- [ ] path widget
+- [ ] show tumbnails of pictures
+- [ ] open archives 
+- [ ] create archives - good task for newcommers
+- [ ] connect to ssh
+- [ ] install script for Linux
+- [ ] Flatpak build
+- [ ] install script for Windows
+- [ ] save state - good task for newcommers
 
 
 Here demo where you can see core ideas.  
