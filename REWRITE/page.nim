@@ -2,7 +2,7 @@ import gintro/[gtk4, gobject, gio, pango, glib, adw]
 import std/[with, os, strutils, sets]
 import row, types
 import gtk_utils/[set_file_row_for_file, widgets_utils, shortcuts, utils]
-import utils/[sorts_and_filters, file_service]
+import utils/[sorts_and_filters, file_service, exec_service]
 import widgets/[path, in_to_search_and_reveal, create_file_popup, selected_files]
 import state
 proc createListView*(
@@ -17,14 +17,14 @@ proc openFile(pageAndFileInfo: PageAndFileInfo) =
   let fullPath = pageAndFileInfo.getPathToFile()
 
   if fullPath.endsWith ".sh":
-      let pathWithEscapedSpaces = fullPath.replace(" ", "\\ ")
-      let command = "gnome-terminal -- bash -c \"" & pathWithEscapedSpaces & "; exec bash\""
-      echo command
-      discard os.execShellCmd(command)
+    let pathWithEscapedSpaces = fullPath.replace(" ", "\\ ")
+    # let command = "gnome-terminal -- bash -c \"" & pathWithEscapedSpaces & "; exec bash\""
+    # echo command
+    # discard os.execShellCmd(command)
+    exec_service.runShFileInTerminal(pathWithEscapedSpaces)
   elif fullPath.endsWith ".zip":
     echo "zip archive"
   else: 
-    # echo "onClick"
     openFileInApp(fullPath.cstring)
 
 
@@ -59,12 +59,12 @@ proc folderSelectedCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) =
   let pathToFile = pageAndFileInfo.getPathToFile()
   if btn.active:
     addToSelectedFolders(pathToFile)
-    for x in getAllFilesFromDir(pathToFile):
-      addToSelectedFiles(x)
+    # for x in getAllFilesFromDir(pathToFile):
+    #   addToSelectedFiles(x)
   else:
     deleteFromSelectedFolders(pathToFile)
-    for x in getAllFilesFromDir(pathToFile):
-      removeFromSelectedFiles(x)
+    # for x in getAllFilesFromDir(pathToFile):
+    #   removeFromSelectedFiles(x)
   selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
 
 proc fileSelectedCb(btn: ToggleButton, pageAndFileInfo: PageAndFileInfo) = 
@@ -88,8 +88,8 @@ proc goBackCb(btn: Button, page: Page) =
     backPath = os.parentDir(currentPath)
   if currentPath != "/":
     page.setPagePath(backPath)
-    echo "DIS WAS SET TO ", backPath
-    echo "back"
+    # echo "DIS WAS SET TO ", backPath
+    # echo "back"
 
 proc closePageCb(btn: Button, carouselAndPage: CarouselAndPageWidget) = 
   let carousel = carouselAndPage.carousel
@@ -248,12 +248,16 @@ proc createListView*(
   with toolbarBox:
     # addCssClass("linked")
     hexpand = true
-    prepend filePopup.menuButton
-    prepend backBtn
+    append backBtn
+    append filePopup.menuButton
+    append filePopup.terminalButton
     append closeBtn
   filePopup.menuButton.addCssClass("flat")
   backBtn.addCssClass("flat")
   closeBtn.addCssClass("flat")
+  closeBtn.halign = Align.end
+  closeBtn.hexpand = true
+
   
   with mainBox:
     append toolbarBox
