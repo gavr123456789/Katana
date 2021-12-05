@@ -9,7 +9,7 @@ proc sortAlphabet*(fileInfo: ptr FileInfo00): cstring {.cdecl.} =
   # echo "sortAlphabet"
   var f = newFileInfo()
   gintro_hack(f, fileInfo)
-  result = g_strdup(f.getName() )
+  result = g_strdup(f.getName().cstring )
   
 import strutils
 proc sortDotFilesFirst*(fileInfo: ptr FileInfo00): cint {.cdecl.} = 

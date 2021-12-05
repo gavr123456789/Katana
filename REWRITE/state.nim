@@ -73,6 +73,10 @@ proc changeCurrentPath*(selectedPath: string) =
   # selectedPathGb = selectedPath
   selectedPathGb2.setPath selectedPath
 
+proc getCurrentPath*(): string = 
+  # selectedPathGb = selectedPath
+  selectedPathGb2.path
+
 # GUI
 import gintro/gtk4
 

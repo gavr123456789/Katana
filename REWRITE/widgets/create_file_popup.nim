@@ -2,6 +2,8 @@ import gintro/[gtk4, gobject, gio, pango, adw, glib, gdk4]
 import std/with
 import std/os
 import ../types
+import ../utils/exec_service
+import ../state
 
 type EntryAndPopoverAndPage* = object
   entry*: Entry
@@ -38,11 +40,20 @@ proc createFolder(btn: Button, data: EntryAndPopoverAndPage) =
     createDir(pathToNewFile)
     data.entry.text = ""
 
+proc execInTerminalCb(btn: Button, pathAndEntry: PathAndEntry) =
+  echo pathAndEntry.entry.text
+  exec_service.runCommandInTerminal(pathAndEntry.entry.text, getCurrentPath())
+
+proc execInDirCb(btn: Button, pathAndEntry: PathAndEntry) =
+  echo pathAndEntry.entry.text
+  exec_service.runCommandInDir(pathAndEntry.entry.text, getCurrentPath())
+
+
 proc createPopup*(page: Page): FilePopup =
   let
     menuButton = newMenuButton()
     popover = newPopover()
-    runNowBtn = newButtonFromIconName("play-symbolic")
+    runNowBtn = newButtonFromIconName("application-x-executable-symbolic")
     runInTermBtn = newButtonFromIconName("terminal-symbolic")
 
     terminalButton = newMenuButton()
@@ -54,12 +65,14 @@ proc createPopup*(page: Page): FilePopup =
     createFolderBtn = newButtonFromIconName("folder-new-symbolic")
     createFileBtn = newButtonFromIconName("document-new-symbolic")
     entryWithBtnBox = newBox(Orientation.horizontal, 0)
+    entryAndPopoverAndPage = EntryAndPopoverAndPage(entry: fileNameEntry, page: page, popover: popover)
 
   # Configure terminal popover
-  termBox.addCssClass("lingked")
+  termBox.addCssClass("linked")
   popover2.child = termBox
   termEntry.hexpand = true
   popover2.hexpand = true
+
   with terminalButton: 
     iconName = "terminal-symbolic"
     popover = popover2
@@ -68,13 +81,14 @@ proc createPopup*(page: Page): FilePopup =
     append termEntry
     append runNowBtn
     append runInTermBtn
-
+  let pathAndEntry = PathAndEntry(entry: termEntry, path: getCurrentPath())
+  runInTermBtn.connect("clicked", execInTerminalCb, pathAndEntry)
+  runNowBtn.connect("clicked", execInDirCb, pathAndEntry)
+  
   
   # Configure file creating popover
-  with createFileBtn: 
-    connect("clicked", createFile, EntryAndPopoverAndPage(entry: fileNameEntry, page: page, popover: popover))
-  with createFolderBtn: 
-    connect("clicked", createFolder, EntryAndPopoverAndPage(entry: fileNameEntry, page: page, popover: popover))
+  createFileBtn.connect("clicked", createFile, entryAndPopoverAndPage)
+  createFolderBtn.connect("clicked", createFolder, entryAndPopoverAndPage)
 
   with entryWithBtnBox:
     append fileNameEntry

@@ -70,3 +70,7 @@ type
   RevealerAndEntry* = tuple
     revealer: Revealer
     entry: Entry
+
+  PathAndEntry* = ref object
+    path*: string
+    entry*: Entry
