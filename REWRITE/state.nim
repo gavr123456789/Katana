@@ -42,10 +42,25 @@ proc getCountOfSelectedFilesAndFolders*(): int =
 proc deleteAllSelectedFiles*() = 
   deleteAllFilesAsync(selectedFilesPaths)
   selectedFilesPaths.clear()
-  
 proc deleteAllSelectedFolders*() = 
   deleteAllFoldersAsync(selectedFoldersPaths)
   selectedFoldersPaths.clear()
+
+
+proc moveAllSelectedFolders*() = 
+  moveAllFoldersAsync(selectedFoldersPaths, selectedPathGb2.path)
+  selectedFoldersPaths.clear()
+proc moveAllSelectedFiles*() = 
+  moveAllFilesAsync(selectedFilesPaths, selectedPathGb2.path)
+  selectedFilesPaths.clear()
+
+proc copyAllSelectedFolders*() = 
+  copyAllFoldersAsync(selectedFoldersPaths, selectedPathGb2.path)
+  selectedFoldersPaths.clear()
+proc copyAllSelectedFiles*() = 
+  copyAllFilesAsync(selectedFilesPaths, selectedPathGb2.path)
+  selectedFilesPaths.clear()
+
 
 proc selectedFilesContainsPath*(path: string): bool = 
   selectedFilesPaths.contains path

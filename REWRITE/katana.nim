@@ -13,20 +13,12 @@ proc activate(app: gtk4.Application) =
     dir = os.getHomeDir()
     window = adw.newApplicationWindow(app)
     mainBox = newBox(Orientation.vertical, 0)
-    # backBtn = newButtonFromIconName("go-previous-symbolic") # temp?
-
     carousel = newCarousel()
     pageAndWidget = createListView(dir, true, carousel)
-    # filePopup = createPopup(pageAndWidget.page)
     header = adw.newHeaderBar()
-    # boxOfPages = newBox(Orientation.horizontal, 0)
   pathWidget = createPathWidget(dir)
   selectedFilesRevealer = createSelectedFilesRevealer()
-  # with boxOfPages:
-  #   append pageAndWidget.widget
-  #   append pageAndWidget2.widget
   carousel.append(pageAndWidget.widget)
-  # carousel.append(pageAndWidget2.widget)
   with header:
     titleWidget = pathWidget
   with mainBox: 
@@ -34,7 +26,6 @@ proc activate(app: gtk4.Application) =
     append carousel
     append selectedFilesRevealer
   
-  # header.titleWidget = pathWidget
 
   with window:
     content = mainBox
