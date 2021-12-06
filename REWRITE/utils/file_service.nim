@@ -1,6 +1,8 @@
 import gintro/[gio]
 import sets, os
 
+# {.push raises:[].}
+
 proc deleteAllFoldersAsync*(paths: HashSet[string]) =
   for path in paths:
     os.removeDir path
@@ -69,26 +71,42 @@ proc getAllFilesFromDir*(path: string): HashSet[string] =
 
 
 proc renameFile(path, newName: string) {.inline.} = 
-  moveFile(path, path.splitPath().head / newName)
+  let sas = path.splitFile()
+  moveFile(path, path.splitPath().head / newName & sas.ext)
 
 import std/tables
+import print
 proc renameFiles*(paths: HashSet[string], newName: string) =
+  if paths.len == 0: return
+    
   if paths.len == 1:
     for path in paths:
-      moveFile(path, path.splitPath().head / newName)
+      renameFile(path, newName)
       return
 
 
   # найти те файлы что лежат в одной и той же папке
-  var sas = initTable[string, HashSet[string]]()
+
+  var table = initTable[string, HashSet[string]]()
   for path in paths:
-    sas[path.splitPath().head].incl path # хешсет не был засечен чтобы в него уже чето инклюдить
+    let asd = path.splitPath().head
+    if table.hasKeyOrPut(asd, [path].toHashSet()):
+      table[asd].incl path # хешсет не был засечен чтобы в него уже чето инклюдить
 
   # пути к файлам которые там лежат
-  echo sas
-  # for path in sas.keys:
-  #   echo "key: ", path, " value: ", sas[path]
-  #   echo "==="
-  
-  # for path in paths:
-  #   renameFile(path, newName)
+  print table
+
+  var counter = 1
+  for key in table.keys:
+    # если больше одного то к каждой добавлять цифру на конце
+    if table[key].len > 1:
+      for path in table[key]:
+        renameFile(path, newName & " " & $counter)
+        counter.inc
+    else:
+      for path in table[key]:
+        renameFile(path, newName)
+    counter = 1
+      
+
+    # renameFile(path, newName)

@@ -6,34 +6,33 @@ import ../types
 
 
 proc deleteFiles(self: Button) = 
-  # for x in sequence:
   deleteAllSelectedFiles()
   deleteAllSelectedFolders()
-  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
+  resetSelectedFiles()
 
 
 proc copyFiles(self: Button) = 
   copyAllSelectedFolders()
   copyAllSelectedFiles()
-  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
+  resetSelectedFiles()
 
 
 proc moveFiles(self: Button) = 
   # Запустить чтото что оставит среди выделенных файлов только те что
   moveAllSelectedFolders()
   moveAllSelectedFiles()
-  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
+  resetSelectedFiles()
   
 
 proc renameFiles(self: Button, entry: Entry) = 
   renameAllFiles(entry.text)
-  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
+  resetSelectedFiles()
+
 proc openRenameRevealer(btn: ToggleButton, reveal: Revealer) =
   if btn.active:
     reveal.revealChild = true
   else: 
     reveal.revealChild = false
-
 
 
 proc createSelectedFilesRevealer*(): RevealerWithCounter =
@@ -48,7 +47,7 @@ proc createSelectedFilesRevealer*(): RevealerWithCounter =
     revealBtnDel = newButtonFromIconName("user-trash-symbolic")
 
     revealBtnRename = newToggleButton()
-    renameBtn = newButtonFromIconName("user-trash-symbolic")
+    renameBtn = newButtonFromIconName("emblem-ok-symbolic")
 
     revealRenameBox = newBox(Orientation.horizontal, 0)
     revealRenameEntry = newEntry()
@@ -58,12 +57,13 @@ proc createSelectedFilesRevealer*(): RevealerWithCounter =
 
 
   with revealRenameBox:
+    setCssClasses("linked")
     append revealRenameEntry
     append renameBtn
 
-  reveal.transitionType = RevealerTransitionType.swingUp
+  reveal.transitionType = RevealerTransitionType.slide_left
   reveal.transitionDuration = 200
-  reveal.revealChild = false
+  # reveal.revealChild = false
   reveal.setChild revealRenameBox
 
   with revealBox:
@@ -84,9 +84,7 @@ proc createSelectedFilesRevealer*(): RevealerWithCounter =
   revealBtnRename.connect("toggled", openRenameRevealer, reveal)
   renameBtn.connect("clicked", renameFiles, revealRenameEntry)
 
-  
 
   centerBox.centerWidget = revealBox
-
   result.child = centerBox
 

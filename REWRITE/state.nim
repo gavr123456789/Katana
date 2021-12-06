@@ -78,12 +78,20 @@ proc changeCurrentPath*(selectedPath: string) =
   # selectedPathGb = selectedPath
   selectedPathGb2.setPath selectedPath
 
+
+
+
 proc getCurrentPath*(): string = 
   # selectedPathGb = selectedPath
   selectedPathGb2.path
 
+
+
 # GUI
 import gintro/gtk4
+
+proc resetSelectedFiles*() =
+  selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
 
 func `showProgressBar=`(self: Page, revealChild: bool) =
   self.revealer.revealChild = revealChild
@@ -101,5 +109,5 @@ proc showProgressBar*(self: Page) =
     lastSelectedPage = self
 
 
-    
+
 
