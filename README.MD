@@ -23,7 +23,7 @@ But later it can be a Smalltalk like browser for code/json/databases etc.
 - [ ] run command in new terminal
 - [ ] change exec flag of file - good task for newcommers
 - [ ] detect terminal of KDE and Windows
-- [ ] Multi-rename
+- [X] Multi-rename
 - [ ] put icons in to resources
 - [ ] path widget
 - [ ] show tumbnails of pictures
