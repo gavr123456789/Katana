@@ -72,7 +72,16 @@ proc getAllFilesFromDir*(path: string): HashSet[string] =
 
 proc renameFile(path, newName: string) {.inline.} = 
   let sas = path.splitFile()
-  moveFile(path, path.splitPath().head / newName & sas.ext)
+  let newNameSplited = newName.splitFile()
+  if sas.ext == "" and newNameSplited.ext == "":
+    moveFile(path, path.splitPath().head / newName)
+  elif sas.ext == "" and newNameSplited.ext != "":
+    moveFile(path, path.splitPath().head / newName)
+  elif sas.ext != "" and newNameSplited.ext != "":
+    moveFile(path, path.splitPath().head / newName)
+    
+  else:
+    moveFile(path, path.splitPath().head / newName & sas.ext)
 
 import std/tables
 import print
@@ -101,7 +110,11 @@ proc renameFiles*(paths: HashSet[string], newName: string) =
     # если больше одного то к каждой добавлять цифру на конце
     if table[key].len > 1:
       for path in table[key]:
-        renameFile(path, newName & " " & $counter)
+        let splittedFile = newName.splitFile
+        if splittedFile.ext != "":
+          renameFile(path, splittedFile.name & " " & $counter & splittedFile.ext)
+        else:
+          renameFile(path, newName & " " & $counter)
         counter.inc
     else:
       for path in table[key]:
