@@ -1,11 +1,11 @@
 func getFileIconFromExt*(ext: string): string = 
   result = case ext:
       of ".vala": "valacompiler-symbolic"
-      of ".java": "applications-java-symbolic"
+      of ".java", ".jar": "applications-java-symbolic"
       of ".py": "applications-python-symbolic"
       of ".nim", ".nimble": "nvim-symbolic"
       of ".gitignore": "appimagekit-github-desktop-symbolic"
-      of ".exe", ".dll", ".bat": "wine-winecfg-symbolic"
+      of ".exe", ".dll", ".bat": "windows-symbolic"
       of ".kt": "folder-kotlin-symbolic"
       of ".js": "folder-js-symbolic"
       of ".node": "folder-nodejs-symbolic"
@@ -24,15 +24,15 @@ func getFileIconFromExt*(ext: string): string =
       of ".7z", ".gz", ".zip": "7zip-symbolic"
 
       of ".pdf": "document-viewer-symbolic"
-      of ".svg": "function-third-order-symbolic"
-      of ".css": "large-brush-symbolic"
+      of ".svg": "swappy-symbolic"
+      of ".css", ".scss": "large-brush-symbolic"
+      of ".html": "org.gnome.Eolie-symbolic"
       of ".txt": "accessories-text-editor-symbolic"
       of ".sh": "gnome-eterm-symbolic"
       of ".ui": "object-packing-symbolic"
       of ".qbs": "QtIcon-symbolic"
       # of ".mds": ""
       of ".sql": "libreoffice-base-symbolic"
-      of ".bin": "hex-symbolic"
       # of ".md"
       # of ".yml"
       # of ".json"
@@ -41,10 +41,16 @@ func getFileIconFromExt*(ext: string): string =
       of ".doc", ".docx": "x-office-document-symbolic"
       of "": "application-x-executable-symbolic" 
       # VM
-      of "vbox": "application-x-appliance-symbolic"
-      of "vdi": "folder-vm-symbolic"
+      of ".vbox": "application-x-appliance-symbolic"
+      of ".vdi": "folder-vm-symbolic"
       # font
-      of "tff": "font-x-generic-symbolic"
+      of ".tff": "font-x-generic-symbolic"
+
+      # apps
+      # of "inkscape": "inkscape-symbolic"
+      # binary data
+      of ".bin", ".db": "hex-symbolic"
+
 
       else: "folder-documents-symbolic"
 
@@ -52,6 +58,7 @@ func getFileIconFromExt*(ext: string): string =
 func getFolderIconFromName*(folderName: string): string = 
   result = case folderName:
       of "Games": "games-app-symbolic"
+      of "JetBrains": "intellij-symbolic"
       of "Apps": "applications-java-symbolic"
       of "Projects": "document-open-symbolic"
       of "Programs": "folder-app-symbolic"

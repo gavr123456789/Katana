@@ -24,6 +24,7 @@ proc moveAllFoldersAsync*(paths: HashSet[string], targetPath: string) =
         e = getCurrentException()
         msg = getCurrentExceptionMsg()
       echo "error ", repr(e), " with message: ", msg
+
 proc moveAllFilesAsync*(paths: HashSet[string], targetPath: string) =
   for path in paths:
     try:
@@ -73,15 +74,21 @@ proc getAllFilesFromDir*(path: string): HashSet[string] =
 proc renameFile(path, newName: string) {.inline.} = 
   let sas = path.splitFile()
   let newNameSplited = newName.splitFile()
-  if sas.ext == "" and newNameSplited.ext == "":
-    moveFile(path, path.splitPath().head / newName)
-  elif sas.ext == "" and newNameSplited.ext != "":
-    moveFile(path, path.splitPath().head / newName)
-  elif sas.ext != "" and newNameSplited.ext != "":
-    moveFile(path, path.splitPath().head / newName)
+  # if sas.ext == "" and newNameSplited.ext == "":
+  #   moveFile(path, path.splitPath().head / newName)
+  # elif sas.ext == "" and newNameSplited.ext != "":
+  #   moveFile(path, path.splitPath().head / newName)
+  # elif sas.ext != "" and newNameSplited.ext != "":
+  #   moveFile(path, path.splitPath().head / newName)
     
-  else:
+  if sas.ext != "" or newNameSplited.ext != "":
     moveFile(path, path.splitPath().head / newName & sas.ext)
+  else: 
+    moveFile(path, path.splitPath().head / newName)
+
+
+proc renameFolder(path, newName: string) {.inline.} = 
+  moveDir(path, path.splitPath().head / newName)
 
 import std/tables
 import print
@@ -93,6 +100,13 @@ proc renameFiles*(paths: HashSet[string], newName: string) =
       renameFile(path, newName)
       return
 
+proc renameFolders*(paths: HashSet[string], newName: string) =
+  if paths.len == 0: return
+    
+  if paths.len == 1:
+    for path in paths:
+      renameFolder(path, newName)
+      return
 
   # найти те файлы что лежат в одной и той же папке
 

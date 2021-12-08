@@ -23,8 +23,8 @@ proc addToSelectedFiles*(path: string) =
   echo "current selected files: ", selectedFilesPaths
 
 proc removeFromSelectedFiles*(path: string) =
+  echo "exclude file ", path
   selectedFilesPaths.excl path
-  echo "current selected folder: ", selectedFilesPaths
 
 
 proc addToSelectedFolders*(path: string) =
@@ -32,12 +32,22 @@ proc addToSelectedFolders*(path: string) =
   echo "current selected folder: ", selectedFoldersPaths
 
 proc deleteFromSelectedFolders*(path: string) =
+  echo "exclude folder ", path
+
   selectedFoldersPaths.excl path
-  echo "current selected paths: ", selectedFoldersPaths
 
 
 proc getCountOfSelectedFilesAndFolders*(): int = 
   selectedFilesPaths.len + selectedFoldersPaths.len
+
+proc ifOnlyOneSelectedGetIt*(): string = 
+  echo "selectedFilesPaths = ", selectedFilesPaths
+  echo "selectedFoldersPaths = ", selectedFoldersPaths
+  if selectedFilesPaths.len == 1 and selectedFoldersPaths.len == 0:
+    return selectedFilesPaths.pop()
+  if selectedFilesPaths.len == 0 and selectedFoldersPaths.len == 1:
+    return selectedFoldersPaths.pop()
+
 
 proc deleteAllSelectedFiles*() = 
   deleteAllFilesAsync(selectedFilesPaths)
@@ -63,7 +73,7 @@ proc copyAllSelectedFiles*() =
 
 proc renameAllFiles*(newName: string) =
   renameFiles(selectedFilesPaths, newName)
-  renameFiles(selectedFoldersPaths, newName)
+  renameFolders(selectedFoldersPaths, newName)
   selectedFoldersPaths.clear()
   selectedFilesPaths.clear()
 

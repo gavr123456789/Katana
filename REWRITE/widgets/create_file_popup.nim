@@ -28,17 +28,25 @@ proc createFile(btn: Button, data: EntryAndPopoverAndPage) =
     writeFile(pathToNewFile, "")
     data.entry.text = ""
     
-proc createFolder(btn: Button, data: EntryAndPopoverAndPage) = 
+
+proc createFolder(data: EntryAndPopoverAndPage) = 
   let
     entryText = data.entry.text
     currentPathToDir = data.page.directoryList.file.path 
     pathToNewFile = currentPathToDir / entryText
 
   data.popover.popdown()
-
+  discard data.entry.grabFocusWithoutSelecting()
   if not dirExists(pathToNewFile) and not fileExists(pathToNewFile):
     createDir(pathToNewFile)
     data.entry.text = ""
+
+proc createFolderCb(btn: Button, data: EntryAndPopoverAndPage) = 
+  createFolder data
+
+proc createFolderCb(entry: Entry, data: EntryAndPopoverAndPage) = 
+  echo "press from enty"
+  createFolder data
 
 proc execInTerminalCb(btn: Button, pathAndEntry: PathAndEntry) =
   echo pathAndEntry.entry.text
@@ -88,7 +96,8 @@ proc createPopup*(page: Page): FilePopup =
   
   # Configure file creating popover
   createFileBtn.connect("clicked", createFile, entryAndPopoverAndPage)
-  createFolderBtn.connect("clicked", createFolder, entryAndPopoverAndPage)
+  createFolderBtn.connect("clicked", createFolderCb, entryAndPopoverAndPage)
+  fileNameEntry.connect("activate", createFolderCb, entryAndPopoverAndPage )
 
   with entryWithBtnBox:
     append fileNameEntry
