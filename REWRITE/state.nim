@@ -44,9 +44,11 @@ proc ifOnlyOneSelectedGetIt*(): string =
   echo "selectedFilesPaths = ", selectedFilesPaths
   echo "selectedFoldersPaths = ", selectedFoldersPaths
   if selectedFilesPaths.len == 1 and selectedFoldersPaths.len == 0:
-    return selectedFilesPaths.pop()
+    for a in selectedFilesPaths:
+      return a
   if selectedFilesPaths.len == 0 and selectedFoldersPaths.len == 1:
-    return selectedFoldersPaths.pop()
+     for a in selectedFoldersPaths:
+      return a
 
 
 proc deleteAllSelectedFiles*() = 
@@ -72,6 +74,7 @@ proc copyAllSelectedFiles*() =
   selectedFilesPaths.clear()
 
 proc renameAllFiles*(newName: string) =
+  echo "renameFiles ", selectedFilesPaths.len, " ", selectedFoldersPaths.len
   renameFiles(selectedFilesPaths, newName)
   renameFolders(selectedFoldersPaths, newName)
   selectedFoldersPaths.clear()

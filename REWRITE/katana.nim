@@ -19,8 +19,8 @@ proc activate(app: gtk4.Application) =
   pathWidget = createPathWidget(dir)
   selectedFilesRevealer = createSelectedFilesRevealer()
   carousel.append(pageAndWidget.widget)
-  with header:
-    titleWidget = pathWidget
+  # with header:
+    # titleWidget = pathWidget
   with mainBox: 
     append header
     append carousel

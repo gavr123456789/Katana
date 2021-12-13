@@ -52,7 +52,7 @@ proc renameEntropenRenameRevealerCb(btn: ToggleButton, data: RevealerAndEntry) =
     let oneSelectedName = ifOnlyOneSelectedGetIt()
     if oneSelectedName != "" :
       data.entry.text = oneSelectedName.splitPath.tail.cstring
-    echo "only one was selected"
+      echo "only one was selected"
     data.revealer.revealChild = true
     discard data.entry.grabFocusWithoutSelecting()
   else: 
