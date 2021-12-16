@@ -17,15 +17,17 @@ type
 
 
 
-proc gestureMiddleClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: Data) =
-  echo data.path.getNPath data.toggleBtn.num + 1
+# proc gestureMiddleClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: Data) =
+#   echo data.path.getNPath data.toggleBtn.num + 1
 
 
-proc addMiddleClick(toggleBtn: ToggleWithNum, path: GlobalPath ) =
-  let gestureClick = newGestureClick()
-  gestureClick.setButton(2)
-  gestureClick.connect("pressed", gestureMiddleClickCb, (toggleBtn, path)) # TODO fun
-  toggleBtn.addController(gestureClick)
+# proc addMiddleClick(toggleBtn: ToggleWithNum, path: GlobalPath ) =
+#   let gestureClick = newGestureClick()
+#   gestureClick.setButton(2)
+#   gestureClick.connect("pressed", gestureMiddleClickCb, (toggleBtn, path)) # TODO fun
+#   toggleBtn.addController(gestureClick)
+
+
 
 proc createPathWidget*(path: string): PathWidget = 
 
@@ -33,7 +35,8 @@ proc createPathWidget*(path: string): PathWidget =
     pathWidget = newBox(PathWidget, Orientation.horizontal, 0)
 
   pathWidget.cssClasses = "linked"
-  result = pathWidget
+
+  result = pathWidget # globalBox
 
   result.path = GlobalPath()
   result.path.setPath path
@@ -41,24 +44,15 @@ proc createPathWidget*(path: string): PathWidget =
   let 
     splittedPath = path.split DirSep
 
-  var prevToggleBtn = newButton(ToggleWithNum, splittedPath[0].cstring)
-  prevToggleBtn.addMiddleClick(result.path)
-  prevToggleBtn.num = 0
-
-  pathWidget.append prevToggleBtn
-
-  for i, str in splittedPath[1..^2]:
+  for i, str in splittedPath:
     echo "path widget, path part = ", str
     let 
-      toggleBtn = newButton(ToggleWithNum, str.cstring)
-    toggleBtn.addMiddleClick(result.path)
-    toggleBtn.addCssClass("flat")
-    toggleBtn.num = i + 1
+      entry = newEntry()
 
-    # toggleBtn.group = prevToggleBtn
-    prevToggleBtn = toggleBtn
+    entry.text = str.cstring
+    pathWidget.append entry
 
-    pathWidget.append toggleBtn
+  # pathWidget.homogeneous = true
   
 
 proc getPathToFile*(pageAndFileInfo: PageAndFileInfo): string = 
@@ -87,7 +81,7 @@ when isMainModule:
   
 
     with window:
-      child = mainBox
+      content = mainBox
       title = "Katana path widget"
       defaultSize = (100, 100)
       show

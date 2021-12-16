@@ -35,7 +35,9 @@ proc gestureMiddleClickFileCb(self: GestureClick, nPress: int, x: cdouble, y: cd
   openFileInApp(fullPath.cstring)
 
 proc gestureRightClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, page: Page) =
-  changeCurrentPath(page.getPathFromPage())
+  let path = page.getPathFromPage()
+  changeCurrentPath(path)
+  headerGb.titleWidget = createPathWidget(path)
   page.showProgressBar()
 
 
@@ -94,8 +96,6 @@ proc goBackCb(btn: Button, page: Page) =
 proc closePageCb(btn: Button, carouselAndPage: CarouselAndPageWidget) = 
   let carousel = carouselAndPage.carousel
   carousel.remove carouselAndPage.pageWidget
-  echo "QQQQQQQQQQQQQQQQ", carouselAndPage.pageWidget == nil
-  var i = 0
   # while carouselAndPage.pageWidget != nil:
     # carouselAndPage.pageWidget.unref()
     # i.inc()
@@ -108,7 +108,6 @@ proc closePageCb(btn: Button, carouselAndPage: CarouselAndPageWidget) =
   # carouselAndPage.pageWidget = nil
   # carouselAndPage.pageWidget.unref()
 
-  echo "WWWWWWWWWWWWWWWW", carouselAndPage.pageWidget == nil
 
   if carousel.nPages == 0:
     let pageAndWidget = createListView(os.getHomeDir(), true, carousel)

@@ -14,6 +14,7 @@ var selectedFoldersPaths: HashSet[string]
 
 var lastSelectedPage: Page
 
+
 proc removeLastSelectedPage*() = 
   lastSelectedPage = nil
 
@@ -53,38 +54,40 @@ proc ifOnlyOneSelectedGetIt*(): string =
 
 proc deleteAllSelectedFiles*() = 
   deleteAllFilesAsync(selectedFilesPaths)
-  selectedFilesPaths.clear()
+  # selectedFilesPaths.clear()
 proc deleteAllSelectedFolders*() = 
   deleteAllFoldersAsync(selectedFoldersPaths)
-  selectedFoldersPaths.clear()
+  # selectedFoldersPaths.clear()
 
 
 proc moveAllSelectedFolders*() = 
   moveAllFoldersAsync(selectedFoldersPaths, selectedPathGb2.path)
-  selectedFoldersPaths.clear()
+  # selectedFoldersPaths.clear()
 proc moveAllSelectedFiles*() = 
   moveAllFilesAsync(selectedFilesPaths, selectedPathGb2.path)
-  selectedFilesPaths.clear()
+  # selectedFilesPaths.clear()
 
 proc copyAllSelectedFolders*() = 
   copyAllFoldersAsync(selectedFoldersPaths, selectedPathGb2.path)
-  selectedFoldersPaths.clear()
+  # selectedFoldersPaths.clear()
 proc copyAllSelectedFiles*() = 
   copyAllFilesAsync(selectedFilesPaths, selectedPathGb2.path)
-  selectedFilesPaths.clear()
+  # selectedFilesPaths.clear()
 
 proc renameAllFiles*(newName: string) =
   echo "renameFiles ", selectedFilesPaths.len, " ", selectedFoldersPaths.len
   renameFiles(selectedFilesPaths, newName)
   renameFolders(selectedFoldersPaths, newName)
-  selectedFoldersPaths.clear()
-  selectedFilesPaths.clear()
+  # selectedFoldersPaths.clear()
+  # selectedFilesPaths.clear()
+
+proc makeSelectedFilesExecutable*() = 
+  setFilesExecutable(selectedFilesPaths)
 
 proc selectedFilesContainsPath*(path: string): bool = 
   selectedFilesPaths.contains path
 proc selectedFoldersContainsPath*(path: string): bool = 
   selectedFoldersPaths.contains path
-
 
 proc changeCurrentPath*(selectedPath: string) = 
   echo "selectedPathGb changed to ", selectedPath
@@ -92,18 +95,19 @@ proc changeCurrentPath*(selectedPath: string) =
   selectedPathGb2.setPath selectedPath
 
 
-
-
-proc getCurrentPath*(): string = 
-  # selectedPathGb = selectedPath
-  selectedPathGb2.path
+proc getCurrentPath*(): string = selectedPathGb2.path
 
 
 
 # GUI
-import gintro/gtk4
+import gintro/[gtk4, adw]
+
+var headerGb*: adw.HeaderBar
+
 
 proc resetSelectedFiles*() =
+  selectedFilesPaths.clear()
+  selectedFoldersPaths.clear()
   selectedFilesRevealer.revealChild = getCountOfSelectedFilesAndFolders() > 0
 
 func `showProgressBar=`(self: Page, revealChild: bool) =

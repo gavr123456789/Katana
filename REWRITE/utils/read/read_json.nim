@@ -48,29 +48,3 @@ proc printContentFromPath(jobj: JsonNode, path: string) =
 let fileContext = readFile("json.json")
 var x = fromJson(fileContext)
 x.printContentFromPath("glossary/GlossDiv/GlossList/GlossEntry/GlossDef/GlossSeeAlso")
-
-
-
-
-
-
-
-
-
-# proc writeFirstLevel(jsonNode: JsonNode) =
-#   case jsonNode.kind:
-#   of JString:
-#     echo "sas"
-#   of JInt:
-#     echo "sas"
-#   of JFloat:
-#     echo "sas"
-#   of JObject:
-#     let jobj = jsonNode
-#     echo "sas"
-#   of JArray:
-#     echo "sas"
-#   of JNull:
-#     echo "sas"
-#   of JBool:
-#     echo "sas"

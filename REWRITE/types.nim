@@ -27,7 +27,7 @@ type
     page*: Page  
     info*: gio.FileInfo
     carousel*: Carousel
-
+ 
   # For gesture click
   PageAndFileInfoAndButton* = object
     page*: Page  

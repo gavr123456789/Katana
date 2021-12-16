@@ -45,6 +45,10 @@ proc renameFilesCb(self: Button, data: EntryAndRevealerAndBtn) =
 proc renameFilesCb(self: Entry, data: EntryAndRevealerAndBtn) = 
   renameFiles data
 
+proc makeExecCb(self: Button) =
+  makeSelectedFilesExecutable()
+  resetSelectedFiles()
+  
 
 
 proc renameEntropenRenameRevealerCb(btn: ToggleButton, data: RevealerAndEntry) =
@@ -60,16 +64,23 @@ proc renameEntropenRenameRevealerCb(btn: ToggleButton, data: RevealerAndEntry) =
     data.revealer.revealChild = false
 
 
+proc showAdditionalRevealCb(btn: ToggleButton, revealer: Revealer) = 
+  echo "activated"
+  revealer.revealChild = not revealer.revealChild
+
 proc createSelectedFilesRevealer*(): RevealerWithCounter =
   result = newRevealer(RevealerWithCounter)
   let
     centerBox = newCenterBox()
-    revealBox = newBox(Orientation.vertical, 0)
+    revealBox = newBox(Orientation.horizontal, 0)
+    globalBox = newBox(Orientation.vertical, 0)
     # headerButtonsBox = newBox(Orientation.horizontal, 3)
     # File Control Btns
     moveBtn = newButtonFromIconName("insert-object-symbolic")
     copyBtn = newButtonFromIconName("edit-copy-symbolic")
     deleteBtn = newButtonFromIconName("user-trash-symbolic")
+
+    makeExecBtn = newButtonFromIconName("application-x-executable-symbolic")
 
     revealBtnRename = newToggleButton()
     renameBtn = newButtonFromIconName("emblem-ok-symbolic")
@@ -77,6 +88,10 @@ proc createSelectedFilesRevealer*(): RevealerWithCounter =
     revealRenameBox = newBox(Orientation.horizontal, 0)
     renameEntry = newEntry()
     reveal = newRevealer()
+    
+    additionalActionsBox = newBox(Orientation.horizontal, 0)
+    additionalRevealerToggleBtn = newToggleButton()
+    revealAdditonalActions = newRevealer()
   
   revealBtnRename.iconName = "document-edit-symbolic"
 
@@ -93,17 +108,17 @@ proc createSelectedFilesRevealer*(): RevealerWithCounter =
 
   with revealBox:
     setCssClasses("linked")
-    orientation = Orientation.horizontal
     append moveBtn
     append copyBtn
     append deleteBtn
-    append revealBtnRename
-    append reveal
+    append additionalRevealerToggleBtn
+
   
 
   deleteBtn.connect("clicked", deleteFilesCb)
   copyBtn.connect("clicked", copyFilesCb)
   moveBtn.connect("clicked", moveFilesCb)
+  makeExecBtn.connect("clicked", makeExecCb)
 
   let qwe = RevealerAndEntry(revealer: reveal, entry: renameEntry)
 
@@ -113,7 +128,22 @@ proc createSelectedFilesRevealer*(): RevealerWithCounter =
   renameBtn.connect("clicked", renameFilesCb, dataForCb)
   renameEntry.connect("activate", renameFilesCb, dataForCb)
 
+  globalBox.append revealAdditonalActions
+  globalBox.append revealBox
 
-  centerBox.centerWidget = revealBox
+  revealAdditonalActions.child = additionalActionsBox
+
+  with additionalActionsBox: 
+    setCssClasses("linked")
+    append makeExecBtn
+    append revealBtnRename
+    append reveal
+
+
+  additionalRevealerToggleBtn.connect("toggled", showAdditionalRevealCb, revealAdditonalActions) 
+  additionalRevealerToggleBtn.iconName = "view-more-symbolic"
+  
+
+  centerBox.centerWidget = globalBox
   result.child = centerBox
 

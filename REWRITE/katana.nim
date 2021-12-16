@@ -6,7 +6,8 @@ import widgets/[path, selected_files]
 import state
 # import widgets/create_file_popup
 
-
+proc recreatePath(header: adw.HeaderBar, newPath: string) = 
+  header.titleWidget = createPathWidget(newPath)
 
 proc activate(app: gtk4.Application) =
   let
@@ -17,10 +18,12 @@ proc activate(app: gtk4.Application) =
     pageAndWidget = createListView(dir, true, carousel)
     header = adw.newHeaderBar()
   pathWidget = createPathWidget(dir)
+  headerGb = header
+  
   selectedFilesRevealer = createSelectedFilesRevealer()
   carousel.append(pageAndWidget.widget)
-  # with header:
-    # titleWidget = pathWidget
+  with header:
+    titleWidget = pathWidget
   with mainBox: 
     append header
     append carousel

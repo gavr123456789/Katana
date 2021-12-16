@@ -21,8 +21,7 @@ type
     args: seq[FunctionArg]
 
 # var x = Function(kind: FuncType.PROC, name: "sas", args: @[("sas", "sus")])
-  
-
+echo("qwe", 8, 99)
 # TODO add digits
 let procParser = peg("proct", d: Dict2):
   proct <- ("proc" | "func" | "method" | "template" | "macro") * +Space * funcName * *Space * ?args * *Space * ?returnType * *Space * '=' * *Space
@@ -41,28 +40,28 @@ let procParser = peg("proct", d: Dict2):
   pair <- >word * ':' * *Space * >variableName * *Space * ?defaultParameter:
     d[$1] = $2
 
-# let varParser = peg("variable", d: Variable):
-#   word <- +Alpha
-#   kind <- *Space * ':' * *Space * word
-#   variable <- >("var" | "let" | "const") * *Space * >word * >?kind * *Space * ?'=' * 0:
-#     d.declarateType = $1
-#     d.name = $2
-#     d.kind = $3
+let varParser = peg("variable", d: Variable):
+  word <- +Alpha
+  kind <- *Space * ':' * *Space * word
+  variable <- >("var" | "let" | "const") * *Space * >word * >?kind * *Space * ?'=':
+    d.declarateType = $1
+    d.name = $2
+    d.kind = $3
 
 var varbable: Table[string, string]
 # doAssert procParser.match("proc moveFiles(files: seqstring) =", varbable).ok
 # doAssert procParser.match("func addUnders(fileExt: string): string =", varbable).ok
 # doAssert procParser.match("proc unpackFilesFromFoldersByTypes*(dir: string) =", varbable).ok
 # doAssert procParser.match("proc unpackFilesFromFoldersByTypes*(dir: int = 4) =", varbable).ok
-doAssert procParser.match("proc collect(dir: string, sas: string): TableRef[string, seq[string]] =", varbable).ok
+# doAssert procParser.match("proc collect(dir: string, sas: string): TableRef[string, seq[string]] =", varbable).ok
 
 
 echo varbable
 # proc sasss(self: GestureClick, nPress: int, x: cdouble, y: cdouble, data: Data) =
 # proc moveFiles(files: seq[string], dest: string) =
-# var varDeclatarion: Variable = Variable()
-# doAssert varParser.match("""var variableName: Function = Function(kind: FuncType.PROC, name: "sas", args: @[("sas", "sus")])""", varDeclatarion).ok
-# echo varDeclatarion
+var varDeclatarion: Variable = Variable()
+doAssert varParser.match("""var variableName: Function = Function(kind: FuncType.PROC, name: "sas")""", varDeclatarion).ok
+echo varDeclatarion
 
 
 

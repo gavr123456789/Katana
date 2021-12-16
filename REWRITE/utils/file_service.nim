@@ -81,7 +81,10 @@ proc renameFile(path, newName: string) {.inline.} =
   # elif sas.ext != "" and newNameSplited.ext != "":
   #   moveFile(path, path.splitPath().head / newName)
     
-  if sas.ext != "" or newNameSplited.ext != "":
+  # sas.txt
+  # newsas.txt
+
+  if sas.ext != "" and newNameSplited.ext == "":
     moveFile(path, path.splitPath().head / newName & sas.ext)
   else: 
     moveFile(path, path.splitPath().head / newName)
@@ -100,7 +103,7 @@ proc renameFiles*(paths: HashSet[string], newName: string) =
       renameFile(path, newName)
       return
 
-proc renameFolders*(paths: HashSet[string], newName: string) =
+proc renameFolders*(paths: HashSet[string], newName: string) {.inline.} =
   if paths.len == 0: return
     
   if paths.len == 1:
@@ -137,3 +140,23 @@ proc renameFolders*(paths: HashSet[string], newName: string) =
       
 
     # renameFile(path, newName)
+
+proc setFilesExecutable*(paths: HashSet[string]) {.inline.} = 
+  let execPermission = {fpUserExec, fpGroupExec, fpOthersExec}
+
+  for path in paths:
+    let currentFilePermission = getFilePermissions(path)
+    echo "currentFilePermission.contains FilePermission.fpUserExec = ", currentFilePermission.contains FilePermission.fpUserExec
+    echo "currentFilePermission = ", currentFilePermission
+
+    if (currentFilePermission.contains FilePermission.fpUserExec):
+      let currentMinusExec = currentFilePermission - execPermission
+      echo "permissions to set without exec: ", currentMinusExec
+      setFilePermissions(path, currentMinusExec)
+    else:
+      let currentPlusExec = currentFilePermission + execPermission
+      echo "permissions to set with exec: ", currentPlusExec
+      setFilePermissions(path, currentPlusExec)
+
+    echo "current file permissions: ", getFilePermissions(path)
+
