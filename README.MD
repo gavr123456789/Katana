@@ -21,7 +21,7 @@ But later it can be a Smalltalk like browser for code/json/databases etc.
 - [X] open folder in terminal (alt T)
 - [X] run command in folder
 - [ ] run command in new terminal
-- [ ] change exec flag of file - good task for newcommers
+- [X] change exec flag of file - good task for newcommers
 - [ ] detect terminal of KDE and Windows
 - [X] Multi-rename
 - [ ] put icons in to resources
