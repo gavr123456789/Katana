@@ -74,3 +74,7 @@ type
   PathAndEntry* = ref object
     path*: string
     entry*: Entry
+  PathAndEntryAndPopover* = ref object
+    path*: string
+    entry*: Entry
+    popover*: Popover

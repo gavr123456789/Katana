@@ -36,6 +36,7 @@ proc gestureMiddleClickFileCb(self: GestureClick, nPress: int, x: cdouble, y: cd
 
 proc gestureRightClickCb(self: GestureClick, nPress: int, x: cdouble, y: cdouble, page: Page) =
   let path = page.getPathFromPage()
+  echo "gestureRightClickCb ", path
   changeCurrentPath(path)
   headerGb.titleWidget = createPathWidget(path)
   page.showProgressBar()
@@ -116,11 +117,13 @@ proc closePageCb(btn: Button, carouselAndPage: CarouselAndPageWidget) =
 
   
 # Factory signals
-proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
-  listitem.setChild(createRow())
+proc setup_cb(factory: gtk4.SignalListItemFactory, listitem: Object) =
+  let x = cast[ListItem](listitem)
+  x.setChild(createRow())
   
-proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, data: CarouselPage) =
+proc bind_cb(factory: gtk4.SignalListItemFactory, listitem2: Object, data: CarouselPage) =
   let 
+    listitem = cast[ListItem](listitem2)
     row = listitem.getChild().Row
     info = cast[gio.FileInfo](listitem.getItem())
     pageAndFileInfo = PageAndFileInfo(page: data.pageWidget, info: info)
@@ -167,12 +170,16 @@ proc bind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem, data:
       # addController(gestureLongPress)
       addController gestureMiddleClick
 
-proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
+proc unbind_cb(factory: gtk4.SignalListItemFactory, listitem: Object) =
   discard
 
-proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem: gtk4.ListItem) =
+proc teardown_cb(factory: gtk4.SignalListItemFactory, listitem2: Object) =
   # listitem.getChild.unref()
-  listitem.setChild (nil)
+  # gobject.finalizeGObject(listitem.getChild)
+  # listitem.getChild.unref()
+  let listItem = cast[ListItem](listitem2)
+  echo "child == nil: ", listitem.getChild == nil
+  listItem.setChild (nil)
 
 
 proc newExpression(gType: GType, callBackFunc: auto): CClosureExpression = 
@@ -235,6 +242,7 @@ proc createListView*(
   #factory
   var asd: CarouselPage = (pageWidget: page, carousel: carousel)
   factory.connect("bind", bind_cb, asd)
+  
   with factory:
     connect("setup", setup_cb)
     connect("unbind", unbind_cb)
@@ -245,13 +253,13 @@ proc createListView*(
   let fileManager = lv.inToScroll().inToSearch(page, multiFilter, revealerOpened)
   
   with toolbarBox:
-    # addCssClass("linked")
     hexpand = true
     append backBtn
     append filePopup.menuButton
     append filePopup.terminalButton
     append closeBtn
   filePopup.menuButton.addCssClass("flat")
+  filePopup.terminalButton.addCssClass("flat")
   backBtn.addCssClass("flat")
   closeBtn.addCssClass("flat")
   closeBtn.halign = Align.end

@@ -14,6 +14,7 @@ proc determinateTermProgram =
 determinateTermProgram()
 
 proc runCommandInDir*(command, path: string) =
+  
   echo "runCommandInDir command: ", command, " path: ", path 
   os.setCurrentDir path
   discard os.execShellCmd(command)

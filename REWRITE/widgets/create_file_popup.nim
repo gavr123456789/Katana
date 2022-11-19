@@ -43,18 +43,25 @@ proc createFolder(data: EntryAndPopoverAndPage) =
 
 proc createFolderCb(btn: Button, data: EntryAndPopoverAndPage) = 
   createFolder data
+  data.popover.popdown()
 
 proc createFolderCb(entry: Entry, data: EntryAndPopoverAndPage) = 
   echo "press from enty"
   createFolder data
+  data.popover.popdown()
 
-proc execInTerminalCb(btn: Button, pathAndEntry: PathAndEntry) =
-  echo pathAndEntry.entry.text
+proc execInTerminalCb(btn: Button, pathAndEntry: PathAndEntryAndPopover) =
+  echo "execInTerminalCb ", pathAndEntry.entry.text
+  pathAndEntry.popover.popdown()
   exec_service.runCommandInTerminal(pathAndEntry.entry.text, getCurrentPath())
 
-proc execInDirCb(btn: Button, pathAndEntry: PathAndEntry) =
-  echo pathAndEntry.entry.text
-  exec_service.runCommandInDir(pathAndEntry.entry.text, getCurrentPath())
+
+proc execInDirCb(btn: Button, pathAndEntry: PathAndEntryAndPopover) =
+  echo "execInDirCb ", pathAndEntry.entry.text
+  let currentPath = getCurrentPath()
+  pathAndEntry.popover.popdown()
+  exec_service.runCommandInDir(pathAndEntry.entry.text, currentPath)
+
 
 
 proc createPopup*(page: Page): FilePopup =
@@ -89,7 +96,7 @@ proc createPopup*(page: Page): FilePopup =
     append termEntry
     append runNowBtn
     append runInTermBtn
-  let pathAndEntry = PathAndEntry(entry: termEntry, path: getCurrentPath())
+  let pathAndEntry = PathAndEntryAndPopover(entry: termEntry, path: getCurrentPath(), popover: popover2)
   runInTermBtn.connect("clicked", execInTerminalCb, pathAndEntry)
   runNowBtn.connect("clicked", execInDirCb, pathAndEntry)
   

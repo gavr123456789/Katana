@@ -6,10 +6,10 @@ import widgets/[path, selected_files]
 import state
 # import widgets/create_file_popup
 
-proc recreatePath(header: adw.HeaderBar, newPath: string) = 
-  header.titleWidget = createPathWidget(newPath)
+# proc recreatePath(header: adw.HeaderBar, newPath: string) = 
+  # header.titleWidget = createPathWidget(newPath)
 
-proc activate(app: gtk4.Application) =
+proc activate(app: adw.Application) =
   let
     dir = os.getHomeDir()
     window = adw.newApplicationWindow(app)
@@ -17,13 +17,13 @@ proc activate(app: gtk4.Application) =
     carousel = newCarousel()
     pageAndWidget = createListView(dir, true, carousel)
     header = adw.newHeaderBar()
-  pathWidget = createPathWidget(dir)
+  # pathWidget = createPathWidget(dir)
   headerGb = header
   
   selectedFilesRevealer = createSelectedFilesRevealer()
   carousel.append(pageAndWidget.widget)
-  with header:
-    titleWidget = pathWidget
+  # with header:
+    # titleWidget = pathWidget
   with mainBox: 
     append header
     append carousel
@@ -38,6 +38,6 @@ proc activate(app: gtk4.Application) =
 
 
 when isMainModule:
-  let app = newApplication("com.github.gavr123456789.Katana")
+  let app = adw.newApplication("com.github.gavr123456789.Katana", {})
   app.connect("activate", activate)
   discard run(app)

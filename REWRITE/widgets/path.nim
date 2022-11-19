@@ -40,6 +40,7 @@ proc createPathWidget*(path: string): PathWidget =
 
   result.path = GlobalPath()
   result.path.setPath path
+  
     
   let 
     splittedPath = path.split DirSep
@@ -63,6 +64,7 @@ proc getPathFromPage*(page: Page): string =
 
 proc setPagePath*(page: Page, path: string) = 
   page.directoryList.setFile(gio.newGFileForPath(path.cstring))
+  echo "setPagePath ", path
   changeCurrentPath(path)
 
 

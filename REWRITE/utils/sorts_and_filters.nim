@@ -33,8 +33,8 @@ proc filterHidden22*(fileInfo: ptr FileInfo00): bool {.cdecl.} =
   gintro_hack(f, fileInfo)
   # return f.isHidden()
   if f.isHidden():
-    # echo "         false" 
+    echo "         false" 
     return false
   else: 
-    # echo " true" 
+    echo " true" 
     return true

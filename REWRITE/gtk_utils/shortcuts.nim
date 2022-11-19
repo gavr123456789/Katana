@@ -13,13 +13,14 @@ proc ctrlHPressed(widget: ptr Widget00; args: ptr glib.Variant00; fm: MultiFilte
   echo "Filters count = ", filtersCount
 
   # вручную удаляем все выставленные фильтры
-  if filtersCount >= 1:
+  if filtersCount > 0:
+    echo filtersCount, ">= 1"
     fm.remove(0)
     fm.remove(1)
+    fm.remove(2)
   else: 
     fm.append HidefilterGb
 
-  echo "ctrl h pressed"
   true
 
 # Callbacks

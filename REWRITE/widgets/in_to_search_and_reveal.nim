@@ -33,15 +33,18 @@ type
 import strutils
 proc entryChanged(entry: SearchEntry, mlAndSb: MultiFilterAndSearchBar) = 
   
+  mlAndSb.fm.remove(0)
   mlAndSb.fm.remove(1)
+  mlAndSb.fm.remove(2)
 
   let ff = newFileFilter()
   let text = entry.text
   if text != "":
+    mlAndSb.searchBar.searchMode = true
     if not("*" in text):
       ff.addPattern("*" & entry.text & "*")
     else:
-      ff.addPattern(entry.text)
+      ff.addPattern(entry.text.cstring)
     mlAndSb.fm.append(ff)
   else:
     ff.addPattern("*")

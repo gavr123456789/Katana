@@ -13,6 +13,7 @@ proc createSourceView*(): gtksource5.View =
     lang = langManager.getLanguage("typescript-jsx")
 
 
+
   # var lang = guessLanguage(langManager, files[0].path, nil)
 
   # add word provider

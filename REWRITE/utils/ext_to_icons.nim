@@ -45,7 +45,6 @@ func getFileIconFromExt*(ext: string): string =
       of ".vdi": "folder-vm-symbolic"
       # font
       of ".tff": "font-x-generic-symbolic"
-
       # apps
       # of "inkscape": "inkscape-symbolic"
       # binary data
