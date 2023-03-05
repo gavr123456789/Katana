@@ -1,0 +1,64 @@
+{
+    "app-id": "org.gnome.Katana",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "master",
+    "sdk": "org.gnome.Sdk",
+    "command": "katana",
+    "finish-args": [
+        "--share=network",
+        "--share=ipc",
+        "--socket=x11",
+        "--socket=wayland",
+        "--filesystem=xdg-run/dconf",
+        "--filesystem=~/.config/dconf:ro",
+        "--talk-name=ca.desrt.dconf",
+        "--env=DCONF_USER_CONFIG_DIR=.config/dconf"
+    ],
+    "build-options": {
+        "cflags": "-O2 -g",
+        "cxxflags": "-O2 -g",
+        "env": {
+            "V": "1"
+        }
+    },
+    "cleanup": [
+        "/include",
+        "/lib/pkgconfig",
+        "/man",
+        "/share/doc",
+        "/share/gtk-doc",
+        "/share/man",
+        "/share/pkgconfig",
+        "/share/vala",
+        "*.la",
+        "*.a"
+    ],
+    "modules": [
+        {
+            "name" : "libhandy",
+            "buildsystem" : "meson",
+            "config-opts" : [
+                "-Dtests=false",
+                "-Dexamples=false"
+            ],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "tag" : "carousel-fix",
+                    "url" : "https://gitlab.gnome.org/exalm/libhandy.git"
+                }
+            ]
+        },
+        {
+            "name": "katana",
+            "builddir": true,
+            "buildsystem": "meson",
+            "sources": [
+                {
+                    "type": "dir",
+                    "path": "."
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface>
+  <requires lib="gtk+" version="3.22"/>
+  <template class="KatanaPage" parent="GtkScrolledWindow">
+    <property name="visible">True</property>
+    <property name="app_paintable">True</property>
+    <property name="can_focus">True</property>
+    <property name="is_focus">True</property>
+    <property name="propagate_natural_width">True</property>
+    <property name="propagate_natural_height">True</property>
+    <child>
+      <object class="GtkViewport">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkListBox" id="page_content">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="selection_mode">none</property>
+            <child type="placeholder">
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Empty</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+  <object class="GtkBox" id="page_content3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">3</property>
+    <property name="homogeneous">True</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkButtonBox" id="page_content4">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="orientation">vertical</property>
+    <property name="layout_style">start</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+</interface>

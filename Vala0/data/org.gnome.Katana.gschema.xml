@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="katana">
+	<schema id="org.gnome.Katana" path="/org/gnome/Katana/">
+	</schema>
+</schemalist>
