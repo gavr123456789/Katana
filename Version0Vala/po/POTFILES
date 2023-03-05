@@ -1,7 +1,0 @@
-data/org.gnome.Katana.desktop.in
-data/org.gnome.Katana.appdata.xml.in
-data/org.gnome.Katana.gschema.xml
-src/window.ui
-src/main.vala
-src/window.vala
-
