@@ -12,10 +12,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 
-//import com.google.accompanist.pager.ExperimentalPagerApi
-//import com.google.accompanist.pager.HorizontalPager
-//import com.google.accompanist.pager.HorizontalPagerIndicator
-//import com.google.accompanist.pager.rememberPagerState
 
 @Composable
 @Preview
@@ -33,31 +29,18 @@ fun App() {
         ) {
 //            MainLayout()
             Body()
+//            TransitionedCard()
 //            PictureView()
         }
     }
 }
 
-
 fun main() = application {
-
-
     Window(
         onCloseRequest = ::exitApplication, state = WindowState(
             height = 400.dp, width = 300.dp,
-//            position = WindowPosition.Aligned(
-//                Alignment.Center
-//            )
         )
     ) {
-
-
-//        WindowStyle(
-//            isDarkTheme = isDarkTheme,
-//            backdropType = WindowBackdrop.Acrylic(Color.Magenta.copy(alpha = 0.25F)),
-//            frameStyle = WindowFrameStyle(cornerPreference = WindowCornerPreference.ROUNDED),
-//            )
-
         App()
     }
 }

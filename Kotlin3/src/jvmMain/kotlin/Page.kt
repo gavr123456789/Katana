@@ -9,21 +9,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Expand
+import androidx.compose.material.icons.filled.UnfoldLess
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.nio.file.Path
 import kotlin.io.path.Path
 
-// files: List<Path>, onFilesChange: (List<Path>) -> Unit
-//@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalFoundationApi
 @Composable
 fun Page() {
@@ -37,7 +33,10 @@ fun Page() {
         path = newPath
     }
 
-    Column(modifier = Modifier.width(250.dp)) {
+    var expandedAll by remember { mutableStateOf(false) }
+
+
+    Column(modifier = Modifier.width(280.dp)) {
 
         Card(elevation = 10.dp,
             modifier = Modifier
@@ -56,17 +55,20 @@ fun Page() {
                             println("back to: $path")
                         })
                 {
-                    Icon(Icons.Default.ArrowBack, "back")
+                    Icon(Icons.Default.ArrowBackIosNew, "back")
                 }
                 Card(
                     shape = RoundedCornerShape(0, 7, 7, 0),
                     modifier = Modifier.weight(1f).fillMaxSize()
                         .clickable {
-                            setPath(path.parent ?: path)
-                            println("back to: $path")
+                            expandedAll = !expandedAll
                         })
                 {
-                    Icon(Icons.Default.ArrowForward, "back")
+                    if (expandedAll){
+                        Icon(Icons.Default.Expand, "back")
+                    } else {
+                        Icon(Icons.Default.UnfoldLess, "back")
+                    }
                 }
             }
         }
@@ -74,7 +76,7 @@ fun Page() {
 
         Box(
             modifier = Modifier
-                .width(250.dp)
+                .width(300.dp)
                 .padding(10.dp, 0.dp, 10.dp, 10.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
@@ -87,7 +89,8 @@ fun Page() {
                         fileName = "${files[x].fileName}",
                         onPathChanged = { path = it },
                         itemNumber = x,
-                        lastItemNumber = files.size - 1
+                        lastItemNumber = files.size - 1,
+                        expandedAll = expandedAll
                     )
                     Spacer(modifier = Modifier.height(5.dp))
                 }
