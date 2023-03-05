@@ -10,6 +10,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,24 +37,44 @@ fun Page() {
         path = newPath
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.width(250.dp)) {
 
         Card(elevation = 10.dp,
-            shape = RoundedCornerShape(7, 7, 7, 7),
-            modifier = Modifier.width(250.dp)
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(10.dp)
                 .height(30.dp)
-                .padding(end = 12.dp)
-                .clickable {
-                    setPath(path.parent ?: path)
-                    println("back to: $path")
-                })
+                .padding(end = 12.dp))
         {
-            Icon(Icons.Default.ArrowBack, "back")
+
+            Row(modifier = Modifier.fillMaxSize()) {
+                Card(
+                    shape = RoundedCornerShape(7, 0, 0, 7),
+                    modifier = Modifier.weight(1f).fillMaxSize()
+                        .clickable {
+                            setPath(path.parent ?: path)
+                            println("back to: $path")
+                        })
+                {
+                    Icon(Icons.Default.ArrowBack, "back")
+                }
+                Card(
+                    shape = RoundedCornerShape(0, 7, 7, 0),
+                    modifier = Modifier.weight(1f).fillMaxSize()
+                        .clickable {
+                            setPath(path.parent ?: path)
+                            println("back to: $path")
+                        })
+                {
+                    Icon(Icons.Default.ArrowForward, "back")
+                }
+            }
         }
 
+
         Box(
-            modifier = Modifier.width(250.dp)
+            modifier = Modifier
+                .width(250.dp)
                 .padding(10.dp, 0.dp, 10.dp, 10.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
