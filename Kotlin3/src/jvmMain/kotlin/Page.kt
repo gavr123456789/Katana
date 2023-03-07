@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.pathString
 
 @ExperimentalFoundationApi
 @Composable
@@ -86,7 +87,10 @@ fun Page(addSelectedFile: (Path) -> Boolean, setMainPath: (Path) -> Unit, checkS
 
             LazyColumn(Modifier.fillMaxSize().padding(end = 12.dp), state) {
                 items(files.size) { x ->
-                    val isSelected = checkSelected(files[x])
+                    var isSelected by remember(key1 = files[x].pathString) { mutableStateOf(checkSelected(files[x])) }
+                    val setSelected: (Boolean) -> Unit = {
+                        isSelected = it
+                    }
 
                     FileRow3(
                         fileItem = files[x],
@@ -96,8 +100,8 @@ fun Page(addSelectedFile: (Path) -> Boolean, setMainPath: (Path) -> Unit, checkS
                         lastItemNumber = files.size - 1,
                         expandedAll = expandedAll,
                         addSelectedFile = addSelectedFile,
-                        isSelected = isSelected
-
+                        isSelected = isSelected,
+                        setSelected = setSelected
                     )
                     Spacer(modifier = Modifier.height(5.dp))
                 }

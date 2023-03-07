@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.TextSnippet
 import androidx.compose.material.icons.rounded.ArrowForwardIos
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,23 +53,24 @@ fun LazyItemScope.FileRow3(
     lastItemNumber: Int,
     expandedAll: Boolean,
     addSelectedFile: (Path) -> Boolean,
-    isSelected: Boolean
+    isSelected: Boolean,
+    setSelected: (Boolean) -> Unit
 ) {
 
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     expanded = expandedAll
 
     val surfaceColor = MaterialTheme.colors.surface
     val selectedColor = Color(68, 180, 58)
-    var middleColor by remember { mutableStateOf(surfaceColor) }
+    val middleColor = if (isSelected) selectedColor else surfaceColor
 
     if (itemNumber == 0) {
-        println("middleColor = $middleColor")
+        println("middleColor = $middleColor, isSelected = $isSelected")
     }
 
     val textDefaultColor = Color.Unspecified
     val textSelectedColor = Color.White
-    var textColor by remember { mutableStateOf(textDefaultColor) }
+    val textColor = if (isSelected) textSelectedColor else textDefaultColor //by remember { mutableStateOf(textDefaultColor) }
 
 
     Card(
@@ -112,8 +114,8 @@ fun LazyItemScope.FileRow3(
                     .combinedClickable(
                         onClick = {
                             val wasSelected = addSelectedFile(fileItem)
-                            middleColor = if (wasSelected) selectedColor else surfaceColor
-                            textColor = if (wasSelected) textSelectedColor else textDefaultColor
+                            setSelected(wasSelected)
+//                            onPathChanged(fileItem.parent)
                         },
                         onDoubleClick = {
                             expanded = !expanded
