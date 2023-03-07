@@ -1,3 +1,4 @@
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
@@ -5,10 +6,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.TextSnippet
@@ -16,6 +14,7 @@ import androidx.compose.material.icons.rounded.ArrowForwardIos
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
@@ -51,22 +50,35 @@ fun LazyItemScope.FileRow3(
     fileItem: Path,
     itemNumber: Int,
     lastItemNumber: Int,
-    expandedAll: Boolean
+    expandedAll: Boolean,
+    addSelectedFile: (Path) -> Boolean,
+    isSelected: Boolean
 ) {
 
     var expanded by remember { mutableStateOf(false) }
     expanded = expandedAll
+
+    val surfaceColor = MaterialTheme.colors.surface
+    val selectedColor = Color(68, 180, 58)
+    var middleColor by remember { mutableStateOf(surfaceColor) }
+
+    if (itemNumber == 0) {
+        println("middleColor = $middleColor")
+    }
+
+    val textDefaultColor = Color.Unspecified
+    val textSelectedColor = Color.White
+    var textColor by remember { mutableStateOf(textDefaultColor) }
 
 
     Card(
         elevation = 10.dp,
         modifier = Modifier
             .fillMaxWidth()
-//            .height(30.dp)
     ) {
         val currentPath = fileItem.toRealPath().toString()
         val fileType = getFileInfo(fileItem)
-        val stateVerticalScroll = rememberScrollState(0)
+//        val stateVerticalScroll = rememberScrollState(0)
 
 
         Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
@@ -74,8 +86,8 @@ fun LazyItemScope.FileRow3(
             Card(
                 shape = RoundedCornerShape(7, 0, 0, 7),
                 modifier = Modifier
-//                    .weight(1.5f)
-                    .size(30.dp)
+                    .size(30.dp),
+                backgroundColor = MaterialTheme.colors.surface
             ) {
                 when (fileType) {
                     FileType.Directory -> Icon(Icons.Outlined.Folder, "")
@@ -97,18 +109,17 @@ fun LazyItemScope.FileRow3(
                     .fillMaxSize()
                     .align(Alignment.CenterVertically)
                     .weight(8f)
-//                    .horizontalScroll(stateVerticalScroll)
                     .combinedClickable(
                         onClick = {
-                            GBState.onFileSelect(fileItem)
+                            val wasSelected = addSelectedFile(fileItem)
+                            middleColor = if (wasSelected) selectedColor else surfaceColor
+                            textColor = if (wasSelected) textSelectedColor else textDefaultColor
                         },
                         onDoubleClick = {
                             expanded = !expanded
                             println("double clicked")
                         },
-
-                        )
-
+                    )
             ) {
                 AnimatedContent(
                     targetState = expanded,
@@ -116,16 +127,13 @@ fun LazyItemScope.FileRow3(
                         fadeIn(animationSpec = tween(150, 150)) with
                                 fadeOut(animationSpec = tween(150)) using
                                 SizeTransform { initialSize, targetSize ->
-                                    println("$initialSize $targetSize")
                                     if (targetState) {
                                         keyframes {
-                                            // Expand horizontally first.
                                             IntSize(targetSize.width, initialSize.height) at 150
                                             durationMillis = 300
                                         }
                                     } else {
                                         keyframes {
-                                            // Shrink vertically first.
                                             IntSize(initialSize.width, targetSize.height) at 150
                                             durationMillis = 300
                                         }
@@ -136,22 +144,25 @@ fun LazyItemScope.FileRow3(
                     if (targetExpanded) {
                         Text(
                             fileName, modifier = Modifier
+                                .background(middleColor)
                                 .padding(7.dp),
-                            fontSize = TextUnit(14f, TextUnitType.Sp)
+                            fontSize = TextUnit(14f, TextUnitType.Sp),
+                            color = textColor
                         )
                     } else {
                         Text(
                             fileName, modifier = Modifier
+                                .background(middleColor)
                                 .height(30.dp)
                                 .padding(7.dp),
                             maxLines = 1,
                             overflow = TextOverflow.Visible,
-                            fontSize = TextUnit(14f, TextUnitType.Sp)
+                            fontSize = TextUnit(14f, TextUnitType.Sp),
+                            color = textColor
                         )
                     }
                 }
             }
-
 
             Card(shape = RoundedCornerShape(0, 7, 7, 0),
                 modifier = Modifier
@@ -161,6 +172,7 @@ fun LazyItemScope.FileRow3(
                         if (fileType == FileType.Directory) {
                             println(currentPath)
                             onPathChanged(fileItem)
+
                         }
                     }
             ) {

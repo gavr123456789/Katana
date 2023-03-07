@@ -1,6 +1,3 @@
-// Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-
-//import experiments.PictureView
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.LocalScrollbarStyle
 import androidx.compose.foundation.ScrollbarStyle
@@ -27,8 +24,8 @@ fun App() {
                 hoverColor = MaterialTheme.colors.onSurface.copy(alpha = 0.50f),
             )
         ) {
-//            MainLayout()
-            Body()
+            MainLayout()
+//            Body()
 //            TransitionedCard()
 //            PictureView()
         }
@@ -38,7 +35,7 @@ fun App() {
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication, state = WindowState(
-            height = 400.dp, width = 300.dp,
+            height = 400.dp, width = 310.dp,
         )
     ) {
         App()

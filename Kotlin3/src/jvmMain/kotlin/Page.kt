@@ -22,21 +22,22 @@ import kotlin.io.path.Path
 
 @ExperimentalFoundationApi
 @Composable
-fun Page() {
+fun Page(addSelectedFile: (Path) -> Boolean, setMainPath: (Path) -> Unit, checkSelected: (Path) -> Boolean) {
+    var path: Path by rememberSaveable { mutableStateOf(Path(DEFAULT_PATH).toRealPath()) }
 
 
-    var path: Path by rememberSaveable { mutableStateOf(Path(".").toRealPath()) }
     val maybeFiles = getFiles(path)
     val files: List<Path> = maybeFiles
 
     fun setPath(newPath: Path) {
         path = newPath
+        setMainPath(newPath)
     }
 
     var expandedAll by remember { mutableStateOf(false) }
 
 
-    Column(modifier = Modifier.width(280.dp)) {
+    Column(modifier = Modifier.width(280.dp).fillMaxHeight()) {
 
         Card(elevation = 10.dp,
             modifier = Modifier
@@ -52,7 +53,6 @@ fun Page() {
                     modifier = Modifier.weight(1f).fillMaxSize()
                         .clickable {
                             setPath(path.parent ?: path)
-                            println("back to: $path")
                         })
                 {
                     Icon(Icons.Default.ArrowBackIosNew, "back")
@@ -77,20 +77,27 @@ fun Page() {
         Box(
             modifier = Modifier
                 .width(300.dp)
-                .padding(10.dp, 0.dp, 10.dp, 10.dp),
+                .padding(10.dp, 0.dp, 10.dp, 10.dp)
+            ,
             contentAlignment = Alignment.BottomCenter
         ) {
             val state = rememberLazyListState()
 
+
             LazyColumn(Modifier.fillMaxSize().padding(end = 12.dp), state) {
                 items(files.size) { x ->
+                    val isSelected = checkSelected(files[x])
+
                     FileRow3(
                         fileItem = files[x],
                         fileName = "${files[x].fileName}",
-                        onPathChanged = { path = it },
+                        onPathChanged = ::setPath,
                         itemNumber = x,
                         lastItemNumber = files.size - 1,
-                        expandedAll = expandedAll
+                        expandedAll = expandedAll,
+                        addSelectedFile = addSelectedFile,
+                        isSelected = isSelected
+
                     )
                     Spacer(modifier = Modifier.height(5.dp))
                 }
