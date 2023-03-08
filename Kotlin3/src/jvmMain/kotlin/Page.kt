@@ -1,3 +1,4 @@
+
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.clickable
@@ -13,7 +14,6 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.UnfoldLess
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -23,16 +23,26 @@ import kotlin.io.path.pathString
 
 @ExperimentalFoundationApi
 @Composable
-fun Page(addSelectedFile: (Path) -> Boolean, setMainPath: (Path) -> Unit, checkSelected: (Path) -> Boolean) {
-    var path: Path by rememberSaveable { mutableStateOf(Path(DEFAULT_PATH).toRealPath()) }
-
-
-    val maybeFiles = getFiles(path)
-    val files: List<Path> = maybeFiles
+fun Page(
+    addSelectedFile: (Path) -> Boolean,
+    setMainPath: (Path) -> Unit,
+    checkSelected: (Path) -> Boolean,
+    globalShit: GlobalShit
+) {
+    var path: Path by remember { mutableStateOf(Path(DEFAULT_PATH).toRealPath()) }
+//    val files: List<Path> = getFiles(path)
+    var files: List<Path> by remember {mutableStateOf(getFiles(Path(DEFAULT_PATH).toRealPath()))}
 
     fun setPath(newPath: Path) {
+        println("path changed to $newPath")
         path = newPath
+        files = getFiles(path)
         setMainPath(newPath)
+    }
+    globalShit.refreshDir = {
+        setPath(Path(path.toString()).toRealPath())
+        files = getFiles(path)
+        println("refresh page after some action, files size = ${files.size}")
     }
 
     var expandedAll by remember { mutableStateOf(false) }

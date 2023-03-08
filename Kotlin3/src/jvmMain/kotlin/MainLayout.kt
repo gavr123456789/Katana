@@ -65,7 +65,12 @@ fun Drawer() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Body(addSelectedFile: (Path) -> Boolean, setMainPath: (Path) -> Unit, checkSelected: (Path) -> Boolean) {
+fun Body(
+    addSelectedFile: (Path) -> Boolean,
+    setMainPath: (Path) -> Unit,
+    checkSelected: (Path) -> Boolean,
+    globalShit: GlobalShit
+) {
     val stateHorizontal = rememberScrollState(0)
 
     Row(
@@ -79,7 +84,7 @@ fun Body(addSelectedFile: (Path) -> Boolean, setMainPath: (Path) -> Unit, checkS
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.background(Color.White)
         ) {
-            Page(addSelectedFile, setMainPath, checkSelected)
+            Page(addSelectedFile, setMainPath, checkSelected, globalShit)
         }
     }
 
@@ -92,10 +97,22 @@ fun Body(addSelectedFile: (Path) -> Boolean, setMainPath: (Path) -> Unit, checkS
 //    )
 }
 
+class GlobalShit {
+    var refreshDir: () -> Unit = {}
+    fun refreshDirAndSelectedFiles(selectedFiles: MutableSet<Path>, setBottomBarState: (Boolean) -> Unit) {
+        selectedFiles.clear()
+        refreshDir()
+        setBottomBarState(false)
+    }
+}
 
 @OptIn(ExperimentalPathApi::class)
 @Composable
 fun MainLayout() {
+
+    val globalShit = GlobalShit()
+
+    // If there are many pages, only one of them can be selected
     var mainPath: Path by rememberSaveable { mutableStateOf(Path(DEFAULT_PATH)) }
     fun setMainPath(newMainPath: Path) {
         mainPath = newMainPath
@@ -127,31 +144,32 @@ fun MainLayout() {
 
     fun deleteSelectedFiles() {
         selectedFiles.forEach {
-            run {
-                it.deleteRecursively()
-                println("Deleting ${it.fileName} from ${mainPath.pathString}")
-            }
+            it.deleteRecursively()
+            println("Deleting ${it.fileName} from ${mainPath.pathString}")
         }
+//        globalShit.refreshDir()
+        globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
     }
 
     fun moveSelectedFiles() {
         selectedFiles.forEach {
-            run {
-                val newPath = Path(mainPath.pathString, it.name)
-                it.moveTo(newPath, true)
-                println("Moving ${it.fileName} to ${newPath.pathString}")
-            }
+            val newPath = Path(mainPath.pathString, it.name)
+            it.moveTo(newPath, true)
+            println("Moving ${it.fileName} to ${newPath.pathString}")
         }
+//        globalShit.refreshDir()
+        globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
+
     }
 
     fun copySelectedFiles() {
         selectedFiles.forEach {
-            run {
-                val newPath = Path(mainPath.pathString, it.name)
-                it.copyTo(newPath, true)
-                println("Moving ${it.fileName} to ${newPath.pathString}")
-            }
+            val newPath = Path(mainPath.pathString, it.name)
+            it.copyTo(newPath, true)
+            println("Moving ${it.fileName} to ${newPath.pathString}")
         }
+//        globalShit.refreshDir()
+        globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
     }
 
 
@@ -193,7 +211,7 @@ fun MainLayout() {
         },
 
         content = {
-            Body(::addSelectedFile, ::setMainPath, ::checkSelected)
+            Body(::addSelectedFile, ::setMainPath, ::checkSelected, globalShit)
         },
 
         drawerContent = {
