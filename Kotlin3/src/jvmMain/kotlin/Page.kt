@@ -14,12 +14,17 @@ import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.UnfoldLess
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalFoundationApi
 @Composable
 fun Page(
@@ -90,12 +95,28 @@ fun Page(
             ,
             contentAlignment = Alignment.BottomCenter
         ) {
-            val state = rememberLazyListState()
+            val stateVertical = rememberLazyListState(0)
 
             val extendedItems: MutableSet<Path> by remember { mutableStateOf(mutableSetOf<Path>()) }
+            val scope = rememberCoroutineScope()
 
-            LazyColumn(Modifier.fillMaxSize().padding(end = 12.dp), state) {
+
+            LazyColumn(Modifier.fillMaxSize().padding(end = 12.dp).onPointerEvent(PointerEventType.Scroll) {
+                var currentItem = stateVertical.layoutInfo.visibleItemsInfo[0].index
+                val itemsToScrolling = stateVertical.layoutInfo.visibleItemsInfo.size / 2 // how many items we scrolling
+                if (it.changes.first().scrollDelta.y == 1.0f) { // scroll down
+                    scope.launch { stateVertical.animateScrollToItem(currentItem + itemsToScrolling) }
+                } else { // scroll up
+                    if (currentItem < itemsToScrolling) {
+                        currentItem = itemsToScrolling
+                    } // because we cannot animate to negative number
+                    scope.launch { stateVertical.animateScrollToItem(currentItem - itemsToScrolling) }
+                }
+            }, state = stateVertical) {
+
+
                 items(files.size) { x ->
+
 
                     val file = files[x]
 
@@ -132,7 +153,7 @@ fun Page(
             VerticalScrollbar(
                 modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
                 adapter = rememberScrollbarAdapter(
-                    scrollState = state
+                    scrollState = stateVertical
                 )
             )
         }
