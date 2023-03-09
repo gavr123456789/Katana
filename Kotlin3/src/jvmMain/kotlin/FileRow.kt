@@ -4,7 +4,6 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -12,7 +11,6 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.TextSnippet
 import androidx.compose.material.icons.rounded.ArrowForwardIos
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,20 +43,21 @@ private fun getFileInfo(fileItem: Path): FileType {
 @OptIn(ExperimentalAnimationApi::class, ExperimentalUnitApi::class)
 @ExperimentalFoundationApi
 @Composable
-fun LazyItemScope.FileRow3(
+fun FileRow3(
     fileName: String,
     onPathChanged: (Path) -> Unit,
     fileItem: Path,
     itemNumber: Int,
-    lastItemNumber: Int,
-    expandedAll: Boolean,
     addSelectedFile: (Path) -> Boolean,
     isSelected: Boolean,
-    setSelected: (Boolean) -> Unit
+    setSelected: (Boolean) -> Unit,
+    isExtended: Boolean,
+    setExtended: (Boolean) -> Unit
+
 ) {
 
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    expanded = expandedAll
+//    var expanded by rememberSaveable { mutableStateOf(false) }
+//    expanded = expandedAll
 
     val surfaceColor = MaterialTheme.colors.surface
     val selectedColor = Color(68, 180, 58)
@@ -118,13 +117,14 @@ fun LazyItemScope.FileRow3(
 //                            onPathChanged(fileItem.parent)
                         },
                         onDoubleClick = {
-                            expanded = !expanded
+                            setExtended(!isExtended)
+//                            expanded = !expanded
                             println("double clicked")
                         },
                     )
             ) {
                 AnimatedContent(
-                    targetState = expanded,
+                    targetState = isExtended,
                     transitionSpec = {
                         fadeIn(animationSpec = tween(150, 150)) with
                                 fadeOut(animationSpec = tween(150)) using

@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.clickable
@@ -30,7 +29,6 @@ fun Page(
     globalShit: GlobalShit
 ) {
     var path: Path by remember { mutableStateOf(Path(DEFAULT_PATH).toRealPath()) }
-//    val files: List<Path> = getFiles(path)
     var files: List<Path> by remember {mutableStateOf(getFiles(Path(DEFAULT_PATH).toRealPath()))}
 
     fun setPath(newPath: Path) {
@@ -94,24 +92,38 @@ fun Page(
         ) {
             val state = rememberLazyListState()
 
+            val extendedItems: MutableSet<Path> by remember { mutableStateOf(mutableSetOf<Path>()) }
 
             LazyColumn(Modifier.fillMaxSize().padding(end = 12.dp), state) {
                 items(files.size) { x ->
+
+                    val file = files[x]
+
                     var isSelected by remember(key1 = files[x].pathString) { mutableStateOf(checkSelected(files[x])) }
                     val setSelected: (Boolean) -> Unit = {
                         isSelected = it
                     }
+                    var isExtended: Boolean by remember(key1 = files[x].pathString) { mutableStateOf(extendedItems.contains(file)) }
+                    val setExtended: (Boolean) -> Unit = {
+                        isExtended = it
+                        if (it) {
+                            extendedItems.add(file)
+                        } else {
+                            extendedItems.remove(file)
+                        }
+                    }
+
 
                     FileRow3(
-                        fileItem = files[x],
-                        fileName = "${files[x].fileName}",
+                        fileName = "${file.fileName}",
                         onPathChanged = ::setPath,
+                        fileItem = file,
                         itemNumber = x,
-                        lastItemNumber = files.size - 1,
-                        expandedAll = expandedAll,
                         addSelectedFile = addSelectedFile,
                         isSelected = isSelected,
-                        setSelected = setSelected
+                        setSelected = setSelected,
+                        isExtended = expandedAll || isExtended,
+                        setExtended = setExtended
                     )
                     Spacer(modifier = Modifier.height(5.dp))
                 }
