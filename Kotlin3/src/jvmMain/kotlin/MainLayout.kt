@@ -1,3 +1,4 @@
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -7,10 +8,10 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CopyAll
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoveDown
+import androidx.compose.material.icons.outlined.CopyAll
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.MoveDown
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.runtime.*
@@ -69,7 +70,8 @@ fun Body(
     addSelectedFile: (Path) -> Boolean,
     setMainPath: (Path) -> Unit,
     checkSelected: (Path) -> Boolean,
-    globalShit: GlobalShit
+    globalShit: GlobalShit,
+    path: Path
 ) {
     val stateHorizontal = rememberScrollState(0)
 
@@ -84,7 +86,7 @@ fun Body(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.background(Color.White)
         ) {
-            Page(addSelectedFile, setMainPath, checkSelected, globalShit)
+            Page(addSelectedFile, setMainPath, checkSelected, globalShit, path2 = path)
         }
     }
 
@@ -114,9 +116,9 @@ fun MainLayout() {
 
     // If there are many pages, only one of them can be selected
     var mainPath: Path by rememberSaveable { mutableStateOf(Path(DEFAULT_PATH)) }
+    var pages: MutableList<Path> by rememberSaveable { mutableStateOf(mutableListOf(mainPath)) }
     fun setMainPath(newMainPath: Path) {
         mainPath = newMainPath
-        println("mainPath changed to ${newMainPath.pathString}")
     }
 
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -147,7 +149,6 @@ fun MainLayout() {
             it.deleteRecursively()
             println("Deleting ${it.fileName} from ${mainPath.pathString}")
         }
-//        globalShit.refreshDir()
         globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
     }
 
@@ -157,7 +158,6 @@ fun MainLayout() {
             it.moveTo(newPath, true)
             println("Moving ${it.fileName} to ${newPath.pathString}")
         }
-//        globalShit.refreshDir()
         globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
 
     }
@@ -168,7 +168,6 @@ fun MainLayout() {
             it.copyTo(newPath, true)
             println("Moving ${it.fileName} to ${newPath.pathString}")
         }
-//        globalShit.refreshDir()
         globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
     }
 
@@ -211,7 +210,10 @@ fun MainLayout() {
         },
 
         content = {
-            Body(::addSelectedFile, ::setMainPath, ::checkSelected, globalShit)
+            pages.forEach {
+                Body(::addSelectedFile, ::setMainPath, ::checkSelected, globalShit, path = it)
+
+            }
         },
 
         drawerContent = {
@@ -269,7 +271,7 @@ private fun BottomBar(
                         deleteSelectedFiles()
                     })
             {
-                Icon(Icons.Default.Delete, "delete")
+                Icon(Icons.Outlined.Delete, "delete")
             }
 
 
@@ -280,7 +282,7 @@ private fun BottomBar(
                         moveSelectedFiles()
                     })
             {
-                Icon(Icons.Default.MoveDown, "delete")
+                Icon(Icons.Outlined.MoveDown, "move")
             }
 
 
@@ -291,7 +293,7 @@ private fun BottomBar(
                         copySelectedFiles()
                     })
             {
-                Icon(Icons.Default.CopyAll, "delete")
+                Icon(Icons.Outlined.CopyAll, "copy")
             }
         }
     }

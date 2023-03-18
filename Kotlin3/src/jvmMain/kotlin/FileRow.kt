@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import experiments.AsyncImage
 import experiments.loadImageBitmap
+import java.awt.Desktop
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
@@ -47,7 +48,6 @@ fun FileRow3(
     fileName: String,
     onPathChanged: (Path) -> Unit,
     fileItem: Path,
-    itemNumber: Int,
     addSelectedFile: (Path) -> Boolean,
     isSelected: Boolean,
     setSelected: (Boolean) -> Unit,
@@ -55,31 +55,20 @@ fun FileRow3(
     setExtended: (Boolean) -> Unit
 
 ) {
-
-//    var expanded by rememberSaveable { mutableStateOf(false) }
-//    expanded = expandedAll
-
     val surfaceColor = MaterialTheme.colors.surface
     val selectedColor = Color(68, 180, 58)
     val middleColor = if (isSelected) selectedColor else surfaceColor
 
-    if (itemNumber == 0) {
-        println("middleColor = $middleColor, isSelected = $isSelected")
-    }
-
-    val textDefaultColor = Color.Unspecified
-    val textSelectedColor = Color.White
-    val textColor = if (isSelected) textSelectedColor else textDefaultColor //by remember { mutableStateOf(textDefaultColor) }
+    val textColor =
+        if (isSelected) Color.White else Color.Unspecified //by remember { mutableStateOf(textDefaultColor) }
 
 
     Card(
         elevation = 10.dp,
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         val currentPath = fileItem.toRealPath().toString()
         val fileType = getFileInfo(fileItem)
-//        val stateVerticalScroll = rememberScrollState(0)
 
 
         Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
@@ -114,11 +103,9 @@ fun FileRow3(
                         onClick = {
                             val wasSelected = addSelectedFile(fileItem)
                             setSelected(wasSelected)
-//                            onPathChanged(fileItem.parent)
                         },
                         onDoubleClick = {
                             setExtended(!isExtended)
-//                            expanded = !expanded
                             println("double clicked")
                         },
                     )
@@ -174,6 +161,9 @@ fun FileRow3(
                         if (fileType == FileType.Directory) {
                             println(currentPath)
                             onPathChanged(fileItem)
+
+                        } else {
+                            Desktop.getDesktop().open(fileItem.toFile())
 
                         }
                     }
