@@ -116,7 +116,7 @@ fun MainLayout() {
 
     // If there are many pages, only one of them can be selected
     var mainPath: Path by rememberSaveable { mutableStateOf(Path(DEFAULT_PATH)) }
-    var pages: MutableList<Path> by rememberSaveable { mutableStateOf(mutableListOf(mainPath)) }
+    val pages: MutableList<Path> by rememberSaveable { mutableStateOf(mutableListOf(mainPath)) }
     fun setMainPath(newMainPath: Path) {
         mainPath = newMainPath
     }
@@ -210,10 +210,12 @@ fun MainLayout() {
         },
 
         content = {
-            pages.forEach {
-                Body(::addSelectedFile, ::setMainPath, ::checkSelected, globalShit, path = it)
-
+            Column {
+                pages.forEach {
+                    Body(::addSelectedFile, ::setMainPath, ::checkSelected, globalShit, path = it)
+                }
             }
+
         },
 
         drawerContent = {

@@ -1,56 +1,74 @@
 package experiments
+
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.res.loadSvgPainter
+import androidx.compose.ui.unit.Density
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.skia.SamplingMode
 import java.io.File
 import java.io.IOException
 
 
+//object GlobalImageCache {
+//    val map = mutableMapOf<String, ImageBitmap>()
+//}
+
 @Composable
-fun <T> AsyncImage(
+fun <T>AsyncImage(
     load: suspend () -> T,
     painterFor: @Composable (T) -> Painter,
-    contentDescription: String,
     modifier: Modifier = Modifier,
-    contentScale: ContentScale = ContentScale.Fit,
+    contentScale: ContentScale = ContentScale.Crop,
+    fileName: String,
 ) {
-    val image: T? by produceState<T?>(null) {
+    val image:  T? by produceState<T?>(null) {
         value = withContext(Dispatchers.IO) {
-            try {
-                load()
-            } catch (e: IOException) {
-                e.printStackTrace()
-                null
+                try {
+                    val x = load()
+                    x
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    null
+                }
             }
-        }
     }
+
 
     if (image != null) {
         Image(
             painter = painterFor(image!!),
-            contentDescription = contentDescription,
+            contentDescription = null,
             contentScale = contentScale,
             modifier = modifier
         )
     }
 }
 
-/* Loading from file with java.io API */
+// Loading from file with java.io API
+//fun loadImageBitmap(file: File): ImageBitmap {
+//    return file.inputStream().buffered().use(::loadImageBitmap)
+//}
 
-fun loadImageBitmap(file: File): ImageBitmap =
-    file.inputStream().buffered().use(::loadImageBitmap)
+fun imageFromFile(file: File): ImageBitmap {
+    val image = org.jetbrains.skia.Image.makeFromEncoded(file.readBytes())
+    val scaledImage = ImageBitmap(image.width / 4, image.height / 4)
+    image.scalePixels(scaledImage.asSkiaBitmap().peekPixels()!!, SamplingMode.DEFAULT, true)
+    return scaledImage
+}
 
-//fun loadSvgPainter(file: File, density: Density): Painter =
-//    file.inputStream().buffered().use { loadSvgPainter(it, density) }
-//
+
+fun loadSvgPainter(file: File, density: Density): Painter =
+    file.inputStream().buffered().use { loadSvgPainter(it, density) }
+
 //fun loadXmlImageVector(file: File, density: Density): ImageVector =
 //    file.inputStream().buffered().use { loadXmlImageVector(InputSource(it), density) }
 

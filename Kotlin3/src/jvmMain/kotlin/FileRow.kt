@@ -15,10 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import experiments.AsyncImage
-import experiments.loadImageBitmap
+import experiments.imageFromFile
+import experiments.loadSvgPainter
 import java.awt.Desktop
 import java.nio.file.Files
 import java.nio.file.Path
@@ -53,7 +56,6 @@ fun FileRow3(
     setSelected: (Boolean) -> Unit,
     isExtended: Boolean,
     setExtended: (Boolean) -> Unit
-
 ) {
     val surfaceColor = MaterialTheme.colors.surface
     val selectedColor = Color(68, 180, 58)
@@ -67,9 +69,8 @@ fun FileRow3(
         elevation = 10.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
-        val currentPath = fileItem.toRealPath().toString()
+        val pathString = fileItem.toRealPath().toString()
         val fileType = getFileInfo(fileItem)
-
 
         Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
 
@@ -82,13 +83,26 @@ fun FileRow3(
                 when (fileType) {
                     FileType.Directory -> Icon(Icons.Outlined.Folder, "")
                     FileType.Unknown -> Icon(Icons.Outlined.TextSnippet, "")
-                    FileType.Image ->
-                        AsyncImage(
-                            load = { loadImageBitmap(fileItem.toFile()) },
-                            painterFor = { remember { BitmapPainter(it) } },
-                            contentDescription = "Sample",
-                            modifier = Modifier.height(30.dp)
-                        )
+                    FileType.Image -> {
+                        if (fileName.endsWith(".svg")) {
+                            val density = LocalDensity.current
+                            AsyncImage(
+                                load = { loadSvgPainter(fileItem.toFile(), density) },
+                                painterFor = { it },
+                                modifier = Modifier.height(30.dp),
+                                fileName = pathString,
+                                contentScale = ContentScale.FillWidth
+                            )
+                        } else {
+                            AsyncImage(
+                                load = { imageFromFile(fileItem.toFile()) },
+                                painterFor = { remember { BitmapPainter(it) } },
+                                modifier = Modifier.height(30.dp),
+                                fileName = pathString,
+                                contentScale = ContentScale.FillWidth
+                            )
+                        }
+                    }
                 }
             }
 
@@ -159,7 +173,7 @@ fun FileRow3(
                     .weight(2f)
                     .clickable {
                         if (fileType == FileType.Directory) {
-                            println(currentPath)
+                            println(pathString)
                             onPathChanged(fileItem)
 
                         } else {
