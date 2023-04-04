@@ -1,8 +1,13 @@
 
+
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -10,11 +15,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.TextSnippet
 import androidx.compose.material.icons.rounded.ArrowForwardIos
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,7 +52,7 @@ private fun getFileInfo(fileItem: Path): FileType {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalUnitApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalUnitApi::class, ExperimentalComposeUiApi::class)
 @ExperimentalFoundationApi
 @Composable
 fun FileRow3(
@@ -67,7 +75,23 @@ fun FileRow3(
 
     Card(
         elevation = 10.dp,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().onPreviewKeyEvent{
+            when {
+                (it.isCtrlPressed && it.key == Key.Minus && it.type == KeyEventType.KeyUp) -> {
+                    println("ctrl + -")
+                    true
+                }
+                (it.isCtrlPressed && it.key == Key.Equals && it.type == KeyEventType.KeyUp) -> {
+                    println("ctrl + =")
+                    true
+                }
+                (it.key == Key.A && it.type == KeyEventType.KeyUp) -> {
+                    println("A")
+                    true
+                }
+                else -> false
+            }
+        }
     ) {
         val pathString = fileItem.toRealPath().toString()
         val fileType = getFileInfo(fileItem)

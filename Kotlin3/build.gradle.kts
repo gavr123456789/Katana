@@ -4,6 +4,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose") version "1.3.0"
+//    kotlin("jvm") version "1.8.0"
 }
 
 group = "com.example"
@@ -25,6 +26,7 @@ kotlin {
 //        withJava()
     }
     sourceSets {
+
         val jvmMain by getting {
             dependencies {
 //                implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
@@ -32,10 +34,13 @@ kotlin {
                 implementation(compose.desktop.currentOs)
 //                implementation("io.github.androidpoet:dropdown:1.0.1")
                 implementation("org.jetbrains.compose.material:material-icons-extended-desktop:1.3.0")
+                implementation(kotlin("stdlib-jdk8"))
+
             }
         }
         val jvmTest by getting
     }
+    jvmToolchain(11)
 }
 
 compose.desktop {

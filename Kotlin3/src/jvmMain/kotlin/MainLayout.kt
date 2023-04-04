@@ -64,6 +64,11 @@ fun Drawer() {
 }
 
 
+enum class ViewType {
+    Files,
+    Pictures
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Body(
@@ -74,6 +79,8 @@ fun Body(
     path: Path
 ) {
     val stateHorizontal = rememberScrollState(0)
+
+    var viewType: ViewType by remember {mutableStateOf (ViewType.Files)}
 
     Row(
         modifier = Modifier
@@ -86,6 +93,7 @@ fun Body(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.background(Color.White)
         ) {
+
             Page(addSelectedFile, setMainPath, checkSelected, globalShit, path2 = path)
         }
     }

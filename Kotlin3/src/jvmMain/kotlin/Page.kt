@@ -4,11 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Close
@@ -24,34 +21,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import java.nio.file.Path
 import kotlin.io.path.*
-
-
-@Composable
-fun Sass() {
-    val text = remember { mutableStateOf("Hello!") }
-    Column {
-        ContextMenuDataProvider(
-            items = {
-                listOf(
-                    ContextMenuItem("User-defined Action") {/*do something here*/ },
-                    ContextMenuItem("Another user-defined action") {/*do something else*/ }
-                )
-            }
-        ) {
-            TextField(
-                value = text.value,
-                onValueChange = { text.value = it },
-                label = { Text(text = "Input") }
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            SelectionContainer {
-                Text("Hello World!")
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalFoundationApi
@@ -97,49 +66,7 @@ fun Page(
 
     Column(modifier = Modifier.width(280.dp).fillMaxHeight()) {
 
-        Card(elevation = 10.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .height(30.dp)
-                .padding(end = 12.dp))
-        {
-
-            Row(modifier = Modifier.fillMaxSize()) {
-                Card(
-                    shape = RoundedCornerShape(7, 0, 0, 7),
-                    modifier = Modifier.weight(1f).fillMaxSize()
-                        .clickable {
-                            setPath(path.parent ?: path)
-                        })
-                {
-                    Icon(Icons.Default.ArrowBackIosNew, "back")
-                }
-                Card(
-                    shape = RoundedCornerShape(0),
-                    modifier = Modifier.weight(1f).fillMaxSize()
-                        .clickable {
-                            expandedAll = !expandedAll
-                        })
-                {
-                    if (expandedAll){
-                        Icon(Icons.Default.Expand, "back")
-                    } else {
-                        Icon(Icons.Default.UnfoldLess, "back")
-                    }
-                }
-
-                Card(
-                    shape = RoundedCornerShape(0, 7, 7, 0),
-                    modifier = Modifier.weight(1f).fillMaxSize()
-                        .clickable {
-                            expandedAll = !expandedAll
-                        })
-                {
-                    Icon(Icons.Default.Close, "back")
-                }
-            }
-        }
+        expandedAll = TopMenu(path, expandedAll, ::setPath)
 
         ContextMenuArea(
             items = {
@@ -233,4 +160,55 @@ fun Page(
     }
 
 
+}
+
+@Composable
+private fun TopMenu(path: Path, expandedAll: Boolean, setPath: (Path) -> Unit): Boolean {
+    var expandedAll1 = expandedAll
+    Card(
+        elevation = 10.dp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .height(30.dp)
+            .padding(end = 12.dp)
+    )
+    {
+
+        Row(modifier = Modifier.fillMaxSize()) {
+            Card(
+                shape = RoundedCornerShape(7, 0, 0, 7),
+                modifier = Modifier.weight(1f).fillMaxSize()
+                    .clickable {
+                        setPath(path.parent ?: path)
+                    })
+            {
+                Icon(Icons.Default.ArrowBackIosNew, "back")
+            }
+            Card(
+                shape = RoundedCornerShape(0),
+                modifier = Modifier.weight(1f).fillMaxSize()
+                    .clickable {
+                        expandedAll1 = !expandedAll1
+                    })
+            {
+                if (expandedAll1) {
+                    Icon(Icons.Default.Expand, "back")
+                } else {
+                    Icon(Icons.Default.UnfoldLess, "back")
+                }
+            }
+
+            Card(
+                shape = RoundedCornerShape(0, 7, 7, 0),
+                modifier = Modifier.weight(1f).fillMaxSize()
+                    .clickable {
+                        expandedAll1 = !expandedAll1
+                    })
+            {
+                Icon(Icons.Default.Close, "back")
+            }
+        }
+    }
+    return expandedAll1
 }
