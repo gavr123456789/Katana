@@ -16,39 +16,18 @@ import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.nio.file.Path
 import kotlin.io.path.*
 import kotlin.reflect.KFunction0
-
-@Composable
-fun TopBar(onMenuClicked: () -> Unit, onFirstButtonClick: () -> Unit, onBackClick: () -> Unit) {
-    TopAppBar(
-        title = {
-            Text(text = "home/", color = Color.White)
-        },
-        navigationIcon = {
-
-            Icon(
-                imageVector = Icons.Default.Menu,
-                contentDescription = "Menu",
-                modifier = Modifier.clickable(onClick = onMenuClicked),
-                tint = Color.White
-            )
-            IconButton(onClick = onFirstButtonClick) {
-                Icon(Icons.Rounded.Edit, contentDescription = "Localized description")
-            }
-
-            IconButton(onClick = onBackClick) {
-                Icon(Icons.Rounded.ArrowBack, contentDescription = "Localized description")
-            }
-        },
-    )
-}
 
 @Composable
 fun Drawer() {
@@ -69,42 +48,71 @@ enum class ViewType {
     Pictures
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, DelicateCoroutinesApi::class)
 @Composable
 fun Body(
     addSelectedFile: (Path) -> Boolean,
     setMainPath: (Path) -> Unit,
     checkSelected: (Path) -> Boolean,
     globalShit: GlobalShit,
-    path: Path
 ) {
     val stateHorizontal = rememberScrollState(0)
 
-    var viewType: ViewType by remember {mutableStateOf (ViewType.Files)}
+//    var viewType: ViewType by remember {mutableStateOf (ViewType.Files)}
 
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(end = 12.dp)
-            .horizontalScroll(stateHorizontal)
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.background(Color.White)
-        ) {
+    val pages: SnapshotStateList<String> by rememberSaveable {mutableStateOf (mutableStateListOf(Path(DEFAULT_PATH).toRealPath().pathString))}
+    val scope = rememberCoroutineScope()
 
-            Page(addSelectedFile, setMainPath, checkSelected, globalShit, path2 = path)
+    fun openNewPage(newPagePath: String) {
+        pages.add(newPagePath)
+
+        scope.launch() {
+            delay(100)
+            stateHorizontal.animateScrollTo(stateHorizontal.maxValue)
+            println(stateHorizontal.value)
         }
     }
 
-//    HorizontalScrollbar(
-//        modifier = Modifier
-//            .align(Alignment.Bottom)
-//            .fillMaxWidth()
-//            .padding(end = 12.dp),
-//        adapter = rememberScrollbarAdapter(stateHorizontal)
-//    )
+    fun removePage(page: String) {
+        if (pages.size > 1) {
+            println("to delete ${page}")
+            println("list before ${pages.map {it}}")
+            val qq = pages.indexOfFirst { it == page }
+            println("found on $qq")
+            pages.removeAt(qq)
+            println("list after ${pages.map {it}}")
+
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = 12.dp)
+                .horizontalScroll(stateHorizontal)
+        ) {
+            println("rerendering: ${pages.map{it}} ")
+            pages.forEach{
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.background(Color.White)
+                ) {
+                    Page(it, addSelectedFile, setMainPath, checkSelected, globalShit, ::openNewPage, ::removePage)
+                }
+            }
+        }
+        HorizontalScrollbar(
+            modifier = Modifier.align(Alignment.BottomStart)
+                .fillMaxWidth()
+                .padding(end = 12.dp),
+            adapter = rememberScrollbarAdapter(stateHorizontal)
+        )
+    }
+
+
 }
 
 class GlobalShit {
@@ -119,7 +127,6 @@ class GlobalShit {
 @OptIn(ExperimentalPathApi::class)
 @Composable
 fun MainLayout() {
-
     val globalShit = GlobalShit()
 
     // If there are many pages, only one of them can be selected
@@ -183,22 +190,6 @@ fun MainLayout() {
     Scaffold(
         scaffoldState = scaffoldState,
 
-        topBar = {
-//            TopBar(
-//
-//                onMenuClicked = {
-//                    coroutineScope.launch {
-//                        scaffoldState.drawerState.open()
-//                    }
-//                },
-//                onFirstButtonClick = {
-//                    TODO()
-//                },
-//                onBackClick = {
-//                    setExpandedBar(!expandedBar)
-//                }
-//            )
-        },
         // нужен BackdropScaffold
         bottomBar = {
             val density = LocalDensity.current
@@ -223,42 +214,17 @@ fun MainLayout() {
                     Body(::addSelectedFile, ::setMainPath, ::checkSelected, globalShit, path = it)
                 }
             }
-
         },
 
         drawerContent = {
             Drawer()
         },
-
-//        floatingActionButton = {
-//            FloatingActionButton(
-//
-//                onClick = {
-//                    coroutineScope.launch {
-//                        when (scaffoldState.snackbarHostState.showSnackbar(
-//                            message = "Snack Bar",
-//                            actionLabel = "Dismiss"
-//                        )) {
-//                            SnackbarResult.Dismissed -> {
-//                                // do something when
-//                                // snack bar is dismissed
-//                            }
-//
-//                            SnackbarResult.ActionPerformed -> {
-//                                // when it appears
-//                            }
-//                        }
-//                    }
-//                }) {
-//                // Simple Text inside FAB
-//                Text(text = "X")
-//            }
-//        }
     )
 }
 
 @Composable
 private fun BottomBar(
+    @Suppress("UNUSED_PARAMETER")
     selectedFilesNames: String,
     deleteSelectedFiles: KFunction0<Unit>,
     moveSelectedFiles: KFunction0<Unit>,

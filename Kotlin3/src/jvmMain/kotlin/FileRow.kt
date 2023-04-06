@@ -1,13 +1,8 @@
 
-
-
 import androidx.compose.animation.*
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -23,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,6 +30,7 @@ import java.awt.Desktop
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
+import kotlin.io.path.pathString
 
 private enum class FileType {
     Directory,
@@ -63,7 +60,8 @@ fun FileRow3(
     isSelected: Boolean,
     setSelected: (Boolean) -> Unit,
     isExtended: Boolean,
-    setExtended: (Boolean) -> Unit
+    setExtended: (Boolean) -> Unit,
+    openInNewPage: (String) -> Unit,
 ) {
     val surfaceColor = MaterialTheme.colors.surface
     val selectedColor = Color(68, 180, 58)
@@ -75,20 +73,13 @@ fun FileRow3(
 
     Card(
         elevation = 10.dp,
-        modifier = Modifier.fillMaxWidth().onPreviewKeyEvent{
+        modifier = Modifier.fillMaxWidth().onPreviewKeyEvent {
             when {
-                (it.isCtrlPressed && it.key == Key.Minus && it.type == KeyEventType.KeyUp) -> {
-                    println("ctrl + -")
-                    true
-                }
-                (it.isCtrlPressed && it.key == Key.Equals && it.type == KeyEventType.KeyUp) -> {
-                    println("ctrl + =")
-                    true
-                }
                 (it.key == Key.A && it.type == KeyEventType.KeyUp) -> {
                     println("A")
                     true
                 }
+
                 else -> false
             }
         }
@@ -96,12 +87,14 @@ fun FileRow3(
         val pathString = fileItem.toRealPath().toString()
         val fileType = getFileInfo(fileItem)
 
-        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically)
+        {
 
             Card(
                 shape = RoundedCornerShape(7, 0, 0, 7),
-                modifier = Modifier
-                    .size(30.dp),
+                modifier = Modifier.size(30.dp),
                 backgroundColor = MaterialTheme.colors.surface
             ) {
                 when (fileType) {
@@ -114,7 +107,6 @@ fun FileRow3(
                                 load = { loadSvgPainter(fileItem.toFile(), density) },
                                 painterFor = { it },
                                 modifier = Modifier.height(30.dp),
-                                fileName = pathString,
                                 contentScale = ContentScale.FillWidth
                             )
                         } else {
@@ -122,7 +114,6 @@ fun FileRow3(
                                 load = { imageFromFile(fileItem.toFile()) },
                                 painterFor = { remember { BitmapPainter(it) } },
                                 modifier = Modifier.height(30.dp),
-                                fileName = pathString,
                                 contentScale = ContentScale.FillWidth
                             )
                         }
@@ -195,14 +186,15 @@ fun FileRow3(
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(2f)
+                    .onClick(matcher = PointerMatcher.mouse(PointerButton.Secondary)) {
+                        openInNewPage(fileItem.pathString)
+                    }
                     .clickable {
                         if (fileType == FileType.Directory) {
                             println(pathString)
                             onPathChanged(fileItem)
-
                         } else {
                             Desktop.getDesktop().open(fileItem.toFile())
-
                         }
                     }
             ) {

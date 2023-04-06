@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +11,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.UnfoldLess
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -26,14 +26,21 @@ import kotlin.io.path.*
 @ExperimentalFoundationApi
 @Composable
 fun Page(
+    openedPath: String,
     addSelectedFile: (Path) -> Boolean,
     setMainPath: (Path) -> Unit,
     checkSelected: (Path) -> Boolean,
     globalShit: GlobalShit,
-    path2: Path
+    openInNewPage: (String) -> Unit,
+    removePage: (String) -> Unit
 ) {
-    var path: Path by remember { mutableStateOf(Path(DEFAULT_PATH).toRealPath()) }
-    var files: List<Path> by remember {mutableStateOf(getFiles(Path(DEFAULT_PATH).toRealPath()))}
+//    var path: Path by remember { mutableStateOf(Path(DEFAULT_PATH).toRealPath()) }
+    val openedPathObj = Path(openedPath)
+    var path: Path by rememberSaveable { mutableStateOf(openedPathObj) }
+    var files: List<Path> by remember { mutableStateOf(getFiles(openedPathObj)) }
+//    var files: List<Path> = getFiles(openedPath)
+    println("!!! ${openedPath} got ${files.size} files")
+    files = getFiles(openedPathObj)
 
 
     fun setPath(newPath: Path) {
@@ -48,6 +55,7 @@ fun Page(
         println("refresh page after some action, files size = ${files.size}")
     }
 
+
     globalShit.refreshDir = {
         refresh()
     }
@@ -56,6 +64,7 @@ fun Page(
         (path / "newDir").createDirectory()
         refresh()
     }
+
     fun createFileHere() {
         (path / "newFile.txt").createFile()
         refresh()
@@ -65,18 +74,14 @@ fun Page(
 
 
     Column(modifier = Modifier.width(280.dp).fillMaxHeight()) {
-
-        expandedAll = TopMenu(path, expandedAll, ::setPath)
-
+        expandedAll = TopMenu(path, expandedAll, ::setPath, removePage)
         ContextMenuArea(
             items = {
                 listOf(
-                    ContextMenuItem("File") { createFileHere() },
-                    ContextMenuItem("Folder") { createFolderHere() },
-
+                    ContextMenuItem("+Folder") { createFolderHere() },
+                    ContextMenuItem("+File") { createFileHere() },
                 )
             },
-
         ) {
             Box(
                 modifier = Modifier
@@ -85,29 +90,29 @@ fun Page(
                 contentAlignment = Alignment.BottomCenter
             ) {
                 val stateVertical = rememberLazyListState(0)
-
-                val extendedItems: MutableSet<Path> by remember { mutableStateOf(mutableSetOf<Path>()) }
+                val extendedItems: MutableSet<Path> by remember { mutableStateOf(mutableSetOf()) }
                 val scope = rememberCoroutineScope()
 
-//                val contextMenuRepresentation = if (isSystemInDarkTheme()) {
-//                    DarkDefaultContextMenuRepresentation
-//                } else {
-//                    LightDefaultContextMenuRepresentation
-//                }
 
-                LazyColumn(Modifier.fillMaxSize().padding(end = 12.dp).onPointerEvent(PointerEventType.Scroll) {
-                    var currentItem = stateVertical.layoutInfo.visibleItemsInfo[0].index
-                    val itemsToScrolling =
-                        stateVertical.layoutInfo.visibleItemsInfo.size / 2 // how many items we're scrolling
-                    if (it.changes.first().scrollDelta.y == 1.0f) { // scroll down
-                        scope.launch { stateVertical.animateScrollToItem(currentItem + itemsToScrolling) }
-                    } else { // scroll up
-                        if (currentItem < itemsToScrolling) {
-                            currentItem = itemsToScrolling
-                        } // because we cannot animate to negative number
-                        scope.launch { stateVertical.animateScrollToItem(currentItem - itemsToScrolling) }
-                    }
-                }, state = stateVertical) {
+                LazyColumn(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(end = 12.dp)
+                        .onPointerEvent(PointerEventType.Scroll) {
+                            var currentItem = stateVertical.layoutInfo.visibleItemsInfo[0].index
+                            val itemsToScrolling =
+                                stateVertical.layoutInfo.visibleItemsInfo.size / 2 // how many items we're scrolling
+                            if (it.changes.first().scrollDelta.y == 1.0f) { // scroll down
+                                scope.launch { stateVertical.animateScrollToItem(currentItem + itemsToScrolling) }
+                            } else { // scroll up
+                                if (currentItem < itemsToScrolling) {
+                                    currentItem = itemsToScrolling
+                                } // because we cannot animate to negative number
+                                scope.launch { stateVertical.animateScrollToItem(currentItem - itemsToScrolling) }
+                            }
+                        },
+                    state = stateVertical
+                ) {
 
 
                     items(files.size) { x ->
@@ -143,7 +148,8 @@ fun Page(
                             isSelected = isSelected,
                             setSelected = setSelected,
                             isExtended = expandedAll || isExtended,
-                            setExtended = setExtended
+                            setExtended = setExtended,
+                            openInNewPage = openInNewPage,
                         )
                         Spacer(modifier = Modifier.height(5.dp))
                     }
@@ -163,7 +169,7 @@ fun Page(
 }
 
 @Composable
-private fun TopMenu(path: Path, expandedAll: Boolean, setPath: (Path) -> Unit): Boolean {
+private fun TopMenu(path: Path, expandedAll: Boolean, setPath: (Path) -> Unit, removePage: (String) -> Unit): Boolean {
     var expandedAll1 = expandedAll
     Card(
         elevation = 10.dp,
@@ -203,7 +209,7 @@ private fun TopMenu(path: Path, expandedAll: Boolean, setPath: (Path) -> Unit): 
                 shape = RoundedCornerShape(0, 7, 7, 0),
                 modifier = Modifier.weight(1f).fillMaxSize()
                     .clickable {
-                        expandedAll1 = !expandedAll1
+                        removePage(path.pathString)
                     })
             {
                 Icon(Icons.Default.Close, "back")

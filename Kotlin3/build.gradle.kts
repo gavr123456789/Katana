@@ -35,7 +35,9 @@ kotlin {
 //                implementation("io.github.androidpoet:dropdown:1.0.1")
                 implementation("org.jetbrains.compose.material:material-icons-extended-desktop:1.3.0")
                 implementation(kotlin("stdlib-jdk8"))
-
+//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.0-Beta")
+//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-linuxx64:1.7.0-Beta")
             }
         }
         val jvmTest by getting

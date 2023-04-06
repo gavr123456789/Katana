@@ -28,9 +28,9 @@ fun <T>AsyncImage(
     painterFor: @Composable (T) -> Painter,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
-    fileName: String,
 ) {
     val image:  T? by produceState<T?>(null) {
+
         value = withContext(Dispatchers.IO) {
                 try {
                     val x = load()

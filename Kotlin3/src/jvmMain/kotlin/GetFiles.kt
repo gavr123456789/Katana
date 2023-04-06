@@ -8,6 +8,7 @@ fun getFiles(path: Path): List<Path> {
     if (!path.exists()) {
         return listOf()
     }
-
-    return path.listDirectoryEntries().sortedBy { !it.isDirectory() }
+    val q = path.listDirectoryEntries().sortedBy { !it.isDirectory() }
+    println("in path ${path.fileName} there are ${q.size} files")
+    return q
 }
