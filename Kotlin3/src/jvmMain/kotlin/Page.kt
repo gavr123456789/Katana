@@ -1,3 +1,4 @@
+
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,7 +12,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.UnfoldLess
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -20,61 +20,65 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import java.nio.file.Path
-import kotlin.io.path.*
+import kotlin.io.path.createDirectory
+import kotlin.io.path.createFile
+import kotlin.io.path.div
+import kotlin.io.path.pathString
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalFoundationApi
 @Composable
 fun Page(
+    path: Path,
     openedPath: String,
     addSelectedFile: (Path) -> Boolean,
     setMainPath: (Path) -> Unit,
     checkSelected: (Path) -> Boolean,
-    globalShit: GlobalShit,
     openInNewPage: (String) -> Unit,
-    removePage: (String) -> Unit
+    removePage: (Int) -> Unit,
+    goBack: (Path) -> Unit,
+    goToPath: (Path) -> Unit,
+    files: List<Path>,
+    refreshPage: () -> Unit,
+    id: Int,
 ) {
-//    var path: Path by remember { mutableStateOf(Path(DEFAULT_PATH).toRealPath()) }
-    val openedPathObj = Path(openedPath)
-    var path: Path by rememberSaveable { mutableStateOf(openedPathObj) }
-    var files: List<Path> by remember { mutableStateOf(getFiles(openedPathObj)) }
-//    var files: List<Path> = getFiles(openedPath)
-    println("!!! ${openedPath} got ${files.size} files")
-    files = getFiles(openedPathObj)
 
+    // пейдж не ререндерится изза того что все зависит от файлов, но не от пути, можно избавится от файлов как переменной
 
-    fun setPath(newPath: Path) {
-        path = newPath
-        files = getFiles(path)
-        setMainPath(newPath)
-    }
+//    val (path, setPath) = remember() { mutableStateOf(Path(openedPath)) }
+//    var files: List<Path> by remember(key1 = path) { mutableStateOf(getFiles(path)) }
+//
+//    fun goBack() {
+//        val parent = path.parent
+//        val parentString = parent.pathString
+//        println("path = $path parentString = $parentString")
+//        setPath(parent)
+//        files = getFiles(parent)
+//    }
+//    fun goToPath(path: Path) {
+//        setPath(path)
+//        files = getFiles(path)
+//    }
+//    fun refreshPage() {
+//        files = getFiles(path)
+//    }
 
-    fun refresh() {
-        setPath(Path(path.toString()).toRealPath())
-        files = getFiles(path)
-        println("refresh page after some action, files size = ${files.size}")
-    }
-
-
-    globalShit.refreshDir = {
-        refresh()
-    }
 
     fun createFolderHere() {
         (path / "newDir").createDirectory()
-        refresh()
+        refreshPage()
     }
 
     fun createFileHere() {
         (path / "newFile.txt").createFile()
-        refresh()
+        refreshPage()
     }
 
     var expandedAll by remember { mutableStateOf(false) }
 
 
     Column(modifier = Modifier.width(280.dp).fillMaxHeight()) {
-        expandedAll = TopMenu(path, expandedAll, ::setPath, removePage)
+        expandedAll = TopMenu(path, expandedAll, goBack, {removePage(id)})
         ContextMenuArea(
             items = {
                 listOf(
@@ -142,7 +146,7 @@ fun Page(
 
                         FileRow3(
                             fileName = "${file.fileName}",
-                            onPathChanged = ::setPath,
+                            goToPath = goToPath,
                             fileItem = file,
                             addSelectedFile = addSelectedFile,
                             isSelected = isSelected,
@@ -169,7 +173,7 @@ fun Page(
 }
 
 @Composable
-private fun TopMenu(path: Path, expandedAll: Boolean, setPath: (Path) -> Unit, removePage: (String) -> Unit): Boolean {
+private fun TopMenu(path: Path, expandedAll: Boolean, goBack: (Path) -> Unit, removePage: () -> Unit): Boolean {
     var expandedAll1 = expandedAll
     Card(
         elevation = 10.dp,
@@ -186,7 +190,8 @@ private fun TopMenu(path: Path, expandedAll: Boolean, setPath: (Path) -> Unit, r
                 shape = RoundedCornerShape(7, 0, 0, 7),
                 modifier = Modifier.weight(1f).fillMaxSize()
                     .clickable {
-                        setPath(path.parent ?: path)
+                        goBack(path.parent ?: path)
+//                        setPath(path.parent ?: path)
                     })
             {
                 Icon(Icons.Default.ArrowBackIosNew, "back")
@@ -209,7 +214,7 @@ private fun TopMenu(path: Path, expandedAll: Boolean, setPath: (Path) -> Unit, r
                 shape = RoundedCornerShape(0, 7, 7, 0),
                 modifier = Modifier.weight(1f).fillMaxSize()
                     .clickable {
-                        removePage(path.pathString)
+                        removePage()
                     })
             {
                 Icon(Icons.Default.Close, "back")

@@ -54,7 +54,7 @@ private fun getFileInfo(fileItem: Path): FileType {
 @Composable
 fun FileRow3(
     fileName: String,
-    onPathChanged: (Path) -> Unit,
+    goToPath: (Path) -> Unit,
     fileItem: Path,
     addSelectedFile: (Path) -> Boolean,
     isSelected: Boolean,
@@ -76,7 +76,6 @@ fun FileRow3(
         modifier = Modifier.fillMaxWidth().onPreviewKeyEvent {
             when {
                 (it.key == Key.A && it.type == KeyEventType.KeyUp) -> {
-                    println("A")
                     true
                 }
 
@@ -135,7 +134,6 @@ fun FileRow3(
                         },
                         onDoubleClick = {
                             setExtended(!isExtended)
-                            println("double clicked")
                         },
                     )
             ) {
@@ -191,8 +189,7 @@ fun FileRow3(
                     }
                     .clickable {
                         if (fileType == FileType.Directory) {
-                            println(pathString)
-                            onPathChanged(fileItem)
+                            goToPath(fileItem)
                         } else {
                             Desktop.getDesktop().open(fileItem.toFile())
                         }

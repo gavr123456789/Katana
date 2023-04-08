@@ -1,1 +1,1 @@
-const val DEFAULT_PATH = "."
+const val DEFAULT_PATH = "C:\\Users\\gavr\\Documents\\Projects\\Work"

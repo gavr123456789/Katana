@@ -8,15 +8,11 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.CopyAll
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.MoveDown
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +44,8 @@ enum class ViewType {
     Pictures
 }
 
+data class Page(val x: String)
+
 @OptIn(ExperimentalFoundationApi::class, DelicateCoroutinesApi::class)
 @Composable
 fun Body(
@@ -60,8 +58,14 @@ fun Body(
 
 //    var viewType: ViewType by remember {mutableStateOf (ViewType.Files)}
 
-    val pages: SnapshotStateList<String> by rememberSaveable {mutableStateOf (mutableStateListOf(Path(DEFAULT_PATH).toRealPath().pathString))}
+//    val (pages, setPages) = remember { mutableStateListOf(Path(DEFAULT_PATH).toRealPath().pathString) }
+
+    var pages: MutableList<String> by remember { mutableStateOf(mutableStateListOf(Path(DEFAULT_PATH).toRealPath().pathString)) }
     val scope = rememberCoroutineScope()
+
+    fun setNewPages(newPages: MutableList<String>) {
+        pages = newPages
+    }
 
     fun openNewPage(newPagePath: String) {
         pages.add(newPagePath)
@@ -69,19 +73,12 @@ fun Body(
         scope.launch() {
             delay(100)
             stateHorizontal.animateScrollTo(stateHorizontal.maxValue)
-            println(stateHorizontal.value)
         }
     }
 
-    fun removePage(page: String) {
+    fun removePage(pageIndex: Int) {
         if (pages.size > 1) {
-            println("to delete ${page}")
-            println("list before ${pages.map {it}}")
-            val qq = pages.indexOfFirst { it == page }
-            println("found on $qq")
-            pages.removeAt(qq)
-            println("list after ${pages.map {it}}")
-
+            pages.removeAt(pageIndex)
         }
     }
 
@@ -93,14 +90,44 @@ fun Body(
                 .padding(end = 12.dp)
                 .horizontalScroll(stateHorizontal)
         ) {
-            println("rerendering: ${pages.map{it}} ")
-            pages.forEach{
+
+            pages.forEachIndexed { i, it ->
+                val (path, setPath) = remember() { mutableStateOf(Path(it)) }
+                var files: List<Path> by remember(key1 = it) { mutableStateOf(getFiles(Path(it))) }
+
+                fun goBack(newPath: Path) {
+                    setPath(newPath)
+                    files = getFiles(newPath)
+                }
+                fun goToPath(path: Path) {
+                    setPath(path)
+                    files = getFiles(path)
+                }
+                fun refreshPage() {
+                    files = getFiles(Path(it))
+                }
+
+
+
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.background(Color.White)
                 ) {
-                    Page(it, addSelectedFile, setMainPath, checkSelected, globalShit, ::openNewPage, ::removePage)
+                    Page(
+                        path = path,
+                        id = i,
+                        openedPath = it,
+                        addSelectedFile = addSelectedFile,
+                        setMainPath = setMainPath,
+                        checkSelected = checkSelected,
+                        openInNewPage = ::openNewPage,
+                        removePage = ::removePage,
+                        files = files,
+                        goBack = ::goBack,
+                        goToPath = ::goToPath,
+                        refreshPage = ::refreshPage
+                    )
                 }
             }
         }
@@ -116,10 +143,11 @@ fun Body(
 }
 
 class GlobalShit {
-    var refreshDir: () -> Unit = {}
+    // refresh all dirs after moving/coping/deleting files
+    var refreshDirs: List<() -> Unit> = listOf()
     fun refreshDirAndSelectedFiles(selectedFiles: MutableSet<Path>, setBottomBarState: (Boolean) -> Unit) {
         selectedFiles.clear()
-        refreshDir()
+        refreshDirs.forEach{it()}
         setBottomBarState(false)
     }
 }
@@ -174,7 +202,6 @@ fun MainLayout() {
             println("Moving ${it.fileName} to ${newPath.pathString}")
         }
         globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
-
     }
 
     fun copySelectedFiles() {
@@ -211,7 +238,7 @@ fun MainLayout() {
         content = {
             Column {
                 pages.forEach {
-                    Body(::addSelectedFile, ::setMainPath, ::checkSelected, globalShit, path = it)
+                    Body(::addSelectedFile, ::setMainPath, ::checkSelected, globalShit)
                 }
             }
         },
