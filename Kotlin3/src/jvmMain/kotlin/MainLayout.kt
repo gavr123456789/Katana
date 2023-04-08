@@ -92,7 +92,7 @@ fun Body(
         ) {
 
             pages.forEachIndexed { i, it ->
-                val (path, setPath) = remember() { mutableStateOf(Path(it)) }
+                val (path, setPath) = remember(key1 = it) { mutableStateOf(Path(it)) }
                 var files: List<Path> by remember(key1 = it) { mutableStateOf(getFiles(Path(it))) }
 
                 fun goBack(newPath: Path) {
@@ -106,7 +106,6 @@ fun Body(
                 fun refreshPage() {
                     files = getFiles(Path(it))
                 }
-
 
 
                 Column(
