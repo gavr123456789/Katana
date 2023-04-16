@@ -1,4 +1,5 @@
 
+
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,49 +20,69 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.createDirectory
-import kotlin.io.path.createFile
-import kotlin.io.path.div
-import kotlin.io.path.pathString
+import java.nio.file.Paths
+import java.util.zip.ZipFile
+import kotlin.io.path.*
+
+
+
+
+// Future
+
+fun unzip(zipFileName: String) {
+    ZipFile(zipFileName).use { zip ->
+        zip.entries().asSequence().forEach { entry ->
+            zip.getInputStream(entry).use { input ->
+                File(entry.name).outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+        }
+    }
+}
+
+fun filterByName() {
+    Files.newDirectoryStream(Paths.get("."), "*.zip").forEach { path ->
+        val zipFileName = path.toString()
+        // any of the above approaches
+    }
+}
+
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalFoundationApi
 @Composable
 fun Page(
-    path: Path,
     openedPath: String,
     addSelectedFile: (Path) -> Boolean,
     setMainPath: (Path) -> Unit,
     checkSelected: (Path) -> Boolean,
     openInNewPage: (String) -> Unit,
     removePage: (Int) -> Unit,
-    goBack: (Path) -> Unit,
-    goToPath: (Path) -> Unit,
-    files: List<Path>,
-    refreshPage: () -> Unit,
     id: Int,
+    globalShit: GlobalShit
 ) {
 
-    // пейдж не ререндерится изза того что все зависит от файлов, но не от пути, можно избавится от файлов как переменной
+    val (path, setPath) = remember(key1 = openedPath) { mutableStateOf(Path(openedPath)) }
+    var items: List<Path> by remember(key1 = openedPath) { mutableStateOf(getItems(Path(openedPath))) }
 
-//    val (path, setPath) = remember() { mutableStateOf(Path(openedPath)) }
-//    var files: List<Path> by remember(key1 = path) { mutableStateOf(getFiles(path)) }
-//
-//    fun goBack() {
-//        val parent = path.parent
-//        val parentString = parent.pathString
-//        println("path = $path parentString = $parentString")
-//        setPath(parent)
-//        files = getFiles(parent)
-//    }
-//    fun goToPath(path: Path) {
-//        setPath(path)
-//        files = getFiles(path)
-//    }
-//    fun refreshPage() {
-//        files = getFiles(path)
-//    }
+    fun goBack(newPath: Path) {
+        setPath(newPath)
+        items = getItems(newPath)
+        setMainPath(newPath)
+    }
+    fun goToPath(path: Path) {
+        setPath(path)
+        items = getItems(path)
+        setMainPath(path)
+    }
+    fun refreshPage() {
+        items = getItems(path)
+    }
+    globalShit.refreshDir = ::refreshPage
 
 
     fun createFolderHere() {
@@ -78,7 +99,7 @@ fun Page(
 
 
     Column(modifier = Modifier.width(280.dp).fillMaxHeight()) {
-        expandedAll = TopMenu(path, expandedAll, goBack, {removePage(id)})
+        expandedAll = TopMenu(path, expandedAll, ::goBack, {removePage(id)})
         ContextMenuArea(
             items = {
                 listOf(
@@ -119,15 +140,29 @@ fun Page(
                 ) {
 
 
-                    items(files.size) { x ->
+                    items(items.size) { x ->
 
-                        val file = files[x]
+                        val file = items[x]
 
-                        var isSelected by remember(key1 = files[x].pathString) { mutableStateOf(checkSelected(files[x])) }
+                        var isSelected by remember(key1 = items[x].pathString) { mutableStateOf(checkSelected(items[x])) }
                         val setSelected: (Boolean) -> Unit = {
                             isSelected = it
                         }
-                        var isExtended: Boolean by remember(key1 = files[x].pathString) {
+
+
+                        var previousSelectedFile: Path? = remember { null }
+                        var lastSelectedFile: Path? = remember { null }
+                        fun setSelectedMany(selected: Path) {
+                            if (previousSelectedFile == null) {
+                                previousSelectedFile = selected
+                            } else {
+                                lastSelectedFile = selected
+//                                selectMany(from = previousSelectedFile, to = lastSelectedFile)
+                            }
+                        }
+
+                        
+                        var isExtended: Boolean by remember(key1 = items[x].pathString) {
                             mutableStateOf(
                                 extendedItems.contains(
                                     file
@@ -146,7 +181,7 @@ fun Page(
 
                         FileRow3(
                             fileName = "${file.fileName}",
-                            goToPath = goToPath,
+                            goToPath = ::goToPath,
                             fileItem = file,
                             addSelectedFile = addSelectedFile,
                             isSelected = isSelected,

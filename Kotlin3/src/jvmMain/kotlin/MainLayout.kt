@@ -44,7 +44,6 @@ enum class ViewType {
     Pictures
 }
 
-data class Page(val x: String)
 
 @OptIn(ExperimentalFoundationApi::class, DelicateCoroutinesApi::class)
 @Composable
@@ -55,24 +54,15 @@ fun Body(
     globalShit: GlobalShit,
 ) {
     val stateHorizontal = rememberScrollState(0)
-
-//    var viewType: ViewType by remember {mutableStateOf (ViewType.Files)}
-
-//    val (pages, setPages) = remember { mutableStateListOf(Path(DEFAULT_PATH).toRealPath().pathString) }
-
-    var pages: MutableList<String> by remember { mutableStateOf(mutableStateListOf(Path(DEFAULT_PATH).toRealPath().pathString)) }
+    val pages: MutableList<String> by remember { mutableStateOf(mutableStateListOf(Path(DEFAULT_PATH).toRealPath().pathString)) }
     val scope = rememberCoroutineScope()
-
-    fun setNewPages(newPages: MutableList<String>) {
-        pages = newPages
-    }
 
     fun openNewPage(newPagePath: String) {
         pages.add(newPagePath)
 
         scope.launch() {
             delay(100)
-            stateHorizontal.animateScrollTo(stateHorizontal.maxValue)
+            stateHorizontal.animateScrollTo(stateHorizontal.maxValue - 5)
         }
     }
 
@@ -92,20 +82,7 @@ fun Body(
         ) {
 
             pages.forEachIndexed { i, it ->
-                val (path, setPath) = remember(key1 = it) { mutableStateOf(Path(it)) }
-                var files: List<Path> by remember(key1 = it) { mutableStateOf(getFiles(Path(it))) }
 
-                fun goBack(newPath: Path) {
-                    setPath(newPath)
-                    files = getFiles(newPath)
-                }
-                fun goToPath(path: Path) {
-                    setPath(path)
-                    files = getFiles(path)
-                }
-                fun refreshPage() {
-                    files = getFiles(Path(it))
-                }
 
 
                 Column(
@@ -114,7 +91,7 @@ fun Body(
                     modifier = Modifier.background(Color.White)
                 ) {
                     Page(
-                        path = path,
+//                        path = path,
                         id = i,
                         openedPath = it,
                         addSelectedFile = addSelectedFile,
@@ -122,10 +99,11 @@ fun Body(
                         checkSelected = checkSelected,
                         openInNewPage = ::openNewPage,
                         removePage = ::removePage,
-                        files = files,
-                        goBack = ::goBack,
-                        goToPath = ::goToPath,
-                        refreshPage = ::refreshPage
+                        globalShit = globalShit
+//                        files = files,
+//                        goBack = ::goBack,
+//                        goToPath = ::goToPath,
+//                        refreshPage = ::refreshPage
                     )
                 }
             }
@@ -144,9 +122,12 @@ fun Body(
 class GlobalShit {
     // refresh all dirs after moving/coping/deleting files
     var refreshDirs: List<() -> Unit> = listOf()
+    var refreshDir: () -> Unit = {}
+
     fun refreshDirAndSelectedFiles(selectedFiles: MutableSet<Path>, setBottomBarState: (Boolean) -> Unit) {
         selectedFiles.clear()
-        refreshDirs.forEach{it()}
+//        refreshDirs.forEach{it()}
+        refreshDir()
         setBottomBarState(false)
     }
 }

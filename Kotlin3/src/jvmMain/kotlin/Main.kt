@@ -47,6 +47,7 @@ fun main() = application {
                 it.key == Key.DirectionRight &&
                 it.type == KeyEventType.KeyUp
             ) {
+                println("pressed")
                 true
             } else {
                 false
