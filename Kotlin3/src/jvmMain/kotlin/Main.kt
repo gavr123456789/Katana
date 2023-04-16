@@ -1,4 +1,5 @@
 
+
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.LocalScrollbarStyle
 import androidx.compose.foundation.ScrollbarStyle
@@ -11,7 +12,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
+val json = Json { ignoreUnknownKeys = true }
 
 @Composable
 @Preview
@@ -35,8 +41,20 @@ fun App() {
     }
 }
 
+@Serializable
+data class Project(val name: String, val language: String)
+
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
+
+    val data = Project("kotlinx.serialization", "Kotlin")
+    val string = json.encodeToString(data)
+    println(string) // {"name":"kotlinx.serialization","language":"Kotlin"}
+    // Deserializing back into objects
+    val obj = json.decodeFromString<Project>(string)
+
+    println(obj) // Project(name=kotlinx.serialization, language=Kotlin)
+
     Window(
         onCloseRequest = ::exitApplication, state = WindowState(
             height = 400.dp, width = 310.dp,

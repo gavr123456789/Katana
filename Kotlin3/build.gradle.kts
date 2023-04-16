@@ -1,10 +1,16 @@
 
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
+val kotlin_version: String by project
+val json_version: String by project
+val desktop: String by project
+val coroutines: String by project
+
+
 plugins {
-    kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.3.0"
-//    kotlin("jvm") version "1.8.0"
+    kotlin("multiplatform") version "1.8.20"
+    id("org.jetbrains.compose") version "1.4.0"
+    kotlin("plugin.serialization") version "1.8.20"
 }
 
 group = "com.example"
@@ -29,15 +35,12 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
-//                implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
-//                implementation("org.jetbrains.compose.material3:material3-desktop:1.2.1")
                 implementation(compose.desktop.currentOs)
-//                implementation("io.github.androidpoet:dropdown:1.0.1")
-                implementation("org.jetbrains.compose.material:material-icons-extended-desktop:1.3.0")
+                implementation("org.jetbrains.compose.material:material-icons-extended-desktop:$desktop")
                 implementation(kotlin("stdlib-jdk8"))
-//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.0-Beta")
-//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-linuxx64:1.7.0-Beta")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutines")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$json_version")
+
             }
         }
         val jvmTest by getting
