@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.nio.file.Path
@@ -45,12 +44,12 @@ enum class ViewType {
 }
 
 
-@OptIn(ExperimentalFoundationApi::class, DelicateCoroutinesApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Body(
-    addSelectedFile: (Path) -> Boolean,
+    addSelectedFile: (String) -> Boolean,
     setMainPath: (Path) -> Unit,
-    checkSelected: (Path) -> Boolean,
+    checkSelected: (RealContent) -> Boolean,
     globalShit: GlobalShit,
 ) {
     val stateHorizontal = rememberScrollState(0)
@@ -82,16 +81,12 @@ fun Body(
         ) {
 
             pages.forEachIndexed { i, it ->
-
-
-
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.background(Color.White)
                 ) {
                     Page(
-//                        path = path,
                         id = i,
                         openedPath = it,
                         addSelectedFile = addSelectedFile,
@@ -100,10 +95,6 @@ fun Body(
                         openInNewPage = ::openNewPage,
                         removePage = ::removePage,
                         globalShit = globalShit
-//                        files = files,
-//                        goBack = ::goBack,
-//                        goToPath = ::goToPath,
-//                        refreshPage = ::refreshPage
                     )
                 }
             }
@@ -124,7 +115,7 @@ class GlobalShit {
     var refreshDirs: List<() -> Unit> = listOf()
     var refreshDir: () -> Unit = {}
 
-    fun refreshDirAndSelectedFiles(selectedFiles: MutableSet<Path>, setBottomBarState: (Boolean) -> Unit) {
+    fun refreshDirAndSelectedFiles(selectedFiles: MutableSet<String>, setBottomBarState: (Boolean) -> Unit) {
         selectedFiles.clear()
 //        refreshDirs.forEach{it()}
         refreshDir()
@@ -147,48 +138,53 @@ fun MainLayout() {
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
     val (expandedBar, setExpandedBar) = remember { mutableStateOf(false) }
 
-    val selectedFiles: MutableSet<Path> by rememberSaveable { mutableStateOf(mutableSetOf()) }
+    val selectedFiles: MutableSet<String> by rememberSaveable { mutableStateOf(mutableSetOf()) }
     var selectedFilesNames: String by rememberSaveable { mutableStateOf("") }
 
-    fun addSelectedFile(file: Path): Boolean {
+    fun addSelectedFile(file: String): Boolean {
         val result = if (selectedFiles.contains(file)) {
             selectedFiles.remove(file)
-            println("removed ${file.fileName}")
+            println("removed ${file}")
             false
         } else {
-            println("added ${file.fileName}")
+            println("added ${file}")
             selectedFiles.add(file)
             true
         }
-        selectedFilesNames = selectedFiles.joinToString(", ") { it.name }
+        selectedFilesNames = selectedFiles.joinToString(", ") { it }
         setExpandedBar(selectedFiles.size > 0)
         return result
     }
 
-    fun checkSelected(file: Path): Boolean = selectedFiles.contains(file)
+    fun checkSelected(file: RealContent): Boolean = when (file) {
+        is File -> selectedFiles.contains(file.getUniq())
+        is JsonObj -> TODO()
+    }
 
     fun deleteSelectedFiles() {
         selectedFiles.forEach {
-            it.deleteRecursively()
-            println("Deleting ${it.fileName} from ${mainPath.pathString}")
+            Path(it).deleteRecursively()
+            println("Deleting ${it} from ${mainPath.pathString}")
         }
         globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
     }
 
     fun moveSelectedFiles() {
         selectedFiles.forEach {
-            val newPath = Path(mainPath.pathString, it.name)
-            it.moveTo(newPath, true)
-            println("Moving ${it.fileName} to ${newPath.pathString}")
+            val path = Path(it)
+            val newPath = Path(mainPath.pathString, path.name)
+            path.moveTo(newPath, true)
+            println("Moving ${path.fileName} to ${newPath.pathString}")
         }
         globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
     }
 
     fun copySelectedFiles() {
         selectedFiles.forEach {
-            val newPath = Path(mainPath.pathString, it.name)
-            it.copyTo(newPath, true)
-            println("Moving ${it.fileName} to ${newPath.pathString}")
+            val path = Path(it)
+            val newPath = Path(mainPath.pathString, it)
+            path.copyTo(newPath, true)
+            println("Moving ${path.fileName} to ${newPath.pathString}")
         }
         globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
     }

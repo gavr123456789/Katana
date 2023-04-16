@@ -15,7 +15,7 @@ import androidx.compose.ui.window.application
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 
 val json = Json { ignoreUnknownKeys = true }
 
@@ -47,14 +47,32 @@ data class Project(val name: String, val language: String)
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
 
-    val data = Project("kotlinx.serialization", "Kotlin")
-    val string = json.encodeToString(data)
-    println(string) // {"name":"kotlinx.serialization","language":"Kotlin"}
-    // Deserializing back into objects
-    val obj = json.decodeFromString<Project>(string)
+//    val data = Project("kotlinx.serialization", "Kotlin")
+//    val string = json.encodeToString(data)
+//    println(string) // {"name":"kotlinx.serialization","language":"Kotlin"}
+//    // Deserializing back into objects
+//    val obj = json.decodeFromString<Project>(string)
+//
+//    println(obj) // Project(name=kotlinx.serialization, language=Kotlin)
 
-    println(obj) // Project(name=kotlinx.serialization, language=Kotlin)
+//    val element = Json.parseToJsonElement("""
+//        {"name":"kotlinx.serialization","language":"Kotlin"}
+//    """)
 
+
+//    when (element) {
+//        is JsonArray -> TODO()
+//        is JsonObject -> TODO()
+//        JsonNull -> TODO()
+//        else -> {
+//
+//        }
+//    }
+//    element.jsonObject.entries.forEach {
+//        println("${it.key} to ${it.value}")
+//    }
+
+    ////////////////////
     Window(
         onCloseRequest = ::exitApplication, state = WindowState(
             height = 400.dp, width = 310.dp,

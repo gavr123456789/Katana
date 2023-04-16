@@ -57,9 +57,9 @@ fun filterByName() {
 @Composable
 fun Page(
     openedPath: String,
-    addSelectedFile: (Path) -> Boolean,
+    addSelectedFile: (String) -> Boolean,
     setMainPath: (Path) -> Unit,
-    checkSelected: (Path) -> Boolean,
+    checkSelected: (RealContent) -> Boolean,
     openInNewPage: (String) -> Unit,
     removePage: (Int) -> Unit,
     id: Int,
@@ -67,20 +67,21 @@ fun Page(
 ) {
 
     val (path, setPath) = remember(key1 = openedPath) { mutableStateOf(Path(openedPath)) }
-    var items: List<Path> by remember(key1 = openedPath) { mutableStateOf(getItems(Path(openedPath))) }
+    val q = mutableStateOf(ItemType.File.getItems(Path(openedPath)))
+    var items: List<RealContent> by remember(key1 = openedPath) { q }
 
     fun goBack(newPath: Path) {
         setPath(newPath)
-        items = getItems(newPath)
+        items = ItemType.File.getItems(newPath)
         setMainPath(newPath)
     }
     fun goToPath(path: Path) {
         setPath(path)
-        items = getItems(path)
+        items = ItemType.File.getItems(path)
         setMainPath(path)
     }
     fun refreshPage() {
-        items = getItems(path)
+        items = ItemType.File.getItems(path)
     }
     globalShit.refreshDir = ::refreshPage
 
@@ -115,7 +116,7 @@ fun Page(
                 contentAlignment = Alignment.BottomCenter
             ) {
                 val stateVertical = rememberLazyListState(0)
-                val extendedItems: MutableSet<Path> by remember { mutableStateOf(mutableSetOf()) }
+                val extendedItems: MutableSet<RealContent> by remember { mutableStateOf(mutableSetOf()) }
                 val scope = rememberCoroutineScope()
 
 
@@ -142,31 +143,29 @@ fun Page(
 
                     items(items.size) { x ->
 
-                        val file = items[x]
+                        val file: RealContent = items[x]
 
-                        var isSelected by remember(key1 = items[x].pathString) { mutableStateOf(checkSelected(items[x])) }
+                        var isSelected by remember(key1 = items[x].getUniq()) { mutableStateOf(checkSelected(items[x])) }
                         val setSelected: (Boolean) -> Unit = {
                             isSelected = it
                         }
 
-
-                        var previousSelectedFile: Path? = remember { null }
-                        var lastSelectedFile: Path? = remember { null }
-                        fun setSelectedMany(selected: Path) {
-                            if (previousSelectedFile == null) {
-                                previousSelectedFile = selected
-                            } else {
-                                lastSelectedFile = selected
-//                                selectMany(from = previousSelectedFile, to = lastSelectedFile)
-                            }
-                        }
+                        // TODO select many
+//                        var previousSelectedFile: RealContent? = remember { null }
+//                        var lastSelectedFile: RealContent? = remember { null }
+//                        fun setSelectedMany(selected: RealContent) {
+//                            if (previousSelectedFile == null) {
+//                                previousSelectedFile = selected
+//                            } else {
+//                                lastSelectedFile = selected
+////                                selectMany(from = previousSelectedFile, to = lastSelectedFile)
+//                            }
+//                        }
 
                         
-                        var isExtended: Boolean by remember(key1 = items[x].pathString) {
+                        var isExtended: Boolean by remember(key1 = items[x].getUniq()) {
                             mutableStateOf(
-                                extendedItems.contains(
-                                    file
-                                )
+                                extendedItems.contains(file)
                             )
                         }
                         val setExtended: (Boolean) -> Unit = {
@@ -180,9 +179,9 @@ fun Page(
 
 
                         FileRow3(
-                            fileName = "${file.fileName}",
+                            fileName = file.name,
                             goToPath = ::goToPath,
-                            fileItem = file,
+                            item = file,
                             addSelectedFile = addSelectedFile,
                             isSelected = isSelected,
                             setSelected = setSelected,

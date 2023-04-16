@@ -55,8 +55,8 @@ private fun getFileInfo(fileItem: Path): FileType {
 fun FileRow3(
     fileName: String,
     goToPath: (Path) -> Unit,
-    fileItem: Path,
-    addSelectedFile: (Path) -> Boolean,
+    item: RealContent,
+    addSelectedFile: (String) -> Boolean,
     isSelected: Boolean,
     setSelected: (Boolean) -> Unit,
     isExtended: Boolean,
@@ -70,6 +70,10 @@ fun FileRow3(
     val textColor =
         if (isSelected) Color.White else Color.Unspecified //by remember { mutableStateOf(textDefaultColor) }
 
+    if (item !is File) {
+        throw Error("TODO")
+    }
+    val path = item.path
 
     Card(
         elevation = 10.dp,
@@ -83,8 +87,8 @@ fun FileRow3(
             }
         }
     ) {
-        val pathString = fileItem.toRealPath().toString()
-        val fileType = getFileInfo(fileItem)
+        val pathString = path.toRealPath().toString()
+        val fileType = getFileInfo(path)
 
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -103,14 +107,14 @@ fun FileRow3(
                         if (fileName.endsWith(".svg")) {
                             val density = LocalDensity.current
                             AsyncImage(
-                                load = { loadSvgPainter(fileItem.toFile(), density) },
+                                load = { loadSvgPainter(path.toFile(), density) },
                                 painterFor = { it },
                                 modifier = Modifier.height(30.dp),
                                 contentScale = ContentScale.FillWidth
                             )
                         } else {
                             AsyncImage(
-                                load = { imageFromFile(fileItem.toFile()) },
+                                load = { imageFromFile(path.toFile()) },
                                 painterFor = { remember { BitmapPainter(it) } },
                                 modifier = Modifier.height(30.dp),
                                 contentScale = ContentScale.FillWidth
@@ -129,7 +133,7 @@ fun FileRow3(
                     .weight(8f)
                     .combinedClickable(
                         onClick = {
-                            val wasSelected = addSelectedFile(fileItem)
+                            val wasSelected = addSelectedFile(path.pathString)
                             setSelected(wasSelected)
                         },
                         onDoubleClick = {
@@ -185,13 +189,13 @@ fun FileRow3(
                     .fillMaxHeight()
                     .weight(2f)
                     .onClick(matcher = PointerMatcher.mouse(PointerButton.Secondary)) {
-                        openInNewPage(fileItem.pathString)
+                        openInNewPage(path.pathString)
                     }
                     .clickable {
                         if (fileType == FileType.Directory) {
-                            goToPath(fileItem)
+                            goToPath(path)
                         } else {
-                            Desktop.getDesktop().open(fileItem.toFile())
+                            Desktop.getDesktop().open(path.toFile())
                         }
                     }
             ) {
