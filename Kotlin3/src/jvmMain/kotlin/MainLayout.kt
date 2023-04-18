@@ -91,7 +91,6 @@ fun Body(
                     modifier = Modifier.background(Color.White)
                 ) {
                     Page(
-//                        path = path,
                         id = i,
                         openedPath = it,
                         addSelectedFile = addSelectedFile,
@@ -100,10 +99,6 @@ fun Body(
                         openInNewPage = ::openNewPage,
                         removePage = ::removePage,
                         globalShit = globalShit
-//                        files = files,
-//                        goBack = ::goBack,
-//                        goToPath = ::goToPath,
-//                        refreshPage = ::refreshPage
                     )
                 }
             }
@@ -121,7 +116,7 @@ fun Body(
 
 class GlobalShit {
     // refresh all dirs after moving/coping/deleting files
-    var refreshDirs: List<() -> Unit> = listOf()
+//    var refreshDirs: List<() -> Unit> = listOf()
     var refreshDir: () -> Unit = {}
 
     fun refreshDirAndSelectedFiles(selectedFiles: MutableSet<Path>, setBottomBarState: (Boolean) -> Unit) {

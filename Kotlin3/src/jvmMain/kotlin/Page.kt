@@ -1,5 +1,4 @@
 
-
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -161,7 +160,7 @@ fun Page(
                             }
                         }
 
-                        
+
                         var isExtended: Boolean by remember(key1 = items[x].pathString) {
                             mutableStateOf(
                                 extendedItems.contains(
@@ -189,6 +188,7 @@ fun Page(
                             isExtended = expandedAll || isExtended,
                             setExtended = setExtended,
                             openInNewPage = openInNewPage,
+                            refreshCurrentDir = ::refreshPage
                         )
                         Spacer(modifier = Modifier.height(5.dp))
                     }
