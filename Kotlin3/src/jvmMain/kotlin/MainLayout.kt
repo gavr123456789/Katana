@@ -112,7 +112,7 @@ fun Body(
 
 class GlobalShit {
     // refresh all dirs after moving/coping/deleting files
-    var refreshDirs: List<() -> Unit> = listOf()
+//    var refreshDirs: List<() -> Unit> = listOf()
     var refreshDir: () -> Unit = {}
 
     fun refreshDirAndSelectedFiles(selectedFiles: MutableSet<String>, setBottomBarState: (Boolean) -> Unit) {
@@ -157,7 +157,7 @@ fun MainLayout() {
     }
 
     fun checkSelected(file: RealContent): Boolean = when (file) {
-        is File -> selectedFiles.contains(file.getUniq())
+        is FileObj -> selectedFiles.contains(file.getUniq())
         is JsonObj -> TODO()
     }
 

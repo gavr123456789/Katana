@@ -1,5 +1,4 @@
 
-
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPosition.PlatformDefault.x
 import kotlinx.coroutines.launch
 import java.io.File
 import java.nio.file.Files
@@ -162,7 +162,12 @@ fun Page(
 //                            }
 //                        }
 
-                        
+//                                lastSelectedFile = selected
+//                                selectMany(from = previousSelectedFile, to = lastSelectedFile)
+//                            }
+//                        }
+
+
                         var isExtended: Boolean by remember(key1 = items[x].getUniq()) {
                             mutableStateOf(
                                 extendedItems.contains(file)
@@ -188,6 +193,7 @@ fun Page(
                             isExtended = expandedAll || isExtended,
                             setExtended = setExtended,
                             openInNewPage = openInNewPage,
+                            refreshCurrentDir = ::refreshPage
                         )
                         Spacer(modifier = Modifier.height(5.dp))
                     }

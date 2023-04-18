@@ -8,12 +8,12 @@ enum class ItemType {
 }
 
 sealed class RealContent(val name: String)
-class File(name: String, val path: Path) : RealContent(name)
+class FileObj(name: String, val path: Path) : RealContent(name)
 class JsonObj(name: String, val json: JsonElement) : RealContent(name)
 
 fun RealContent.getUniq(): String =
     when (this) {
-        is File -> this.path.pathString
+        is FileObj -> this.path.pathString
         is JsonObj -> this.name
     }
 
@@ -25,11 +25,11 @@ fun ItemType.getItems(path: Path): List<RealContent> =
     }
 
 
-fun getFiles(path: Path): List<File> {
+fun getFiles(path: Path): List<FileObj> {
     if (!path.exists()) {
         return listOf()
     }
     return path.listDirectoryEntries()
         .sortedBy { !it.isDirectory() }
-        .map { File(name = it.name, path = it) }
+        .map { FileObj(name = it.name, path = it) }
 }

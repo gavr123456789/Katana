@@ -5,13 +5,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.TextSnippet
 import androidx.compose.material.icons.rounded.ArrowForwardIos
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -27,6 +27,8 @@ import experiments.AsyncImage
 import experiments.imageFromFile
 import experiments.loadSvgPainter
 import java.awt.Desktop
+import java.io.File
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isDirectory
@@ -36,6 +38,28 @@ private enum class FileType {
     Directory,
     Unknown,
     Image
+}
+
+// TODO show error toast if file already exists
+@Throws(NoSuchFileException::class, FileAlreadyExistsException::class)
+fun Path.renameTo(newName: String) {
+    try {
+        val src = this.toFile()
+
+        val dest = File(this.parent.pathString, newName)
+        println("!!! ${dest.path}")
+        if (dest.exists()) {
+            throw java.nio.file.FileAlreadyExistsException("Destination file already exist")
+        }
+        val success = src.renameTo(dest)
+        if (success) {
+            println("Renaming succeeded")
+        } else {
+            println("ALL BAD")
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
 }
 
 private fun getFileInfo(fileItem: Path): FileType {
@@ -62,18 +86,25 @@ fun FileRow3(
     isExtended: Boolean,
     setExtended: (Boolean) -> Unit,
     openInNewPage: (String) -> Unit,
+    refreshCurrentDir: () -> Unit
 ) {
     val surfaceColor = MaterialTheme.colors.surface
-    val selectedColor = Color(68, 180, 58)
-    val middleColor = if (isSelected) selectedColor else surfaceColor
+    val green = Color(68, 180, 58)
+    val selectedColor = if (isSelected) green else surfaceColor
 
     val textColor =
         if (isSelected) Color.White else Color.Unspecified //by remember { mutableStateOf(textDefaultColor) }
 
-    if (item !is File) {
+
+    if (item !is FileObj) {
         throw Error("TODO")
     }
+
+    var isRenaming by remember { mutableStateOf(false) }
+    var fileName2 by remember(key1 = item.getUniq()) { mutableStateOf(fileName) }
+
     val path = item.path
+
 
     Card(
         elevation = 10.dp,
@@ -87,7 +118,6 @@ fun FileRow3(
             }
         }
     ) {
-        val pathString = path.toRealPath().toString()
         val fileType = getFileInfo(path)
 
         Row(
@@ -104,22 +134,7 @@ fun FileRow3(
                     FileType.Directory -> Icon(Icons.Outlined.Folder, "")
                     FileType.Unknown -> Icon(Icons.Outlined.TextSnippet, "")
                     FileType.Image -> {
-                        if (fileName.endsWith(".svg")) {
-                            val density = LocalDensity.current
-                            AsyncImage(
-                                load = { loadSvgPainter(path.toFile(), density) },
-                                painterFor = { it },
-                                modifier = Modifier.height(30.dp),
-                                contentScale = ContentScale.FillWidth
-                            )
-                        } else {
-                            AsyncImage(
-                                load = { imageFromFile(path.toFile()) },
-                                painterFor = { remember { BitmapPainter(it) } },
-                                modifier = Modifier.height(30.dp),
-                                contentScale = ContentScale.FillWidth
-                            )
-                        }
+                        AsyncImageSvgOrElse(fileName, path)
                     }
                 }
             }
@@ -134,11 +149,16 @@ fun FileRow3(
                     .combinedClickable(
                         onClick = {
                             val wasSelected = addSelectedFile(path.pathString)
-                            setSelected(wasSelected)
+                            if (!isRenaming)
+                                setSelected(wasSelected)
                         },
                         onDoubleClick = {
                             setExtended(!isExtended)
                         },
+                        onLongClick = {
+                            setExtended(!isExtended)
+                            isRenaming = !isRenaming
+                        }
                     )
             ) {
                 AnimatedContent(
@@ -162,17 +182,46 @@ fun FileRow3(
                     }
                 ) { targetExpanded ->
                     if (targetExpanded) {
-                        Text(
-                            fileName, modifier = Modifier
-                                .background(middleColor)
-                                .padding(7.dp),
-                            fontSize = TextUnit(14f, TextUnitType.Sp),
-                            color = textColor
-                        )
+                        if (isRenaming) {
+                            BasicTextField(
+                                modifier = Modifier.padding(7.dp).onKeyEvent {
+                                    if (
+                                        it.type == KeyEventType.KeyUp &&
+                                        it.key == Key.Enter
+//                                        && it.type == KeyEventType.KeyDown
+                                    ) {
+                                        path.renameTo(fileName2)
+                                        refreshCurrentDir()
+                                        println("renaming to $fileName2")
+                                        isRenaming = false
+                                        setExtended(false)
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                },
+                                value = fileName2,
+                                onValueChange = { newText ->
+                                    println(newText.contains("\n"))
+                                    if (!newText.contains("\n"))
+                                        fileName2 = newText
+                                }
+                            )
+                        } else {
+                            Text(
+                                fileName2, modifier = Modifier
+                                    .background(selectedColor)
+                                    .padding(7.dp),
+                                fontSize = TextUnit(14f, TextUnitType.Sp),
+                                color = textColor
+                            )
+                        }
+
+
                     } else {
                         Text(
-                            fileName, modifier = Modifier
-                                .background(middleColor)
+                            fileName2, modifier = Modifier
+                                .background(selectedColor)
                                 .height(30.dp)
                                 .padding(7.dp),
                             maxLines = 1,
@@ -192,16 +241,39 @@ fun FileRow3(
                         openInNewPage(path.pathString)
                     }
                     .clickable {
-                        if (fileType == FileType.Directory) {
-                            goToPath(path)
-                        } else {
-                            Desktop.getDesktop().open(path.toFile())
+                        when (fileType) {
+                            FileType.Directory -> {
+                                goToPath(path)
+                            }
+                            else -> {
+                                Desktop.getDesktop().open(path.toFile())
+                            }
                         }
                     }
             ) {
                 Icon(Icons.Rounded.ArrowForwardIos, null, modifier = Modifier.size(30.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun AsyncImageSvgOrElse(fileName: String, fileItem: Path) {
+    if (fileName.endsWith(".svg")) {
+        val density = LocalDensity.current
+        AsyncImage(
+            load = { loadSvgPainter(fileItem.toFile(), density) },
+            painterFor = { it },
+            modifier = Modifier.height(30.dp),
+            contentScale = ContentScale.FillWidth
+        )
+    } else {
+        AsyncImage(
+            load = { imageFromFile(fileItem.toFile()) },
+            painterFor = { remember { BitmapPainter(it) } },
+            modifier = Modifier.height(30.dp),
+            contentScale = ContentScale.FillWidth
+        )
     }
 }
 
