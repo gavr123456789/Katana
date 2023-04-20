@@ -23,13 +23,11 @@ repositories {
 }
 
 
-
 kotlin {
     jvm {
         compilations.all {
             kotlinOptions.jvmTarget = "17"
         }
-//        withJava()
     }
     sourceSets {
 
@@ -45,14 +43,13 @@ kotlin {
         }
         val jvmTest by getting
     }
-    jvmToolchain(11)
 }
 
 compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.AppImage)
             packageName = "demo"
             packageVersion = "1.0.0"
         }

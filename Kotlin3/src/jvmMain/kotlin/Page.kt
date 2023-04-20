@@ -1,4 +1,4 @@
-
+import Utils.mso
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Close
@@ -15,19 +16,24 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultShadowColor
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.WindowPosition.PlatformDefault.x
 import kotlinx.coroutines.launch
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.zip.ZipFile
-import kotlin.io.path.*
-
-
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectory
+import kotlin.io.path.createFile
+import kotlin.io.path.div
 
 
 // Future
@@ -58,28 +64,30 @@ fun filterByName() {
 fun Page(
     openedPath: String,
     addSelectedFile: (String) -> Boolean,
-    setMainPath: (Path) -> Unit,
+    setSelectedPageId: (Int) -> Unit,
     checkSelected: (RealContent) -> Boolean,
     openInNewPage: (String) -> Unit,
     removePage: (Int) -> Unit,
     id: Int,
-    globalShit: GlobalShit
+    globalShit: GlobalShit,
+    isThisPageSelected: Boolean
 ) {
 
-    val (path, setPath) = remember(key1 = openedPath) { mutableStateOf(Path(openedPath)) }
-    val q = mutableStateOf(ItemType.File.getItems(Path(openedPath)))
-    var items: List<RealContent> by remember(key1 = openedPath) { q }
+    val (path, setPath) = remember(key1 = openedPath) { mso(Path(openedPath)) }
+    var items: List<RealContent> by remember(key1 = openedPath) { mso(ItemType.File.getItems(path)) }
 
-    fun goBack(newPath: Path) {
-        setPath(newPath)
-        items = ItemType.File.getItems(newPath)
-        setMainPath(newPath)
-    }
+//    fun goBack(path: Path) {
+//        setPath(path)
+//        items = ItemType.File.getItems(path)
+//        setSelectedPageId(id)
+//    }
+
     fun goToPath(path: Path) {
         setPath(path)
         items = ItemType.File.getItems(path)
-        setMainPath(path)
+        setSelectedPageId(id)
     }
+
     fun refreshPage() {
         items = ItemType.File.getItems(path)
     }
@@ -96,11 +104,11 @@ fun Page(
         refreshPage()
     }
 
-    var expandedAll by remember { mutableStateOf(false) }
+    var expandedAll by remember { mso(false) }
 
 
     Column(modifier = Modifier.width(280.dp).fillMaxHeight()) {
-        expandedAll = TopMenu(path, expandedAll, ::goBack, {removePage(id)})
+        expandedAll = TopMenu(path, expandedAll, ::goToPath, { removePage(id) }, isThisPageSelected, setSelectedPageId, id)
         ContextMenuArea(
             items = {
                 listOf(
@@ -113,10 +121,11 @@ fun Page(
                 modifier = Modifier
                     .width(300.dp)
                     .padding(10.dp, 0.dp, 10.dp, 10.dp),
-                contentAlignment = Alignment.BottomCenter
-            ) {
+                contentAlignment = Alignment.BottomCenter,
+
+                ) {
                 val stateVertical = rememberLazyListState(0)
-                val extendedItems: MutableSet<RealContent> by remember { mutableStateOf(mutableSetOf()) }
+                val extendedItems: MutableSet<RealContent> by remember { mso(mutableSetOf()) }
                 val scope = rememberCoroutineScope()
 
 
@@ -139,7 +148,6 @@ fun Page(
                         },
                     state = stateVertical
                 ) {
-
 
                     items(items.size) { x ->
 
@@ -182,6 +190,7 @@ fun Page(
                             }
                         }
 
+                        Spacer(modifier = Modifier.height(3.dp))
 
                         FileRow3(
                             fileName = file.name,
@@ -195,7 +204,7 @@ fun Page(
                             openInNewPage = openInNewPage,
                             refreshCurrentDir = ::refreshPage
                         )
-                        Spacer(modifier = Modifier.height(5.dp))
+                        Spacer(modifier = Modifier.height(2.dp))
                     }
                 }
 
@@ -212,8 +221,17 @@ fun Page(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun TopMenu(path: Path, expandedAll: Boolean, goBack: (Path) -> Unit, removePage: () -> Unit): Boolean {
+private fun TopMenu(
+    path: Path,
+    expandedAll: Boolean,
+    goBack: (Path) -> Unit,
+    removePage: () -> Unit,
+    isThisPageSelected: Boolean,
+    setSelectedPageId: (Int) -> Unit,
+    pageId: Int
+): Boolean {
     var expandedAll1 = expandedAll
     Card(
         elevation = 10.dp,
@@ -222,6 +240,15 @@ private fun TopMenu(path: Path, expandedAll: Boolean, goBack: (Path) -> Unit, re
             .padding(10.dp)
             .height(30.dp)
             .padding(end = 12.dp)
+            .shadow(
+//                ambientColor = if (isThisPageSelected) Color.Blue else DefaultShadowColor,
+                spotColor = if (isThisPageSelected) Color.Blue else DefaultShadowColor,
+                elevation = if (isThisPageSelected) 18.dp else 10.dp,
+                shape = MaterialTheme.shapes.medium
+            )
+            .onClick(matcher = PointerMatcher.mouse(PointerButton.Secondary)) {
+                setSelectedPageId(pageId)
+            }
     )
     {
 
@@ -231,7 +258,6 @@ private fun TopMenu(path: Path, expandedAll: Boolean, goBack: (Path) -> Unit, re
                 modifier = Modifier.weight(1f).fillMaxSize()
                     .clickable {
                         goBack(path.parent ?: path)
-//                        setPath(path.parent ?: path)
                     })
             {
                 Icon(Icons.Default.ArrowBackIosNew, "back")
@@ -239,7 +265,7 @@ private fun TopMenu(path: Path, expandedAll: Boolean, goBack: (Path) -> Unit, re
             Card(
                 shape = RoundedCornerShape(0),
                 modifier = Modifier.weight(1f).fillMaxSize()
-                    .clickable {
+                    .clickable(role = Role.Checkbox) {
                         expandedAll1 = !expandedAll1
                     })
             {

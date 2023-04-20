@@ -1,4 +1,5 @@
 
+import Utils.mso
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -48,13 +49,15 @@ enum class ViewType {
 @Composable
 fun Body(
     addSelectedFile: (String) -> Boolean,
-    setMainPath: (Path) -> Unit,
+    setSelectedPageId: (Int) -> Unit,
     checkSelected: (RealContent) -> Boolean,
     globalShit: GlobalShit,
+    selectedPageIndex: Int
 ) {
     val stateHorizontal = rememberScrollState(0)
-    val pages: MutableList<String> by remember { mutableStateOf(mutableStateListOf(Path(DEFAULT_PATH).toRealPath().pathString)) }
+    val pages: MutableList<String> by remember { mso(mutableStateListOf(Path(DEFAULT_PATH).toRealPath().pathString)) }
     val scope = rememberCoroutineScope()
+
 
     fun openNewPage(newPagePath: String) {
         pages.add(newPagePath)
@@ -90,11 +93,12 @@ fun Body(
                         id = i,
                         openedPath = it,
                         addSelectedFile = addSelectedFile,
-                        setMainPath = setMainPath,
+                        setSelectedPageId = setSelectedPageId,
                         checkSelected = checkSelected,
                         openInNewPage = ::openNewPage,
                         removePage = ::removePage,
-                        globalShit = globalShit
+                        globalShit = globalShit,
+                        isThisPageSelected = selectedPageIndex == i
                     )
                 }
             }
@@ -129,10 +133,11 @@ fun MainLayout() {
     val globalShit = GlobalShit()
 
     // If there are many pages, only one of them can be selected
-    var mainPath: Path by rememberSaveable { mutableStateOf(Path(DEFAULT_PATH)) }
-    val pages: MutableList<Path> by rememberSaveable { mutableStateOf(mutableListOf(mainPath)) }
-    fun setMainPath(newMainPath: Path) {
-        mainPath = newMainPath
+    var selectedPageId: Int by rememberSaveable { mutableStateOf(0) }
+    val pages: MutableList<Path> by rememberSaveable { mutableStateOf(mutableListOf(Path(DEFAULT_PATH))) }
+    fun setSelectedPageId(newSelectedPage: Int) {
+        println("new selected page: $newSelectedPage, old: $selectedPageId")
+        selectedPageId = newSelectedPage
     }
 
     val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
@@ -144,10 +149,10 @@ fun MainLayout() {
     fun addSelectedFile(file: String): Boolean {
         val result = if (selectedFiles.contains(file)) {
             selectedFiles.remove(file)
-            println("removed ${file}")
+            println("removed $file")
             false
         } else {
-            println("added ${file}")
+            println("added $file")
             selectedFiles.add(file)
             true
         }
@@ -164,7 +169,7 @@ fun MainLayout() {
     fun deleteSelectedFiles() {
         selectedFiles.forEach {
             Path(it).deleteRecursively()
-            println("Deleting ${it} from ${mainPath.pathString}")
+            println("Deleting $it")
         }
         globalShit.refreshDirAndSelectedFiles(selectedFiles, setExpandedBar)
     }
@@ -172,7 +177,7 @@ fun MainLayout() {
     fun moveSelectedFiles() {
         selectedFiles.forEach {
             val path = Path(it)
-            val newPath = Path(mainPath.pathString, path.name)
+            val newPath = Path(pages[selectedPageId].pathString, path.name)
             path.moveTo(newPath, true)
             println("Moving ${path.fileName} to ${newPath.pathString}")
         }
@@ -182,7 +187,7 @@ fun MainLayout() {
     fun copySelectedFiles() {
         selectedFiles.forEach {
             val path = Path(it)
-            val newPath = Path(mainPath.pathString, it)
+            val newPath = Path(pages[selectedPageId].pathString, it)
             path.copyTo(newPath, true)
             println("Moving ${path.fileName} to ${newPath.pathString}")
         }
@@ -214,7 +219,7 @@ fun MainLayout() {
         content = {
             Column {
                 pages.forEach {
-                    Body(::addSelectedFile, ::setMainPath, ::checkSelected, globalShit)
+                    Body(::addSelectedFile, ::setSelectedPageId, ::checkSelected, globalShit, selectedPageId)
                 }
             }
         },

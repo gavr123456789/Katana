@@ -1,7 +1,7 @@
 
+import Utils.AsyncImageSvgOrElse
+import Utils.contentTransform
 import androidx.compose.animation.*
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,16 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerButton
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
-import experiments.AsyncImage
-import experiments.imageFromFile
-import experiments.loadSvgPainter
 import java.awt.Desktop
 import java.io.File
 import java.io.IOException
@@ -164,21 +158,7 @@ fun FileRow3(
                 AnimatedContent(
                     targetState = isExtended,
                     transitionSpec = {
-                        fadeIn(animationSpec = tween(150, 150)) with
-                                fadeOut(animationSpec = tween(150)) using
-                                SizeTransform { initialSize, targetSize ->
-                                    if (targetState) {
-                                        keyframes {
-                                            IntSize(targetSize.width, initialSize.height) at 150
-                                            durationMillis = 300
-                                        }
-                                    } else {
-                                        keyframes {
-                                            IntSize(initialSize.width, targetSize.height) at 150
-                                            durationMillis = 300
-                                        }
-                                    }
-                                }
+                        contentTransform()
                     }
                 ) { targetExpanded ->
                     if (targetExpanded) {
@@ -254,26 +234,6 @@ fun FileRow3(
                 Icon(Icons.Rounded.ArrowForwardIos, null, modifier = Modifier.size(30.dp))
             }
         }
-    }
-}
-
-@Composable
-private fun AsyncImageSvgOrElse(fileName: String, fileItem: Path) {
-    if (fileName.endsWith(".svg")) {
-        val density = LocalDensity.current
-        AsyncImage(
-            load = { loadSvgPainter(fileItem.toFile(), density) },
-            painterFor = { it },
-            modifier = Modifier.height(30.dp),
-            contentScale = ContentScale.FillWidth
-        )
-    } else {
-        AsyncImage(
-            load = { imageFromFile(fileItem.toFile()) },
-            painterFor = { remember { BitmapPainter(it) } },
-            modifier = Modifier.height(30.dp),
-            contentScale = ContentScale.FillWidth
-        )
     }
 }
 
